@@ -1,0 +1,17 @@
+{
+  "baseDbUrl": "JDBC:mysql://106.13.4.251:3306/tst?useUnicode=true&characterEncoding=UTF-8&useSSL=false",
+  "baseDbUsername": "root",
+  "baseDbPassword": "29911062",
+  "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",
+  "useLombok": true,
+  "buildConfigList": [
+    {
+      "entityFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\java\\com\\llt\\aexp\\model\\entity",
+      "mapperFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\java\\com\\llt\\aexp\\mapper",
+      "xmlFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\resources\\mybatis-mappers",
+      "dbUrl":"",
+      "dbUsername":"",
+      "dbPassword":""
+    }
+  ]
+}
