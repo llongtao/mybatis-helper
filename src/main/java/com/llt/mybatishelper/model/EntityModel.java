@@ -10,6 +10,10 @@ public class EntityModel {
 
     private String packageName;
 
+    private String mapperClassName;
+
+    private String entityClassName;
+
     private String tableName;
 
     private String description;
