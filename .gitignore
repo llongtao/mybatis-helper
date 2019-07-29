@@ -1,17 +1,9 @@
-/target/
-!.mvn/wrapper/maven-wrapper.jar
+# Created by .ignore support plugin (hsz.mobi)
+### Example user template template
+### Example user template
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
+# IntelliJ project files
 .idea
-*.iws
 *.iml
-*.ipr
+out
+gen
