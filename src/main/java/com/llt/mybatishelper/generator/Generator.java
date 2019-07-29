@@ -13,12 +13,12 @@ import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.internal.DefaultShellCallback;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Generator {
-    public static void main(String[] args) throws InvalidConfigurationException, InterruptedException, SQLException, IOException {
+    public static void main(String[] args)  {
 //        List<String> warnings = new ArrayList<String>();
 //        Configuration config = new Configuration();
 //        DefaultShellCallback callback = new DefaultShellCallback(false);
