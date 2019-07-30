@@ -27,10 +27,10 @@ public class StringUtils {
         char[] chars = str.toCharArray();
         int length = chars.length;
         StringBuilder sb = new StringBuilder();
-        sb.append((chars[0]+"").toLowerCase());
+        sb.append((chars[0] + "").toLowerCase());
         for (int i = 1; i < length; i++) {
             if (chars[i] >= 'A' && chars[i] <= 'Z') {
-                sb.append("_").append((char)(chars[i] + 32));
+                sb.append("_").append((char) (chars[i] + 32));
             } else {
                 sb.append(chars[i]);
             }
@@ -39,6 +39,11 @@ public class StringUtils {
     }
 
     public static void main(String[] args) {
+
+        System.out.println("123\\456\\789".replace("\\", "."));
+
+        System.out.println(getStringByDot("com.llt.aa.", 2));
+
         String s = transformUnderline("aEntityField");
         System.out.println(s);
         System.out.println(getValue(".主键", "/**\n" +
@@ -46,5 +51,52 @@ public class StringUtils {
                 " */\n" +
                 "@Id\n" +
                 "private Long id;"));
+    }
+
+    public static String getAfterDot(String str) {
+        if (str == null) {
+            return null;
+        }
+        int i = str.lastIndexOf(".");
+        if (i < 0) {
+            return str;
+        }
+        return str.substring(i + 1);
+    }
+
+    public static String getStringByDot(String str, int s) {
+        int index = 0;
+        for (int i = 0; i < s; i++) {
+
+            index = str.indexOf(".", index + 1);
+            if (index < 0) {
+                break;
+            }
+        }
+        if (index > 0) {
+            return str.substring(0, index);
+        } else {
+            return str;
+        }
+    }
+
+
+    public static String getAfterString(String fullStr, String preStr) {
+        int i = fullStr.indexOf(preStr);
+        if (i < 0) {
+            return fullStr;
+        }
+        return fullStr.substring(i);
+    }
+
+    public static String firstToLower(String str) {
+        if (str == null) {
+            return null;
+        }
+        if (Character.isLowerCase(str.charAt(0))) {
+            return str;
+        } else {
+            return (new StringBuilder()).append(Character.toLowerCase(str.charAt(0))).append(str.substring(1)).toString();
+        }
     }
 }

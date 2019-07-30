@@ -16,5 +16,5 @@ public class Config {
 
     private String baseDbDriverClassName;
 
-    List<BuildConfig> buildConfigList;
+    private List<BuildConfig> buildConfigList;
 }

@@ -1,14 +1,14 @@
 {
-  "baseDbUrl": "JDBC:mysql://106.13.4.251:3306/tst?useUnicode=true&characterEncoding=UTF-8&useSSL=false",
+  "baseDbUrl": "JDBC:mysql://192.168.7.162:3406/tst?useUnicode=true&characterEncoding=UTF-8&useSSL=false",
   "baseDbUsername": "root",
-  "baseDbPassword": "29911062",
+  "baseDbPassword": "apec@123",
   "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",
   "useLombok": true,
   "buildConfigList": [
     {
-      "entityFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\java\\com\\llt\\aexp\\model\\entity",
-      "mapperFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\java\\com\\llt\\aexp\\mapper",
-      "xmlFolder":"C:\\Users\\llt11\\IdeaProjects\\aexp\\src\\main\\resources\\mybatis-mappers",
+      "entityFolder":"C:\\Users\\DELL\\IdeaProjects\\APEC_CJ100_PLANK_TRADING\\plank-trading-order\\plank-trading-order-model\\src\\main\\java\\com\\apec\\plank\\order\\model\\entity",
+      "mapperFolder":"C:\\Users\\DELL\\IdeaProjects\\APEC_CJ100_PLANK_TRADING\\plank-trading-order\\plank-trading-order-service\\src\\main\\java\\com\\apec\\plank\\order\\mapper",
+      "xmlFolder":"C:\\Users\\DELL\\IdeaProjects\\APEC_CJ100_PLANK_TRADING\\plank-trading-order\\plank-trading-order-service\\src\\main\\resources\\mappers",
       "dbUrl":"",
       "dbUsername":"",
       "dbPassword":""

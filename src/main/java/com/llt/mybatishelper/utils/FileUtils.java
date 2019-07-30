@@ -56,7 +56,8 @@ public class FileUtils {
             listFileName.addAll(Arrays.asList(completNames));
         }
         for (File a : files) {
-            if (a.isDirectory()) {//如果文件夹下有子文件夹，获取子文件夹下的所有文件全路径。
+            if (a.isDirectory()) {
+                //如果文件夹下有子文件夹，获取子文件夹下的所有文件全路径。
                 getAllFileName(a.getAbsolutePath() + "\\", listFileName);
             }
         }
