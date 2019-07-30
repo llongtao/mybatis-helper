@@ -24,15 +24,15 @@ public class EntityBuilder {
 
     static {
         TYPE_MAP = new HashMap<>();
-        TYPE_MAP.put("String", "varchar");
-        TYPE_MAP.put("Integer", "int");
-        TYPE_MAP.put("int", "int");
-        TYPE_MAP.put("Long", "bigint");
-        TYPE_MAP.put("long", "bigint");
-        TYPE_MAP.put("Boolean", "tinyint");
-        TYPE_MAP.put("boolean", "tinyint");
-        TYPE_MAP.put("Date", "datetime");
-        TYPE_MAP.put("BigDecimal", "decimal");
+        TYPE_MAP.put("String", "VARCHAR");
+        TYPE_MAP.put("Integer", "INT");
+        TYPE_MAP.put("int", "INT");
+        TYPE_MAP.put("Long", "BIGINT");
+        TYPE_MAP.put("long", "BIGINT");
+        TYPE_MAP.put("Boolean", "TINYINT");
+        TYPE_MAP.put("boolean", "TINYINT");
+        TYPE_MAP.put("Date", "TIMESTAMP");
+        TYPE_MAP.put("BigDecimal", "DECIMAL");
 
 
     }
@@ -95,7 +95,6 @@ public class EntityBuilder {
                 primaryKey = StringUtils.getValue(".主键", fieldComment);
                 lengthStr = StringUtils.getValue(".长度", fieldComment);
                 ignoreField = StringUtils.getValue(".ignore", fieldComment);
-
             }
             if (ignoreField != null) {
                 continue;
@@ -128,12 +127,12 @@ public class EntityBuilder {
             if (size == null) {
                 size = DEFAULT_LENGTH.get(jdbcType);
             }
+            String fullJdbcType= jdbcType;
             if (size != null) {
-                jdbcType = jdbcType + "(" + size + ")";
+                fullJdbcType = jdbcType + "(" + size + ")";
             }
 
-
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type,jdbcType.toUpperCase(), fullJdbcType.toUpperCase(), defaultValue, nullable, description);
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
             } else {

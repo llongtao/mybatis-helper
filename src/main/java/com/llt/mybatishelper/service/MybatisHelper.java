@@ -90,7 +90,11 @@ public class MybatisHelper {
         CompilationUnit compilationUnit = MapperBuilder.build(entityModel, buildConfig);
 
         try {
-            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + ".java"));
+            File file = new File(buildConfig.getMapperFolder() + "\\base");
+            if (!file.exists() ) {
+                file.mkdir();
+            }
+            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + "\\base\\" + entityModel.getMapperName() + ".java"));
             fileWriter.write(compilationUnit.toString());
             fileWriter.close();
         } catch (IOException e) {
@@ -117,8 +121,13 @@ public class MybatisHelper {
         XMLWriter writer = null;
 
         try {
-            writer = new XMLWriter(new FileOutputStream(new File(buildConfig.getXmlFolder() + "\\base\\" + entityModel.getMapperName() + ".xml")), format);
+            File file = new File(buildConfig.getXmlFolder() + "\\base");
+            if (!file.exists() ) {
+                file.mkdir();
+            }
+            writer = new XMLWriter(new FileOutputStream(new File(buildConfig.getXmlFolder() + "\\base\\"+ entityModel.getMapperName() + ".xml")), format);
             writer.write(document);
+            writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

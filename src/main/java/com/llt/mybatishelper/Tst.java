@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 public class Tst {
     public static void main(String[] args) {
         String str = "/** aaa \n */";
+
         Pattern patt = Pattern.compile("^/\\*\\*([\\w\\W]*)\\*/$");
         Matcher matcher = patt.matcher(str);
         //System.out.println(split1[0]);

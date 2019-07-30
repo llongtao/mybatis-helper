@@ -11,6 +11,7 @@ public class EntityField {
     private String columnName;
     private String type;
     private String jdbcType;
+    private String fullJdbcType;
     private String defaultValue;
     private boolean nullable;
     private String description;

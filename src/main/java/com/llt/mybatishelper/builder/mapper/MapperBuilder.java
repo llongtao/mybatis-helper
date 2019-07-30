@@ -27,8 +27,8 @@ public class MapperBuilder {
         entityModel.setEntityClassName(entityClassName);
         String prePackageName = StringUtils.getStringByDot(entityModel.getPackageName(), 2);
         String fullMapperPackage = buildConfig.getMapperFolder().replace("\\", ".");
-        String mapperPackage = StringUtils.getAfterString(fullMapperPackage, prePackageName);
-        String className = "Base" + entityName + "MapperTst";
+        String mapperPackage = StringUtils.getAfterString(fullMapperPackage, prePackageName)+".base";
+        String className = "Base" + entityName + "Mapper";
         entityModel.setMapperName(className);
         entityModel.setMapperClassName(mapperPackage + "." + className);
         CompilationUnit compilationUnit = new CompilationUnit();

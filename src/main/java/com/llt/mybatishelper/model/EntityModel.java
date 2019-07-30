@@ -50,7 +50,7 @@ public class EntityModel {
         entityFieldList.addAll(columnList);
         entityFieldList.forEach(column -> {
             if (!existsSet.contains(column.getColumnName())) {
-                sb.append("`").append(column.getColumnName()).append("` ").append(column.getJdbcType()).append(" ");
+                sb.append("`").append(column.getColumnName()).append("` ").append(column.getFullJdbcType()).append(" ");
                 if (!column.isNullable()) {
                     sb.append("NOT NULL ");
                 }
@@ -75,7 +75,7 @@ public class EntityModel {
         entityFieldList.addAll(columnList);
         entityFieldList.addAll(primaryKeyList);
         entityFieldList.forEach(column -> {
-            sb.append("`").append(column.getColumnName()).append("` ").append(column.getJdbcType()).append(" ");
+            sb.append("`").append(column.getColumnName()).append("` ").append(column.getFullJdbcType()).append(" ");
             if (!column.isNullable()) {
                 sb.append("NOT NULL ");
             }

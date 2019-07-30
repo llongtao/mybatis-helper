@@ -3,6 +3,7 @@ package com.llt.mybatishelper.builder.xml;
 import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
+import com.llt.mybatishelper.utils.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
@@ -52,7 +53,7 @@ public class XmlBuilder {
 
         StringBuilder baseColumn = new StringBuilder();
         entityFieldList.forEach(entityField -> baseColumn.append("\n\t\t`").append(entityField.getColumnName()).append("`,"));
-
+        baseColumn.deleteCharAt(baseColumn.length()-1);
         root.addElement("sql")
                 .addAttribute("id", "BaseColumn")
                 .addText(baseColumn.toString())
@@ -63,10 +64,10 @@ public class XmlBuilder {
                 .addAttribute("id", "queryByPrimaryKey")
                 .addAttribute("resultMap", "BaseResultMap")
                 .addText("\n\t\tselect");
-        selectByPrimaryKey.addElement("include")
+        Element BaseColumn = selectByPrimaryKey.addElement("include")
                 .addAttribute("refid", "BaseColumn");
         StringBuilder whereId = new StringBuilder();
-        entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append("\n\t\tand ").append(primaryKey.getColumnName()).append(" = ").append("#{").append(primaryKey.getName()).append("}"));
+        entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append("\n\t\t\tand ").append(primaryKey.getColumnName()).append(" = ").append("#{").append(primaryKey.getName()).append("}"));
         selectByPrimaryKey.addText("\n\t\tfrom")
                 .addText("\n\t\t`" + entityModel.getTableName() + "`");
         Element where = selectByPrimaryKey.addElement("where").addText(whereId.toString()).addText("\n\t\t");
@@ -82,45 +83,49 @@ public class XmlBuilder {
                 .addAttribute("id", "insert" + entityName)
                 .addAttribute("parameterType", entityClassName)
                 .addText("\n\t\tinsert into")
-                .addText("\n\t\t`" + entityModel.getTableName() + "`")
-                .addText("\n\t\t(");
-        entityFieldList.forEach(entityField -> insert.addElement("if")
+                .addText("\n\t\t`" + entityModel.getTableName() + "`");
+
+        Element trimColumn = insert.addElement("trim")
+                .addAttribute("prefix", "(")
+                .addAttribute("suffix", ")")
+                .addAttribute("suffixOverrides", ",");
+        entityFieldList.forEach(entityField -> trimColumn.addElement("if")
                 .addAttribute("test", entityField.getName() + "!=null")
-                .addText("\n\t\t\t`" + entityField.getColumnName() + "`,")
-                .addText("\n\t\t"));
-        insert.addText("\n\t\t)VALUES\n\t\t(");
-        entityFieldList.forEach(entityField -> insert.addElement("if")
+                .addText("\n\t\t\t\t`" + entityField.getColumnName() + "`,")
+                .addText("\n\t\t\t"));
+        insert.addText("\n\t\tVALUES");
+        Element trimValues = insert.addElement("trim")
+                .addAttribute("prefix", "(")
+                .addAttribute("suffix", ")")
+                .addAttribute("suffixOverrides", ",");
+        entityFieldList.forEach(entityField -> trimValues.addElement("if")
                 .addAttribute("test", entityField.getName() + "!=null")
-                .addText("\n\t\t\t#{" + entityField.getName() + "},")
-                .addText("\n\t\t"));
-        insert.addText("\n\t\t)");
-        insert.addText("\n\t\t");
+                .addText("\n\t\t\t\t#{" + entityField.getName() + "},")
+                .addText("\n\t\t\t"));
 
         //构建updateSelective
         Element updateSelective = root.addElement("update")
                 .addAttribute("id", "updateSelective")
                 .addAttribute("parameterType", entityClassName)
                 .addText("\n\t\tupdate")
-                .addText("\n\t\t`" + entityModel.getTableName() + "`")
-                .addText("\n\t\tset");
-        entityFieldList.forEach(entityField -> updateSelective.addElement("if")
+                .addText("\n\t\t`" + entityModel.getTableName() + "`");
+        Element updateSelectiveSet = updateSelective.addElement("set");
+        entityModel.getColumnList().forEach(entityField -> updateSelectiveSet.addElement("if")
                 .addAttribute("test", entityField.getName() + " != null" + ("String".equals(entityField.getType()) ? " and " + entityField.getName() + " !=''" : ""))
-                .addText("\n\t\t\t`" + entityField.getColumnName() + "` = #{" + entityField.getName() + "},")
-                .addText("\n\t\t"));
+                .addText("\n\t\t\t\t`" + entityField.getColumnName() + "` = #{" + entityField.getName() + "},")
+                .addText("\n\t\t\t"));
         updateSelective.add(where.createCopy());
-        updateSelective.addText("\n\t\t");
 
         //构建update
         Element update = root.addElement("update")
                 .addAttribute("id", "update" + entityName)
                 .addAttribute("parameterType", entityClassName)
                 .addText("\n\t\tupdate")
-                .addText("\n\t\t`" + entityModel.getTableName() + "`")
-                .addText("\n\t\tset");
-        entityFieldList.forEach(entityField -> update.addText("\n\t\t`" + entityField.getColumnName() + "` = #{" + entityField.getName() + ",jdbcType=" + entityField.getJdbcType() + "},"));
+                .addText("\n\t\t`" + entityModel.getTableName() + "`");
+        Element updateSet = update.addElement("set");
+        entityModel.getColumnList().forEach(entityField -> updateSet.addText("\n\t\t\t`" + entityField.getColumnName() + "` = #{" + entityField.getName() + ",jdbcType=" + entityField.getJdbcType() + "},"));
+        updateSet.addText("\n\t\t");
         update.add(where.createCopy());
-        update.addText("\n\t\t");
-
 
         //构建query
         Element query = root.addElement("select")
@@ -129,6 +134,7 @@ public class XmlBuilder {
                 .addAttribute("resultMap", "BaseResultMap")
                 .addText("\n\t\tselect");
         query.addElement("include").addAttribute("refid", "BaseColumn");
+        query.addText("\n\t\tfrom").addText("\n\t\t`" + entityModel.getTableName() + "`");
         Element queryWhere = query.addElement("where");
         entityFieldList.forEach(entityField -> queryWhere.addElement("if")
                 .addAttribute("test", entityField.getName() + " != null" + ("String".equals(entityField.getType()) ? " and " + entityField.getName() + " !=''" : ""))
@@ -141,18 +147,25 @@ public class XmlBuilder {
                 .addAttribute("id", "insert" + entityName + "List")
                 .addAttribute("parameterType", entityClassName)
                 .addText("\n\t\tinsert into")
-                .addText("\n\t\t`" + entityModel.getTableName() + "`")
-                .addText("\n\t\t(");
-        entityFieldList.forEach(entityField -> insertList.addText("\n\t\t`" + entityField.getColumnName() + "`,"));
-        insertList.addText("\n\t\t)VALUES\n\t\t(");
+                .addText("\n\t\t`" + entityModel.getTableName() + "`");
+        Element insertListTrim = insertList.addElement("trim")
+                .addAttribute("prefix", "(")
+                .addAttribute("suffix", ")")
+                .addAttribute("suffixOverrides", ",");
+        //entityFieldList.forEach(entityField -> insertListTrim.addText("\n\t\t\t`" + entityField.getColumnName() + "`,"));
+        //insertListTrim.addText("\n\t\t");
+        insertListTrim.add(BaseColumn.createCopy());
+        insertList.addText("\n\t\tvalues");
         Element values = insertList.addElement("foreach")
                 .addAttribute("open", "(")
                 .addAttribute("close", ")")
                 .addAttribute("collection", "list")
                 .addAttribute("item", "item")
                 .addAttribute("separator", ",");
-        entityFieldList.forEach(entityField -> values.addText("\n\t\t\t#{" + entityField.getName() + ",jdbcType=" + entityField.getJdbcType() + "},"));
-        values.addText("\n\t\t");
+        StringBuilder items = new StringBuilder();
+        entityFieldList.forEach(entityField -> items.append("\n\t\t\t#{item." + entityField.getName() + ",jdbcType=" + entityField.getJdbcType() + "},"));
+        items.deleteCharAt(items.length()-1);
+        values.addText(items.toString()).addText("\n\t\t");
         insertList.addText("\n\t\t");
 
         return document;
