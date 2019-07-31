@@ -24,14 +24,14 @@ public class StringUtils {
     }
 
     public static String transformUnderline(String str) {
-        char[] chars = str.toCharArray();
+        char[] chars = str.trim().toCharArray();
         int length = chars.length;
         StringBuilder sb = new StringBuilder();
         sb.append((chars[0] + "").toLowerCase());
         for (int i = 1; i < length; i++) {
             if (chars[i] >= 'A' && chars[i] <= 'Z') {
                 sb.append("_").append((char) (chars[i] + 32));
-            } else {
+            } else  {
                 sb.append(chars[i]);
             }
         }
@@ -44,7 +44,7 @@ public class StringUtils {
 
         System.out.println(getStringByDot("com.llt.aa.", 2));
 
-        String s = transformUnderline("aEntityField");
+        String s = transformUnderline(" aEntityField");
         System.out.println(s);
         System.out.println(getValue(".主键", "/**\n" +
                 " * .主键\n" +

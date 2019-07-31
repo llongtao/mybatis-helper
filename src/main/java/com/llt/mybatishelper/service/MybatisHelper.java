@@ -105,19 +105,8 @@ public class MybatisHelper {
     private static void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
         Document document = XmlBuilder.build(entityModel, buildConfig);
         OutputFormat format = OutputFormat.createPrettyPrint();
-//        format.setTrimText(false);
-//        format.setIndent(true);
-//        //format.setIndent("    ");
-//        format.setNewlines(true);
-//        format.setNewLineAfterDeclaration(true);
-//        format.setNewLineAfterNTags(1);
-//        format.setPadText(true);
-//
         format.setIndentSize(4);
-//        format.setNewlines(true);
         format.setTrimText(false);
-//        format.setPadText(true);
-
         XMLWriter writer = null;
 
         try {

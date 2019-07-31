@@ -19,18 +19,24 @@ import java.util.List;
  * @Description
  */
 public class MapperBuilder {
+    
+    private static final String BASE = "Base";
+
+    private static final String MAPPER = "Mapper";
+    
+    private static final String DOT = ".";
 
     public static CompilationUnit build(EntityModel entityModel, BuildConfig buildConfig) {
         String entityName = entityModel.getEntityName();
         String packageName = entityModel.getPackageName();
-        String entityClassName = packageName + "." + entityName;
+        String entityClassName = packageName + DOT + entityName;
         entityModel.setEntityClassName(entityClassName);
         String prePackageName = StringUtils.getStringByDot(entityModel.getPackageName(), 2);
-        String fullMapperPackage = buildConfig.getMapperFolder().replace("\\", ".");
+        String fullMapperPackage = buildConfig.getMapperFolder().replace("\\", DOT);
         String mapperPackage = StringUtils.getAfterString(fullMapperPackage, prePackageName)+".base";
-        String className = "Base" + entityName + "Mapper";
+        String className = BASE + entityName + MAPPER;
         entityModel.setMapperName(className);
-        entityModel.setMapperClassName(mapperPackage + "." + className);
+        entityModel.setMapperClassName(mapperPackage + DOT + className);
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(mapperPackage);
         compilationUnit.addImport("java.lang.*");

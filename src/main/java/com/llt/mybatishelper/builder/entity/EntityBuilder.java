@@ -6,6 +6,8 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.llt.mybatishelper.constants.ClassKey;
+import com.llt.mybatishelper.constants.FieldKey;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
@@ -41,12 +43,12 @@ public class EntityBuilder {
 
     static {
         DEFAULT_LENGTH = new HashMap<>();
-        DEFAULT_LENGTH.put("varchar", 255);
-
+        DEFAULT_LENGTH.put("VARCHAR", 255);
     }
 
+    private static final String DEFAULT_KEY = "id";
 
-    public static EntityModel build(String classStr){
+    public static EntityModel build(String classStr) {
         EntityModel entityModel = new EntityModel();
         CompilationUnit compilationUnit = StaticJavaParser.parse(classStr);
         Optional<PackageDeclaration> packageDeclaration = compilationUnit.getPackageDeclaration();
@@ -65,9 +67,9 @@ public class EntityBuilder {
         String tableName = null;
         String auto = null;
         if (content != null) {
-            tableDescription = StringUtils.getValue(".描述", content);
-            tableName = StringUtils.getValue(".表名", content);
-            auto = StringUtils.getValue(".auto", content);
+            tableDescription = StringUtils.getValue(ClassKey.DESC.getCode(), content);
+            tableName = StringUtils.getValue(ClassKey.TABLE_NAME.getCode(), content);
+            auto = StringUtils.getValue(ClassKey.AUTO.getCode(), content);
         }
         if (auto == null) {
             return null;
@@ -79,6 +81,8 @@ public class EntityBuilder {
         List<Node> fieldList = classDeclaration.getChildNodes().stream().filter(node -> node instanceof FieldDeclaration).collect(Collectors.toList());
 
         List<EntityField> primaryKeyList = new ArrayList<>();
+
+        EntityField idField = null;
 
         List<EntityField> columnList = new ArrayList<>();
 
@@ -92,9 +96,9 @@ public class EntityBuilder {
             String primaryKey = null;
             String ignoreField = null;
             if (fieldComment != null) {
-                primaryKey = StringUtils.getValue(".主键", fieldComment);
-                lengthStr = StringUtils.getValue(".长度", fieldComment);
-                ignoreField = StringUtils.getValue(".ignore", fieldComment);
+                primaryKey = StringUtils.getValue(FieldKey.KEY.getCode(), fieldComment);
+                lengthStr = StringUtils.getValue(FieldKey.LEN.getCode(), fieldComment);
+                ignoreField = StringUtils.getValue(FieldKey.IGNORE.getCode(), fieldComment);
             }
             if (ignoreField != null) {
                 continue;
@@ -108,11 +112,11 @@ public class EntityBuilder {
                 }
             }
 
-            Boolean nullable = null == StringUtils.getValue(".非空", fieldComment);
-            String jdbcType = StringUtils.getValue(".类型", fieldComment);
-            String defaultValue = StringUtils.getValue(".默认", fieldComment);
-            String description = StringUtils.getValue(".描述", fieldComment);
-            String columnName = StringUtils.getValue(".列名", fieldComment);
+            Boolean nullable = null == StringUtils.getValue(FieldKey.NO_NULL.getCode(), fieldComment);
+            String jdbcType = StringUtils.getValue(FieldKey.JDBC_TYPE.getCode(), fieldComment);
+            String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
+            String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
+            String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
             if (columnName == null) {
@@ -127,12 +131,15 @@ public class EntityBuilder {
             if (size == null) {
                 size = DEFAULT_LENGTH.get(jdbcType);
             }
-            String fullJdbcType= jdbcType;
+            String fullJdbcType = jdbcType;
             if (size != null) {
                 fullJdbcType = jdbcType + "(" + size + ")";
             }
 
-            EntityField entityField = new EntityField(name, columnName, type,jdbcType.toUpperCase(), fullJdbcType.toUpperCase(), defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType.toUpperCase(), fullJdbcType.toUpperCase(), defaultValue, nullable, description);
+            if (DEFAULT_KEY.equals(name)) {
+                idField = entityField;
+            }
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
             } else {
@@ -140,6 +147,10 @@ public class EntityBuilder {
             }
         }
 
+        if (primaryKeyList.size() == 0 && idField != null) {
+            primaryKeyList.add(idField);
+            columnList.remove(idField);
+        }
         entityModel.setColumnList(columnList);
         entityModel.setPrimaryKeyList(primaryKeyList);
 
