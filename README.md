@@ -9,7 +9,7 @@
 /**
  *.auto
  */
-public class user{
+public class User{
 
 /**
  *.主键
