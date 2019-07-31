@@ -21,6 +21,6 @@ private String name;
 }
 ```
 
-在项目resources\config.json里配置文件夹
+在项目resources\config.json里配置文件夹和数据库连接
 
 运行Main.main
