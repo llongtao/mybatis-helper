@@ -88,6 +88,9 @@ public class EntityBuilder {
         List<EntityField> columnList = new ArrayList<>();
 
         for (Node field : fieldList) {
+            if (((FieldDeclaration) field).isStatic()) {
+                continue;
+            }
             String fieldComment = null;
             try {
                 fieldComment = field.getComment().get().getContent();
