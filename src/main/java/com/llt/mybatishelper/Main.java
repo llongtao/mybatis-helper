@@ -20,7 +20,6 @@ public class Main {
         assert resource != null;
         String configStr = FileUtils.readFileToString(resource.getPath());
         Config config = JSON.parseObject(configStr, Config.class);
-        System.out.println(config);
 
         String dbUrl = config.getBaseDbUrl();
         if (StringUtils.isEmpty(dbUrl) ) {

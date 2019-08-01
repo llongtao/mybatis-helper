@@ -33,7 +33,9 @@ public class EntityBuilder {
         TYPE_MAP.put("Boolean", "TINYINT");
         TYPE_MAP.put("boolean", "TINYINT");
         TYPE_MAP.put("Date", "TIMESTAMP");
-        TYPE_MAP.put("BigDecimal", "DECIMAL");
+        TYPE_MAP.put("char", "CHAR");
+        TYPE_MAP.put("Character", "CHAR");
+        TYPE_MAP.put("byte", "CHAR");
 
 
     }

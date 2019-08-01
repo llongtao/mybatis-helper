@@ -285,7 +285,7 @@ public class XmlBuilder {
 
     private static void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
         Element insertList = root.addElement(INSERT)
-                .addAttribute(ID, INSERT + entityName + LIST)
+                .addAttribute(ID, INSERT + entityName + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName)
                 .addText(TWO_TAB + INSERT_INTO)
                 .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);

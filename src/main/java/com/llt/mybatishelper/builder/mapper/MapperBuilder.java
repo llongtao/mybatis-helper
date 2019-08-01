@@ -4,6 +4,7 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.comments.JavadocComment;
 import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
@@ -11,6 +12,9 @@ import com.llt.mybatishelper.utils.StringUtils;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
 import org.dom4j.Document;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -62,11 +66,13 @@ public class MapperBuilder {
         compilationUnit.addImport(IMPORT_LIST);
         compilationUnit.addImport(IMPORT_ANNOTATIONS_MAPPER);
         compilationUnit.addImport(entityClassName);
+
         ClassOrInterfaceDeclaration mapperClass = compilationUnit
                 .addClass(className)
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(MAPPER);
+        mapperClass.setComment(new JavadocComment("@author MybatisHelper\n@date "+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
 
 
         NodeList<Parameter> nodeList = new NodeList<>();
