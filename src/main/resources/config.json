@@ -1,7 +1,7 @@
 {
-  "baseDbUrl": "JDBC:mysql://106.13.4.251:3306/aexp?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&serverTimezone=Hongkong",
+  "baseDbUrl": "JDBC:mysql://localhost:3306/aexp?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&serverTimezone=Hongkong",
   "baseDbUsername": "root",
-  "baseDbPassword": "29911062",
+  "baseDbPassword": "123456",
   "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",
   "useDb": true,
   "buildConfigList": [
