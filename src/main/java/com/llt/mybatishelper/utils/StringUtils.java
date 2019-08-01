@@ -1,5 +1,8 @@
 package com.llt.mybatishelper.utils;
 
+/**
+ * @author LILONGTAO
+ */
 public class StringUtils {
     public static boolean isEmpty(String str) {
         return str == null || "".equals(str);
@@ -77,6 +80,18 @@ public class StringUtils {
             return str.substring(0, index);
         } else {
             return str;
+        }
+    }
+
+    public static String getBycolonCount(String str, int s) {
+        if (str == null) {
+            return null;
+        }
+        String[] split = str.split(":");
+        if (split.length > s && s>=0) {
+            return split[s];
+        }else {
+            return null;
         }
     }
 

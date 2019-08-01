@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 /**
  * @author LILONGTAO
  * @date 2019-07-30
- * @Description
  */
 public class EntityBuilder {
 
@@ -112,7 +111,7 @@ public class EntityBuilder {
                 }
             }
 
-            Boolean nullable = null == StringUtils.getValue(FieldKey.NO_NULL.getCode(), fieldComment);
+            boolean nullable = null == StringUtils.getValue(FieldKey.NO_NULL.getCode(), fieldComment);
             String jdbcType = StringUtils.getValue(FieldKey.JDBC_TYPE.getCode(), fieldComment);
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
