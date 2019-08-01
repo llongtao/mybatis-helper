@@ -12,9 +12,12 @@ import java.util.List;
 public class FileUtils {
 
     public static String readFileToString(String path) {
-
+        File file = new File(path);
+        if (!file.exists()) {
+            return null;
+        }
         StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path)), StandardCharsets.UTF_8))) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
             String thisLine;
             while ((thisLine = in.readLine()) != null) {
                 stringBuilder.append(thisLine).append("\n");

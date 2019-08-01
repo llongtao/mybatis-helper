@@ -14,19 +14,19 @@ import java.net.URL;
  */
 public class Main {
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
 
         URL resource = Main.class.getClassLoader().getResource("config.json");
         assert resource != null;
         String configStr = FileUtils.readFileToString(resource.getPath());
         Config config = JSON.parseObject(configStr, Config.class);
-
+        assert config != null;
         String dbUrl = config.getBaseDbUrl();
-        if (StringUtils.isEmpty(dbUrl) ) {
+        if (StringUtils.isEmpty(dbUrl)) {
             dbUrl = config.getBuildConfigList().get(0).getDbUrl();
         }
-
         MyBatisHelperFactory.getMybatisHelper(dbUrl).run(config);
+
         System.out.println("SUCCESS");
     }
 }

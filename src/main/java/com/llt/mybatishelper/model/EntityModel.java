@@ -17,7 +17,15 @@ public class EntityModel {
 
     private String mapperClassName;
 
+    private String mapperPackage;
+
+    private String baseMapperClassName;
+
+    private String baseMapperPackage;
+
     private String mapperName;
+
+    private String BaseMapperName;
 
     private String entityClassName;
 

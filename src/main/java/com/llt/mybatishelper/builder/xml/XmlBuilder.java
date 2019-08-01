@@ -140,6 +140,8 @@ public class XmlBuilder {
 
     private static final String DOT = ".";
 
+    private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
+
 
     public static Document build(EntityModel entityModel, BuildConfig buildConfig) {
         String entityName = entityModel.getEntityName();
@@ -322,5 +324,16 @@ public class XmlBuilder {
                 .addText(THREE_TAB));
         updateSelective.add(where.createCopy());
         return updateSelective;
+    }
+
+    public static Document buildEmpty(String mapperClassName) {
+        // 创建Document
+        Document document = DocumentHelper.createDocument();
+        document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
+        // 添加根节点
+        Element root = document.addElement(MAPPER);
+        root.addAttribute(NAMESPACE, mapperClassName);
+        root.addComment(TIPS);
+        return document;
     }
 }

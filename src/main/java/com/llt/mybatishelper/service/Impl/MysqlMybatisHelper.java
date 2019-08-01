@@ -20,6 +20,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
 
     @Override
     protected void updateTable(EntityModel entityModel, String dataSourceUrl) {
+
         Connection connection = DataSourceHolder.getConnection(dataSourceUrl);
         String tableName = entityModel.getTableName();
         Set<String> columnSet = new HashSet<>();

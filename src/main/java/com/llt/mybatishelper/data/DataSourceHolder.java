@@ -14,15 +14,19 @@ public class DataSourceHolder {
 
     private static Map<String, DruidDataSource> DATA_SOURCE_MAP = new HashMap<>();
 
-    public static void addDataSource(String driverClassName,String url, String username,String password) {
+    public static void addDataSource(String driverClassName, String url, String username, String password) {
         DruidDataSource druidDataSource = DATA_SOURCE_MAP.get(url);
         if (druidDataSource == null) {
-            DruidDataSource dataSource = new DruidDataSource();
-            dataSource.setDriverClassName(driverClassName);
-            dataSource.setUsername(username);
-            dataSource.setPassword(password);
-            dataSource.setUrl(url);
-            DATA_SOURCE_MAP.put(url,dataSource);
+            try {
+                DruidDataSource dataSource = new DruidDataSource();
+                dataSource.setDriverClassName(driverClassName);
+                dataSource.setUsername(username);
+                dataSource.setPassword(password);
+                dataSource.setUrl(url);
+                DATA_SOURCE_MAP.put(url, dataSource);
+            } catch (Exception e) {
+                System.err.println("db配置不正确:" + e.getMessage());
+            }
         }
     }
 

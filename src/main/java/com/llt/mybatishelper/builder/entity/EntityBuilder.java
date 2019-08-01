@@ -8,10 +8,13 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.llt.mybatishelper.constants.ClassKey;
 import com.llt.mybatishelper.constants.FieldKey;
+import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
 
+import java.math.BigDecimal;
+import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,23 +24,36 @@ import java.util.stream.Collectors;
  */
 public class EntityBuilder {
 
+
+    private static final String DOT = ".";
+
+    private static final String BASE = "Base";
+
+    private static final String MAPPER = "Mapper";
+
     private static final Map<String, String> TYPE_MAP;
 
     static {
         TYPE_MAP = new HashMap<>();
         TYPE_MAP.put("String", "VARCHAR");
-        TYPE_MAP.put("Integer", "INT");
-        TYPE_MAP.put("int", "INT");
+        TYPE_MAP.put("Integer", "INTEGER");
+        TYPE_MAP.put("int", "INTEGER");
         TYPE_MAP.put("Long", "BIGINT");
         TYPE_MAP.put("long", "BIGINT");
-        TYPE_MAP.put("Boolean", "TINYINT");
-        TYPE_MAP.put("boolean", "TINYINT");
+        TYPE_MAP.put("Boolean", "BIT");
+        TYPE_MAP.put("boolean", "BIT");
         TYPE_MAP.put("Date", "TIMESTAMP");
         TYPE_MAP.put("char", "CHAR");
+        TYPE_MAP.put("byte", "TINYINT");
         TYPE_MAP.put("Character", "CHAR");
-        TYPE_MAP.put("byte", "CHAR");
-
-
+        TYPE_MAP.put("LocalTime", "TIMESTAMP");
+        TYPE_MAP.put("LocalDate", "DATE");
+        TYPE_MAP.put("LocalDateTime", "TIMESTAMP");
+        TYPE_MAP.put("double", "DOUBLE");
+        TYPE_MAP.put("Double", "DOUBLE");
+        TYPE_MAP.put("float", "FLOAT");
+        TYPE_MAP.put("Float", "FLOAT");
+        TYPE_MAP.put("BigDecimal", "DECIMAL");
     }
 
     private static final Map<String, Integer> DEFAULT_LENGTH;
@@ -49,12 +65,16 @@ public class EntityBuilder {
 
     private static final String DEFAULT_KEY = "id";
 
-    public static EntityModel build(String classStr) {
+    public static EntityModel build(String classStr, BuildConfig buildConfig) {
         EntityModel entityModel = new EntityModel();
+
+
         CompilationUnit compilationUnit = StaticJavaParser.parse(classStr);
         Optional<PackageDeclaration> packageDeclaration = compilationUnit.getPackageDeclaration();
+        String packageName = packageDeclaration.get().getName().toString();
+        entityModel.setPackageName(packageName);
 
-        entityModel.setPackageName(packageDeclaration.get().getName().toString());
+
 
         List<Node> childNodes = compilationUnit.getChildNodes();
         ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) childNodes.stream().filter(node -> node instanceof ClassOrInterfaceDeclaration).collect(Collectors.toList()).get(0);
@@ -79,6 +99,25 @@ public class EntityBuilder {
         String className = classDeclaration.getName().toString();
         entityModel.setTableName(tableName == null ? StringUtils.transformUnderline(className) : tableName);
         entityModel.setEntityName(className);
+
+        String entityClassName = packageName + DOT + className;
+        entityModel.setEntityClassName(entityClassName);
+        String mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
+        String baseMapperPackage = mapperPackage + ".base";
+        String baseMapperName = BASE + className + MAPPER;
+        String mapperName = className + MAPPER;
+        entityModel.setBaseMapperName(baseMapperName);
+        entityModel.setMapperName(mapperName);
+        entityModel.setBaseMapperClassName(baseMapperPackage + DOT + baseMapperName);
+        entityModel.setMapperClassName(mapperPackage + DOT + mapperName);
+        entityModel.setBaseMapperPackage(baseMapperPackage);
+        entityModel.setMapperPackage(mapperPackage);
+
+
+
+
+
+
         List<Node> fieldList = classDeclaration.getChildNodes().stream().filter(node -> node instanceof FieldDeclaration).collect(Collectors.toList());
 
         List<EntityField> primaryKeyList = new ArrayList<>();

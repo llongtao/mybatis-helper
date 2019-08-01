@@ -58,7 +58,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readFileToString(filePath);
-                EntityModel entityModel = EntityBuilder.build(entityClassStr);
+                EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig);
                 if (entityModel != null) {
                     updateTable(entityModel, dataSourceUrl);
                     buildMapper(entityModel, buildConfig);
@@ -77,13 +77,28 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     protected abstract void updateTable(EntityModel entityModel, String dataSourceUrl);
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
-        CompilationUnit compilationUnit = MapperBuilder.build(entityModel, buildConfig);
+        CompilationUnit baseMapper = MapperBuilder.build(entityModel);
 
+        String mapperClassStr =  FileUtils.readFileToString(buildConfig.getMapperFolder() + "\\"+entityModel.getMapperName()+JAVA);
+        CompilationUnit mapper = null;
+        if (mapperClassStr != null) {
+            //同名mapper已存在,增加extend
+             mapper = MapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
+        }else {
+            //mapper不存在,创建mapper
+            mapper = MapperBuilder.buildEmpty(entityModel);
+        }
         try {
             File file = new File(buildConfig.getMapperFolder() + SLASH_BASE);
             mkdir(file);
-            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getMapperName() + JAVA));
-            fileWriter.write(compilationUnit.toString());
+            if (mapper != null) {
+                FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA));
+                fileWriter.write(mapper.toString());
+                fileWriter.close();
+            }
+
+            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA));
+            fileWriter.write(baseMapper.toString());
             fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -91,17 +106,30 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     }
 
     private void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
-        Document document = XmlBuilder.build(entityModel, buildConfig);
+        Document baseXml = XmlBuilder.build(entityModel, buildConfig);
         OutputFormat format = OutputFormat.createPrettyPrint();
         format.setIndentSize(4);
         format.setTrimText(false);
         XMLWriter writer;
 
+        File xmlFile = new File(buildConfig.getXmlFolder() +"\\"+entityModel.getMapperName()+XML);
+        Document xml = null;
+        if (!xmlFile.exists()) {
+            //xml不存在时创建
+            xml = XmlBuilder.buildEmpty(entityModel.getMapperClassName());
+        }
+
         try {
             File file = new File(buildConfig.getXmlFolder() +SLASH_BASE);
             mkdir(file);
-            writer = new XMLWriter(new FileOutputStream(new File(buildConfig.getXmlFolder() + SLASH_BASE_SLASH + entityModel.getMapperName() + XML)), format);
-            writer.write(document);
+            if (xml != null) {
+                writer = new XMLWriter(new FileOutputStream(new File(buildConfig.getXmlFolder() + "\\" + entityModel.getMapperName() + XML)), format);
+                writer.write(xml);
+                writer.close();
+            }
+
+            writer = new XMLWriter(new FileOutputStream(new File(buildConfig.getXmlFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + XML)), format);
+            writer.write(baseXml);
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();

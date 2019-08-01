@@ -1,13 +1,14 @@
 {
-  "baseDbUrl": "JDBC:mysql://192.168.7.162:3406/tst?useUnicode=true&characterEncoding=UTF-8&useSSL=false",
+  "baseDbUrl": "JDBC:mysql://106.13.4.251:3306/aexp?useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowMultiQueries=true&serverTimezone=Hongkong",
   "baseDbUsername": "root",
-  "baseDbPassword": "apec@123",
+  "baseDbPassword": "29911062",
   "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",
+  "useDb": true,
   "buildConfigList": [
     {
-      "entityFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\model\\entity",
-      "mapperFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\mapper",
-      "xmlFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\resources\\mappers",
+      "entityFolder": "C:\\Users\\llt11\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\model\\entity",
+      "mapperFolder": "C:\\Users\\llt11\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\mapper",
+      "xmlFolder": "C:\\Users\\llt11\\IdeaProjects\\tst\\src\\main\\resources\\mappers",
       "dbUrl": "",
       "dbUsername": "",
       "dbPassword": ""
