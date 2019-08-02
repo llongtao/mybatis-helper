@@ -55,6 +55,7 @@ private String name;
 - mapper会在你制定的目录下创建base文件夹,并生成baseMapper,不影响现有mapper,现有mapper继承baseMapper即可(会自动继承)
 - 若指定文件夹下可能存在与自动生成同名baseMapper慎重使用,会直接覆盖
 - 因为会创建子目录所以mapper-location 请设置为允许子目录,例如"classpath\*:mappers/\*\*/\*.xml"
+- 不允许不规范的javadoc注释,例如注释下有空行,或者多个javadoc注释
 
 
 
