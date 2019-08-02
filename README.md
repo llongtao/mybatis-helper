@@ -27,8 +27,8 @@ private String name;
 
 运行Main.main
 
-### 更多关键字
-####class注释
+## 更多关键字
+###class注释
 
 - **.auto 必选** 包含该字段才会自动生成
 
@@ -36,7 +36,7 @@ private String name;
 
 - .desc xxx 可选 自定义该表描述
 
-####field注释
+###field注释
 - .key 可选 表示该field为主键
 - .column 可选 自定义列名,默认使用field名的下划线格式
 - .jdbcType xxx 可选 自定义映射的jdbcType
@@ -46,7 +46,7 @@ private String name;
 - .default xxx 可选 默认值
 - .ignore 可选 忽略该字段
 
-####其他细节
+###其他细节
 - 当主键不存在时自动使用field名为id的列为主键
 - 当主键只有一个且为整形时默认自增
 - 不允许主键不存在
