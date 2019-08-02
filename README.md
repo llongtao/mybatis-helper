@@ -2,7 +2,7 @@
 
 由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
 
-目前仅实现mysql
+目前仅实现 创建mysql表和mapper 和 不创建表,仅创建mapper
 
 ## 使用方式
 
