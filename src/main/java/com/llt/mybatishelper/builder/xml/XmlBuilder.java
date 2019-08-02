@@ -150,7 +150,7 @@ public class XmlBuilder {
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
         // 添加根节点
         Element root = document.addElement(MAPPER);
-        String mapperClassName = entityModel.getMapperClassName();
+        String mapperClassName = entityModel.getBaseMapperClassName();
         String entityClassName = entityModel.getEntityClassName();
         root.addAttribute(NAMESPACE, mapperClassName);
         // 在根节点下添加第一个子节点
