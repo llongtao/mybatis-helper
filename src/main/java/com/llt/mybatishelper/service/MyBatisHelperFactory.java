@@ -29,7 +29,11 @@ public class MyBatisHelperFactory {
      */
     public static MybatisHelper getMybatisHelper(String dbUrl) {
         String database = StringUtils.getBycolonCount(dbUrl, 1);
-        MybatisHelper mybatisHelper = mybatisHelperMap.get(database);
+
+        MybatisHelper mybatisHelper = null;
+        if (database != null) {
+            mybatisHelper = mybatisHelperMap.get(database.toLowerCase());
+        }
         if (mybatisHelper == null) {
             throw new IllegalArgumentException("没有" + database + "的实现");
         }
