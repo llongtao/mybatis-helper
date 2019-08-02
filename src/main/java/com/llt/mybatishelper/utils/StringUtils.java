@@ -4,6 +4,9 @@ package com.llt.mybatishelper.utils;
  * @author LILONGTAO
  */
 public class StringUtils {
+
+    public static final char SPACE = ' ';
+
     public static boolean isEmpty(String str) {
         return str == null || "".equals(str);
     }
@@ -18,12 +21,13 @@ public class StringUtils {
         }
         int end = content.indexOf("\n", i);
         int start = i + key.length();
+        String value;
         if (end >= start) {
-            return content.substring(start, end);
+            value = content.substring(start, end);
         } else {
-            return content.substring(start);
+            value = content.substring(start);
         }
-
+        return value.trim();
     }
 
     public static String transformUnderline(String str) {
@@ -34,7 +38,7 @@ public class StringUtils {
         for (int i = 1; i < length; i++) {
             if (chars[i] >= 'A' && chars[i] <= 'Z') {
                 sb.append("_").append((char) (chars[i] + 32));
-            } else  {
+            } else {
                 sb.append(chars[i]);
             }
         }
@@ -88,9 +92,9 @@ public class StringUtils {
             return null;
         }
         String[] split = str.split(":");
-        if (split.length > s && s>=0) {
+        if (split.length > s && s >= 0) {
             return split[s];
-        }else {
+        } else {
             return null;
         }
     }

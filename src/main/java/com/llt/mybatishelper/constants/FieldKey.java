@@ -17,7 +17,7 @@ public enum  FieldKey {
      *  .jdbcType xxx 可选 自定义jdbcType
      *  .len 32 可选 自定义长度
      *  .desc xxx 可选 自定义字段描述
-     *  .noNull 可选 非空
+     *  .notNull 可选 非空
      *  .default xxx 可选 默认值
      *  .ignore 可选 忽略该字段
      */
@@ -26,7 +26,7 @@ public enum  FieldKey {
     JDBC_TYPE(".jdbcType"),
     LEN(".len"),
     DESC(".desc"),
-    NO_NULL(".noNull"),
+    NO_NULL(".notNull"),
     DEFAULT(".default"),
     IGNORE(".ignore"),
     ;
