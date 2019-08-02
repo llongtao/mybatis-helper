@@ -214,11 +214,11 @@ public class XmlBuilder {
 
         entityModel.getPrimaryKeyList().forEach(primaryKey -> resultMap.addElement(ID)
                 .addAttribute(COLUMN, primaryKey.getColumnName())
-                .addAttribute(JDBC_TYPE, primaryKey.getJdbcType())
+                .addAttribute(JDBC_TYPE, primaryKey.getJdbcType().getName())
                 .addAttribute(PROPERTY, primaryKey.getName()));
         entityModel.getColumnList().forEach(column -> resultMap.addElement(RESULT)
                 .addAttribute(COLUMN, column.getColumnName())
-                .addAttribute(JDBC_TYPE, column.getJdbcType())
+                .addAttribute(JDBC_TYPE, column.getJdbcType().getName())
                 .addAttribute(PROPERTY, column.getName()));
     }
 

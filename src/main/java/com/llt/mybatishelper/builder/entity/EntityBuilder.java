@@ -31,36 +31,36 @@ public class EntityBuilder {
 
     private static final String MAPPER = "Mapper";
 
-    private static final Map<String, String> TYPE_MAP;
+    private static final Map<String, JDBCType> TYPE_MAP;
 
     static {
         TYPE_MAP = new HashMap<>();
-        TYPE_MAP.put("String", "VARCHAR");
-        TYPE_MAP.put("Integer", "INTEGER");
-        TYPE_MAP.put("int", "INTEGER");
-        TYPE_MAP.put("Long", "BIGINT");
-        TYPE_MAP.put("long", "BIGINT");
-        TYPE_MAP.put("Boolean", "BIT");
-        TYPE_MAP.put("boolean", "BIT");
-        TYPE_MAP.put("Date", "TIMESTAMP");
-        TYPE_MAP.put("char", "CHAR");
-        TYPE_MAP.put("byte", "TINYINT");
-        TYPE_MAP.put("Character", "CHAR");
-        TYPE_MAP.put("LocalTime", "TIMESTAMP");
-        TYPE_MAP.put("LocalDate", "DATE");
-        TYPE_MAP.put("LocalDateTime", "TIMESTAMP");
-        TYPE_MAP.put("double", "DOUBLE");
-        TYPE_MAP.put("Double", "DOUBLE");
-        TYPE_MAP.put("float", "FLOAT");
-        TYPE_MAP.put("Float", "FLOAT");
-        TYPE_MAP.put("BigDecimal", "DECIMAL");
+        TYPE_MAP.put("String", JDBCType.VARCHAR);
+        TYPE_MAP.put("Integer", JDBCType.INTEGER);
+        TYPE_MAP.put("int", JDBCType.INTEGER);
+        TYPE_MAP.put("Long", JDBCType.BIGINT);
+        TYPE_MAP.put("long", JDBCType.BIGINT);
+        TYPE_MAP.put("Boolean", JDBCType.BIT);
+        TYPE_MAP.put("boolean", JDBCType.BIT);
+        TYPE_MAP.put("Date", JDBCType.TIMESTAMP);
+        TYPE_MAP.put("char", JDBCType.CHAR);
+        TYPE_MAP.put("byte", JDBCType.TINYINT);
+        TYPE_MAP.put("Character", JDBCType.CHAR);
+        TYPE_MAP.put("LocalTime", JDBCType.TIME);
+        TYPE_MAP.put("LocalDate", JDBCType.DATE);
+        TYPE_MAP.put("LocalDateTime", JDBCType.TIMESTAMP);
+        TYPE_MAP.put("double", JDBCType.DOUBLE);
+        TYPE_MAP.put("Double", JDBCType.DOUBLE);
+        TYPE_MAP.put("float", JDBCType.FLOAT);
+        TYPE_MAP.put("Float", JDBCType.FLOAT);
+        TYPE_MAP.put("BigDecimal", JDBCType.DECIMAL);
     }
 
-    private static final Map<String, Integer> DEFAULT_LENGTH;
+    private static final Map<JDBCType, Integer> DEFAULT_LENGTH;
 
     static {
         DEFAULT_LENGTH = new HashMap<>();
-        DEFAULT_LENGTH.put("VARCHAR", 255);
+        DEFAULT_LENGTH.put(JDBCType.VARCHAR, 255);
     }
 
     private static final String DEFAULT_KEY = "id";
@@ -73,7 +73,6 @@ public class EntityBuilder {
         Optional<PackageDeclaration> packageDeclaration = compilationUnit.getPackageDeclaration();
         String packageName = packageDeclaration.get().getName().toString();
         entityModel.setPackageName(packageName);
-
 
 
         List<Node> childNodes = compilationUnit.getChildNodes();
@@ -114,10 +113,6 @@ public class EntityBuilder {
         entityModel.setMapperPackage(mapperPackage);
 
 
-
-
-
-
         List<Node> fieldList = classDeclaration.getChildNodes().stream().filter(node -> node instanceof FieldDeclaration).collect(Collectors.toList());
 
         List<EntityField> primaryKeyList = new ArrayList<>();
@@ -156,7 +151,16 @@ public class EntityBuilder {
             }
 
             boolean nullable = null == StringUtils.getValue(FieldKey.NO_NULL.getCode(), fieldComment);
-            String jdbcType = StringUtils.getValue(FieldKey.JDBC_TYPE.getCode(), fieldComment);
+            JDBCType jdbcType = null;
+            String jdbcTypeStr = StringUtils.getValue(FieldKey.JDBC_TYPE.getCode(), fieldComment);
+            if (jdbcTypeStr != null) {
+                try{
+                    jdbcType = JDBCType.valueOf(jdbcTypeStr);
+                }catch (Exception e){
+                    System.err.println(e.getMessage());
+                }
+            }
+
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
             String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
@@ -170,16 +174,19 @@ public class EntityBuilder {
             String type = StringUtils.getAfterDot(((FieldDeclaration) field).getVariables().get(0).getType().toString());
             if (jdbcType == null) {
                 jdbcType = TYPE_MAP.get(type);
+                if (jdbcType == null) {
+                    continue;
+                }
             }
             if (size == null) {
                 size = DEFAULT_LENGTH.get(jdbcType);
             }
-            String fullJdbcType = jdbcType;
+            String fullJdbcType = jdbcType.getName();
             if (size != null) {
-                fullJdbcType = jdbcType + "(" + size + ")";
+                fullJdbcType = fullJdbcType + "(" + size + ")";
             }
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType.toUpperCase(), fullJdbcType.toUpperCase(), defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), defaultValue, nullable, description);
             if (DEFAULT_KEY.equals(name)) {
                 idField = entityField;
             }

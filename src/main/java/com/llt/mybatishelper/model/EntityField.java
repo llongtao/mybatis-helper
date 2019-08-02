@@ -3,6 +3,8 @@ package com.llt.mybatishelper.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.sql.JDBCType;
+
 /**
  * @author LILONGTAO
  */
@@ -16,7 +18,7 @@ public class EntityField {
 
     private String type;
 
-    private String jdbcType;
+    private JDBCType jdbcType;
 
     private String fullJdbcType;
 

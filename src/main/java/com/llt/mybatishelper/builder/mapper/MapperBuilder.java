@@ -140,7 +140,7 @@ public class MapperBuilder {
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(MAPPER);
-        mapperClass.setComment(new JavadocComment("@author MybatisHelper\n@date " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
         mapperClass.addExtendedType(entityModel.getBaseMapperName());
         mapperClass.addOrphanComment(new LineComment(TIPS));
         return compilationUnit;
