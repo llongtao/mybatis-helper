@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-在你的实体类javadoc注释里加入 .auto 并在主键field上的javadoc注释里加入.主键
+在你的实体类javadoc注释里加入 .auto 并在主键field上的javadoc注释里加入.key
 ```java
 /**
  *.auto
