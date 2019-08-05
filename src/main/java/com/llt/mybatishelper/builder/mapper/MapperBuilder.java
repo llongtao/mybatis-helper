@@ -9,7 +9,13 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
+import com.github.javaparser.ast.expr.NormalAnnotationExpr;
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
@@ -74,7 +80,7 @@ public class MapperBuilder {
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(MAPPER);
-        mapperClass.setComment(new JavadocComment("@author MybatisHelper\n@date " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
 
 
         NodeList<Parameter> nodeList = new NodeList<>();

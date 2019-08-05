@@ -26,7 +26,7 @@ public class EntityModel {
 
     private String mapperName;
 
-    private String BaseMapperName;
+    private String baseMapperName;
 
     private String entityClassName;
 
