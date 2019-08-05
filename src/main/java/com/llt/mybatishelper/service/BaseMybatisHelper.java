@@ -80,7 +80,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         CompilationUnit baseMapper = MapperBuilder.build(entityModel);
 
         String mapperClassStr =  FileUtils.readFileToString(buildConfig.getMapperFolder() + "\\"+entityModel.getMapperName()+JAVA);
-        CompilationUnit mapper = null;
+        CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
              mapper = MapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
@@ -106,7 +106,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     }
 
     private void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
-        Document baseXml = XmlBuilder.build(entityModel, buildConfig);
+        Document baseXml = XmlBuilder.build(entityModel);
         OutputFormat format = OutputFormat.createPrettyPrint();
         format.setIndentSize(4);
         format.setTrimText(false);

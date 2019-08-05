@@ -18,7 +18,6 @@ public class MyBatisHelperFactory {
     static {
         mybatisHelperMap.put("mysql", new MysqlMybatisHelper());
         mybatisHelperMap.put(null, new NoDbMybatisHelper());
-
     }
 
     /**
@@ -28,7 +27,7 @@ public class MyBatisHelperFactory {
      * @return MybatisHelper对应实现
      */
     public static MybatisHelper getMybatisHelper(String dbUrl) {
-        String database = StringUtils.getBycolonCount(dbUrl, 1);
+        String database = StringUtils.getByColonCount(dbUrl, 1);
 
         MybatisHelper mybatisHelper = null;
         if (database != null) {

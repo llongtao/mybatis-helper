@@ -87,7 +87,7 @@ public class StringUtils {
         }
     }
 
-    public static String getBycolonCount(String str, int s) {
+    public static String getByColonCount(String str, int s) {
         if (str == null) {
             return null;
         }

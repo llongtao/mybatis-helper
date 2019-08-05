@@ -1,6 +1,5 @@
 package com.llt.mybatishelper.builder.xml;
 
-import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import org.dom4j.Document;
@@ -143,7 +142,7 @@ public class XmlBuilder {
     private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
 
 
-    public static Document build(EntityModel entityModel, BuildConfig buildConfig) {
+    public static Document build(EntityModel entityModel) {
         String entityName = entityModel.getEntityName();
         // 创建Document
         Document document = DocumentHelper.createDocument();

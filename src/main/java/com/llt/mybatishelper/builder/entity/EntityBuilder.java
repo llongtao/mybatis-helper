@@ -12,8 +12,6 @@ import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
-
-import java.math.BigDecimal;
 import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;

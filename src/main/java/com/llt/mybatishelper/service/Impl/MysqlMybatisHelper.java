@@ -3,8 +3,6 @@ package com.llt.mybatishelper.service.Impl;
 import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.service.BaseMybatisHelper;
-import lombok.Data;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
