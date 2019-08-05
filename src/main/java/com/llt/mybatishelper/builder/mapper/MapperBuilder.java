@@ -14,6 +14,8 @@ import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -69,7 +71,7 @@ public class MapperBuilder {
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(MAPPER);
-        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
 
         NodeList<Parameter> nodeList = new NodeList<>();
@@ -136,7 +138,7 @@ public class MapperBuilder {
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(MAPPER);
-        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date())));
+        mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         mapperClass.addExtendedType(entityModel.getBaseMapperName());
         mapperClass.addOrphanComment(new LineComment(TIPS));
         return compilationUnit;
