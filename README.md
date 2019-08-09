@@ -1,6 +1,6 @@
 # mybatis-helper
 
-[![License](https://img.shields.io/badge/license-GPL-blue)](https://github.com/llongtao/swagger-showdoc/blob/master/LICENSE)
+[![License](https://img.shields.io/badge/license-GPL-blue)](https://github.com/llongtao/mybatis-helper/blob/master/LICENSE)
 
 
 #### 项目介绍
