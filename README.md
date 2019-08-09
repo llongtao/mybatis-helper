@@ -1,10 +1,18 @@
 # mybatis-helper
 
-由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 
+
+#### 项目介绍
+
+由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
 目前仅实现 创建mysql表和mapper 和 不创建表,仅创建mapper
 
-## 使用方式
+#### 软件架构
+
+JDK 1.8
+
+#### 使用方式
 
 在你的实体类javadoc注释里加入 .auto 并在主键field上的javadoc注释里加入.key
 ```java
@@ -27,7 +35,7 @@ private String name;
 
 运行Main.main
 
-## 更多关键字
+#### 更多关键字
 - class注释
 
   - **.auto 必选** 包含该字段才会自动生成
