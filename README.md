@@ -1,6 +1,6 @@
 # mybatis-helper
 
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![License](https://img.shields.io/badge/license-GPL-blue)](https://github.com/llongtao/mybatis-helper/blob/master/LICENSE)
 
 
 #### 项目介绍
