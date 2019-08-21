@@ -297,14 +297,14 @@ public class XmlBuilder {
         insertListTrim.add(baseColumn.createCopy());
         insertList.addText(TWO_TAB + VALUES);
         Element values = insertList.addElement(FOREACH)
-                .addAttribute(OPEN, LEFT_PARENTHESIS)
-                .addAttribute(CLOSE, RIGHT_PARENTHESIS)
                 .addAttribute(COLLECTION, LIST)
                 .addAttribute(ITEM, ITEM)
                 .addAttribute(SEPARATOR, COMMA);
-        StringBuilder items = new StringBuilder();
-        entityFieldList.forEach(entityField -> items.append(THREE_TAB + LEFT_BRACKET + ITEM + DOT).append(entityField.getName()).append(COMMA).append(JDBC_TYPE).append(EQ).append(entityField.getJdbcType()).append(RIGHT_BRACKET).append(COMMA));
+        StringBuilder items = new StringBuilder(THREE_TAB);
+        items.append(LEFT_PARENTHESIS);
+        entityFieldList.forEach(entityField -> items.append(THREE_TAB).append(LEFT_BRACKET).append(ITEM).append(DOT).append(entityField.getName()).append(COMMA).append(JDBC_TYPE).append(EQ).append(entityField.getJdbcType()).append(RIGHT_BRACKET).append(COMMA));
         items.deleteCharAt(items.length() - 1);
+        items.append(THREE_TAB).append(RIGHT_PARENTHESIS);
         values.addText(items.toString()).addText(TWO_TAB);
         insertList.addText(TWO_TAB);
     }
