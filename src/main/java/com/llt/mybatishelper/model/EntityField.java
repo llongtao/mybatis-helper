@@ -2,6 +2,7 @@ package com.llt.mybatishelper.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.sql.JDBCType;
 
@@ -9,6 +10,7 @@ import java.sql.JDBCType;
  * @author LILONGTAO
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class EntityField {
 
@@ -22,9 +24,11 @@ public class EntityField {
 
     private String fullJdbcType;
 
+    private Integer length;
+
     private String defaultValue;
 
-    private boolean nullable;
+    private Boolean nullable;
 
     private String description;
 

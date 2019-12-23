@@ -63,7 +63,7 @@ public class EntityModel {
         entityFieldList.forEach(column -> {
             if (!existsSet.contains(column.getColumnName())) {
                 sb.append("`").append(column.getColumnName()).append("` ").append(column.getFullJdbcType()).append(" ");
-                if (!column.isNullable()) {
+                if (!column.getNullable()) {
                     sb.append("NOT NULL ");
                 }
                 sb.append(",");
@@ -92,7 +92,7 @@ public class EntityModel {
             primaryKeyList.forEach(primaryKey -> {
                 String description = primaryKey.getDescription();
                 sb.append("`").append(primaryKey.getColumnName()).append("` ").append(primaryKey.getFullJdbcType()).append(" ");
-                if (!primaryKey.isNullable()) {
+                if (!primaryKey.getNullable()) {
                     sb.append("NOT NULL ");
                 }
                 if (useAutoIncrement ) {
@@ -108,7 +108,7 @@ public class EntityModel {
 
         columnList.forEach(column -> {
             sb.append("`").append(column.getColumnName()).append("` ").append(column.getFullJdbcType()).append(" ");
-            if (!column.isNullable()) {
+            if (!column.getNullable()) {
                 sb.append("NOT NULL ");
             }
             String defaultValue = column.getDefaultValue();

@@ -22,4 +22,6 @@ public class BuildConfig {
 
     private String dbPassword;
 
+    private Boolean ignoreBaseField;
+
 }

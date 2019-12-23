@@ -20,6 +20,8 @@ public class Config {
 
     private String baseDbDriverClassName;
 
+    private List<EntityField> baseEntityFieldList;
+
     private List<BuildConfig> buildConfigList;
 
 

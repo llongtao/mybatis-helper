@@ -63,7 +63,7 @@ public class EntityBuilder {
 
     private static final String DEFAULT_KEY = "id";
 
-    public static EntityModel build(String classStr, BuildConfig buildConfig) {
+    public static EntityModel build(String classStr, BuildConfig buildConfig, List<EntityField> baseEntityFieldList) {
         EntityModel entityModel = new EntityModel();
 
 
@@ -119,6 +119,10 @@ public class EntityBuilder {
 
         List<EntityField> columnList = new ArrayList<>();
 
+        if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
+            BuildBaseFieldList(baseEntityFieldList, columnList);
+        }
+
         for (Node field : fieldList) {
             if (((FieldDeclaration) field).isStatic()) {
                 continue;
@@ -152,9 +156,9 @@ public class EntityBuilder {
             JDBCType jdbcType = null;
             String jdbcTypeStr = StringUtils.getValue(FieldKey.JDBC_TYPE.getCode(), fieldComment);
             if (jdbcTypeStr != null) {
-                try{
+                try {
                     jdbcType = JDBCType.valueOf(jdbcTypeStr);
-                }catch (Exception e){
+                } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
             }
@@ -184,7 +188,7 @@ public class EntityBuilder {
                 fullJdbcType = fullJdbcType + "(" + size + ")";
             }
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(),size, defaultValue, nullable, description);
             if (DEFAULT_KEY.equals(name)) {
                 idField = entityField;
             }
@@ -203,5 +207,43 @@ public class EntityBuilder {
         entityModel.setPrimaryKeyList(primaryKeyList);
 
         return entityModel;
+    }
+
+    private static void BuildBaseFieldList(List<EntityField> baseEntityFieldList, List<EntityField> columnList) {
+        if (baseEntityFieldList != null) {
+            for (EntityField entityField : baseEntityFieldList) {
+                String name = entityField.getName();
+                String columnName = entityField.getColumnName();
+                String type = entityField.getType();
+                Integer length = entityField.getLength();
+                if (StringUtils.isEmpty(columnName)&&StringUtils.isEmpty(name)) {
+                    continue;
+                }
+                if (StringUtils.isEmpty(type)) {
+                    continue;
+                }
+                if (StringUtils.isEmpty(columnName)) {
+                    entityField.setColumnName(StringUtils.transformUnderline(name));
+                }else {
+                    entityField.setName(StringUtils.transformHump(columnName));
+                }
+                JDBCType jdbcType = TYPE_MAP.get(type);
+                if (jdbcType == null) {
+                    continue;
+                }
+                entityField.setJdbcType(jdbcType);
+
+                if (length == null) {
+                    length = DEFAULT_LENGTH.get(jdbcType);
+                }
+                String fullJdbcType = jdbcType.getName();
+                if (length != null) {
+                    fullJdbcType = fullJdbcType + "(" + length + ")";
+                }
+                entityField.setFullJdbcType(fullJdbcType);
+                entityField.setNullable(!Objects.equals(entityField.getNullable(),false));
+                columnList.add(entityField);
+            }
+        }
     }
 }

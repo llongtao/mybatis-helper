@@ -17,7 +17,9 @@ public class MyBatisHelperFactory {
 
     static {
         mybatisHelperMap.put("mysql", new MysqlMybatisHelper());
-        mybatisHelperMap.put(null, new NoDbMybatisHelper());
+        NoDbMybatisHelper noDbMybatisHelper = new NoDbMybatisHelper();
+        mybatisHelperMap.put(null,noDbMybatisHelper );
+        mybatisHelperMap.put("",noDbMybatisHelper);
     }
 
     /**
@@ -29,9 +31,11 @@ public class MyBatisHelperFactory {
     public static MybatisHelper getMybatisHelper(String dbUrl) {
         String database = StringUtils.getByColonCount(dbUrl, 1);
 
-        MybatisHelper mybatisHelper = null;
+        MybatisHelper mybatisHelper;
         if (database != null) {
             mybatisHelper = mybatisHelperMap.get(database.toLowerCase());
+        }else {
+            mybatisHelper = mybatisHelperMap.get(null);
         }
         if (mybatisHelper == null) {
             throw new IllegalArgumentException("没有" + database + "的实现");

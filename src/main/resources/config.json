@@ -1,17 +1,71 @@
 {
-  "baseDbUrl": "jdbc:mysql://192.168.7.162:3406/tst?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=true",
+  "baseDbUrl": "jdbc:mysql://192.168.7.28:3308/biz-relations?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=true",
   "baseDbUsername": "root",
-  "baseDbPassword": "apec@123",
+  "baseDbPassword": "123456",
   "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",
   "useDb": true,
+  "baseEntityFieldList": [
+    {
+      "name": "status",
+      "columnName": "status",
+      "type": "String",
+      "jdbcType": null,
+      "length": 1,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "状态"
+    } ,
+    {
+      "name": "enableFlag",
+      "columnName": null,
+      "type": "String",
+      "length": 1,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "是否可用"
+    },{
+      "name": "createBy",
+      "columnName": null,
+      "type": "String",
+      "length": 32,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "创建人"
+    },{
+      "name": "lastUpdateBy",
+      "columnName": null,
+      "type": "String",
+      "length": 32,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "修改人"
+    }, {
+      "name": "createDate",
+      "columnName": null,
+      "type": "Date",
+      "length": null,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "创建时间"
+    },{
+      "name": "lastUpdateDate",
+      "columnName": null,
+      "type": "Date",
+      "length": null,
+      "defaultValue": null,
+      "nullable": null,
+      "description": "修改时间"
+    }
+  ],
   "buildConfigList": [
     {
-      "entityFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\model\\entity",
-      "mapperFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\java\\com\\llt\\tst\\mapper",
-      "xmlFolder": "C:\\Users\\DELL\\IdeaProjects\\tst\\src\\main\\resources\\mappers",
+      "entityFolder": "C:\\Users\\DELL\\IdeaProjects\\business-relations-server-parent\\biz-relations-server\\src\\main\\java\\com\\apec\\brs\\status\\model\\entity",
+      "mapperFolder": "C:\\Users\\DELL\\IdeaProjects\\business-relations-server-parent\\biz-relations-server\\src\\main\\java\\com\\apec\\brs\\status\\mapper",
+      "xmlFolder": "C:\\Users\\DELL\\IdeaProjects\\business-relations-server-parent\\biz-relations-server\\src\\main\\resources\\mappers",
       "dbUrl": "",
       "dbUsername": "",
-      "dbPassword": ""
+      "dbPassword": "",
+      "ignoreBaseField": null
     }
   ]
 }

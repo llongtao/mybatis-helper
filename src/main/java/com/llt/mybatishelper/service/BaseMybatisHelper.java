@@ -7,6 +7,7 @@ import com.llt.mybatishelper.builder.xml.XmlBuilder;
 import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.Config;
+import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.FileUtils;
 import com.llt.mybatishelper.utils.StringUtils;
@@ -41,6 +42,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         String baseDbUsername = config.getBaseDbUsername();
         String baseDbPassword = config.getBaseDbPassword();
         String baseDbDriverClassName = config.getBaseDbDriverClassName();
+        List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
 
 
         config.getBuildConfigList().forEach(buildConfig -> {
@@ -58,7 +60,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readFileToString(filePath);
-                EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig);
+                EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
                 if (entityModel != null) {
                     updateTable(entityModel, dataSourceUrl);
                     buildMapper(entityModel, buildConfig);
@@ -116,7 +118,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         Document xml = null;
         if (!xmlFile.exists()) {
             //xml不存在时创建
-            xml = XmlBuilder.buildEmpty(entityModel.getMapperClassName());
+            xml = XmlBuilder.buildEmpty(entityModel);
         }
 
         try {

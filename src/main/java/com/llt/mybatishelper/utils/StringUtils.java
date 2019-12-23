@@ -3,7 +3,7 @@ package com.llt.mybatishelper.utils;
 /**
  * @author LILONGTAO
  */
-public class StringUtils {
+public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
     public static final char SPACE = ' ';
 
@@ -38,6 +38,23 @@ public class StringUtils {
         for (int i = 1; i < length; i++) {
             if (chars[i] >= 'A' && chars[i] <= 'Z') {
                 sb.append("_").append((char) (chars[i] + 32));
+            } else {
+                sb.append(chars[i]);
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String transformHump(String str) {
+        char[] chars = str.trim().toLowerCase().toCharArray();
+        int length = chars.length;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            if (chars[i] == '_') {
+                i++;
+                if (i < length) {
+                    sb.append((char)(chars[i] - 32));
+                }
             } else {
                 sb.append(chars[i]);
             }

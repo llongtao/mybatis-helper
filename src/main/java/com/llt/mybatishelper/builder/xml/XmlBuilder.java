@@ -95,6 +95,8 @@ public class XmlBuilder {
 
     private static final String FOUR_TAB = "\n\t\t\t\t";
 
+    private static final String FIVE_TAB = "\n\t\t\t\t\t";
+
     private static final String FROM = "from";
 
     private static final String SPLIT = "`";
@@ -138,6 +140,8 @@ public class XmlBuilder {
     private static final String EQ = " = ";
 
     private static final String DOT = ".";
+
+    private static final String SEMICOLON = ";";
 
     private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
 
@@ -196,7 +200,32 @@ public class XmlBuilder {
         //构建insertList
         buildInsertList(entityModel, entityName, root, entityClassName, entityFieldList, baseColumnElement);
 
+        //构建updateList
+        buildUpdateList(entityModel, entityName, root, entityClassName);
+
         return document;
+    }
+
+    private static void buildUpdateList(EntityModel entityModel, String entityName, Element root, String entityClassName) {
+        Element updateList = root.addElement(UPDATE)
+                .addAttribute(ID, UPDATE + entityName + "List")
+                .addAttribute(PARAMETER_TYPE, entityClassName);
+        Element noNullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list!=null and list.size>0");
+        Element values = noNullUpdateList.addElement(FOREACH)
+                .addAttribute(COLLECTION, LIST)
+                .addAttribute(ITEM, ITEM)
+                .addAttribute(SEPARATOR, SEMICOLON);
+        values.addText(FOUR_TAB + UPDATE + FOUR_TAB + SPLIT + entityModel.getTableName() + SPLIT);
+        Element updateSet = values.addElement(SET);
+        entityModel.getColumnList().forEach(entityField -> updateSet.addText(FIVE_TAB + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + LEFT_BRACKET + ITEM + DOT + entityField.getName() + COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET + COMMA));
+        updateSet.addText(FOUR_TAB);
+
+        StringBuilder whereId = new StringBuilder();
+        entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(FIVE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(EQ).append(LEFT_BRACKET).append(ITEM).append(DOT).append(primaryKey.getName()).append("}"));
+        values.addElement(WHERE).addText(whereId.toString()).addText(FOUR_TAB);
+        Element nullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
+        nullUpdateList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
+        //noNullUpdateList.addText(TWO_TAB);
     }
 
     private static void buildBaseColumn(Element root, StringBuilder baseColumn) {
@@ -287,26 +316,27 @@ public class XmlBuilder {
     private static void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
         Element insertList = root.addElement(INSERT)
                 .addAttribute(ID, INSERT + entityName + "List")
-                .addAttribute(PARAMETER_TYPE, entityClassName)
-                .addText(TWO_TAB + INSERT_INTO)
-                .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
-        Element insertListTrim = insertList.addElement(TRIM)
+                .addAttribute(PARAMETER_TYPE, entityClassName);
+        Element noNullInsertList = insertList.addElement(IF).addAttribute(TEST, "list!=null and list.size>0");
+        noNullInsertList.addText(THREE_TAB + INSERT_INTO).addText(THREE_TAB + SPLIT + entityModel.getTableName() + SPLIT);
+        Element insertListTrim = noNullInsertList.addElement(TRIM)
                 .addAttribute(PREFIX, LEFT_PARENTHESIS)
                 .addAttribute(SUFFIX, RIGHT_PARENTHESIS)
                 .addAttribute(SUFFIX_OVERRIDES, COMMA);
         insertListTrim.add(baseColumn.createCopy());
-        insertList.addText(TWO_TAB + VALUES);
-        Element values = insertList.addElement(FOREACH)
+        noNullInsertList.addText(THREE_TAB + VALUES);
+        Element values = noNullInsertList.addElement(FOREACH)
                 .addAttribute(COLLECTION, LIST)
                 .addAttribute(ITEM, ITEM)
                 .addAttribute(SEPARATOR, COMMA);
-        StringBuilder items = new StringBuilder(THREE_TAB);
+        StringBuilder items = new StringBuilder(FOUR_TAB);
         items.append(LEFT_PARENTHESIS);
-        entityFieldList.forEach(entityField -> items.append(THREE_TAB).append(LEFT_BRACKET).append(ITEM).append(DOT).append(entityField.getName()).append(COMMA).append(JDBC_TYPE).append(EQ).append(entityField.getJdbcType()).append(RIGHT_BRACKET).append(COMMA));
+        entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(LEFT_BRACKET).append(ITEM).append(DOT).append(entityField.getName()).append(COMMA).append(JDBC_TYPE).append(EQ).append(entityField.getJdbcType()).append(RIGHT_BRACKET).append(COMMA));
         items.deleteCharAt(items.length() - 1);
-        items.append(THREE_TAB).append(RIGHT_PARENTHESIS);
-        values.addText(items.toString()).addText(TWO_TAB);
-        insertList.addText(TWO_TAB);
+        items.append(FOUR_TAB).append(RIGHT_PARENTHESIS);
+        values.addText(items.toString()).addText(THREE_TAB);
+        Element nullInsertList = insertList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
+        nullInsertList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
     }
 
 
@@ -325,14 +355,32 @@ public class XmlBuilder {
         return updateSelective;
     }
 
-    public static Document buildEmpty(String mapperClassName) {
+    public static Document buildEmpty(EntityModel entityModel) {
         // 创建Document
         Document document = DocumentHelper.createDocument();
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
         // 添加根节点
         Element root = document.addElement(MAPPER);
-        root.addAttribute(NAMESPACE, mapperClassName);
+        root.addAttribute(NAMESPACE, entityModel.getMapperClassName());
+        buildRefResult(root, entityModel);
+        buildRefColumn(root, entityModel);
         root.addComment(TIPS);
         return document;
+    }
+
+    private static void buildRefColumn(Element root, EntityModel entityModel) {
+        Element sql = root.addElement(SQL)
+                .addAttribute(ID, BASE_COLUMN);
+        sql.addElement(INCLUDE).addAttribute(REF_ID, entityModel.getBaseMapperClassName() + DOT + BASE_COLUMN);
+
+    }
+
+    private static void buildRefResult(Element root, EntityModel entityModel) {
+        root.addElement(RESULT_MAP)
+                .addAttribute(ID, BASE_RESULT_MAP)
+                .addAttribute(TYPE, entityModel.getEntityClassName())
+                .addAttribute("extends", entityModel.getBaseMapperClassName() + DOT + BASE_RESULT_MAP);
+
+
     }
 }

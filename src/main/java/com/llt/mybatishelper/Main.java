@@ -19,8 +19,7 @@ public class Main {
 
         URL resource = Main.class.getClassLoader().getResource("config.json");
         assert resource != null;
-        String configStr = FileUtils.readFileToString(resource.getPath());
-        Config config = JSON.parseObject(configStr, Config.class);
+        Config config = JSON.parseObject(FileUtils.readFileToString(resource.getPath()), Config.class);
         assert config != null;
         String dbUrl = config.getBaseDbUrl();
         if (StringUtils.isEmpty(dbUrl)) {

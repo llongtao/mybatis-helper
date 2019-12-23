@@ -101,10 +101,12 @@ public class MapperBuilder {
         mapperClass.addMethod(INSERT + entityName).setParameters(nodeList).setType(Type.NODE).setBody(null);
         mapperClass.addMethod(INSERT + entityName + LIST).setParameters(listNodeList).setType(Type.NODE).setBody(null);
         mapperClass.addMethod(UPDATE + entityName).setType(Type.NODE).setBody(null).setParameters(nodeList);
+        mapperClass.addMethod(UPDATE + entityName+LIST).setType(Type.NODE).setBody(null).setParameters(listNodeList);
         mapperClass.addMethod(UPDATE_SELECTIVE).setType(Type.NODE).setBody(null).setParameters(nodeList);
         mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + entityName + ">").setParameters(nodeList);
         mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(entityName).setParameters(keyParameterList);
         mapperClass.addMethod(DELETE_BY_PRIMARY_KEY).setType(Type.NODE).setBody(null).setParameters(keyParameterList);
+
 
         return compilationUnit;
     }
