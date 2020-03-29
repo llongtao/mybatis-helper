@@ -12,6 +12,7 @@ import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
+
 import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -99,7 +100,12 @@ public class EntityBuilder {
 
         String entityClassName = packageName + DOT + className;
         entityModel.setEntityClassName(entityClassName);
-        String mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
+        String mapperPackage;
+        try {
+            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
+        } catch (Exception e) {
+            throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
+        }
         String baseMapperPackage = mapperPackage + ".base";
         String baseMapperName = BASE + className + MAPPER;
         String mapperName = className + MAPPER;
@@ -188,7 +194,7 @@ public class EntityBuilder {
                 fullJdbcType = fullJdbcType + "(" + size + ")";
             }
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(),size, defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), size, defaultValue, nullable, description);
             if (DEFAULT_KEY.equals(name)) {
                 idField = entityField;
             }
@@ -216,7 +222,7 @@ public class EntityBuilder {
                 String columnName = entityField.getColumnName();
                 String type = entityField.getType();
                 Integer length = entityField.getLength();
-                if (StringUtils.isEmpty(columnName)&&StringUtils.isEmpty(name)) {
+                if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(name)) {
                     continue;
                 }
                 if (StringUtils.isEmpty(type)) {
@@ -224,7 +230,7 @@ public class EntityBuilder {
                 }
                 if (StringUtils.isEmpty(columnName)) {
                     entityField.setColumnName(StringUtils.transformUnderline(name));
-                }else {
+                } else {
                     entityField.setName(StringUtils.transformHump(columnName));
                 }
                 JDBCType jdbcType = TYPE_MAP.get(type);
@@ -241,7 +247,7 @@ public class EntityBuilder {
                     fullJdbcType = fullJdbcType + "(" + length + ")";
                 }
                 entityField.setFullJdbcType(fullJdbcType);
-                entityField.setNullable(!Objects.equals(entityField.getNullable(),false));
+                entityField.setNullable(!Objects.equals(entityField.getNullable(), false));
                 columnList.add(entityField);
             }
         }

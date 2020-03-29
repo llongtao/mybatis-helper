@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class Config {
 
+    private String dbType;
+
     private String database;
 
     private String baseDbUrl;
@@ -19,6 +21,8 @@ public class Config {
     private String baseDbPassword;
 
     private String baseDbDriverClassName;
+
+    private Boolean useDb;
 
     private List<EntityField> baseEntityFieldList;
 

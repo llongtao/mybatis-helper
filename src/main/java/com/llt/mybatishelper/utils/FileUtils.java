@@ -1,5 +1,7 @@
 package com.llt.mybatishelper.utils;
 
+import com.alibaba.fastjson.JSON;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -61,4 +63,12 @@ public class FileUtils {
 
     }
 
+    public static void serialization(Object o,String name) {
+
+        try(PrintWriter printWriter = new PrintWriter(name)) {
+            printWriter.print(JSON.toJSONString(o));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

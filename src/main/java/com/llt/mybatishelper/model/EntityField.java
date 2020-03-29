@@ -1,5 +1,6 @@
 package com.llt.mybatishelper.model;
 
+import com.llt.mybatishelper.view.vo.EntityFieldVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +11,6 @@ import java.sql.JDBCType;
  * @author LILONGTAO
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class EntityField {
 
@@ -32,4 +32,16 @@ public class EntityField {
 
     private String description;
 
+    public EntityField(EntityFieldVO item) {
+        this.name = item.getName();
+        this.columnName = item.getColumnName();
+        this.type = item.getType();
+        this.length = item.getLength();
+        this.defaultValue = item.getDefaultValue();
+        this.nullable = !item.isNoNull();
+        this.description = item.getDescription();
+
+    }
+    public EntityField() {
+    }
 }

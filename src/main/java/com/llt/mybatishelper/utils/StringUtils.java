@@ -120,7 +120,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
     public static String getAfterString(String fullStr, String preStr) {
         int i = fullStr.indexOf(preStr);
         if (i < 0) {
-            return fullStr;
+            throw new IllegalArgumentException("未包含前缀:"+preStr);
         }
         return fullStr.substring(i);
     }

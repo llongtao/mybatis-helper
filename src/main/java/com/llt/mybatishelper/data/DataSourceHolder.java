@@ -5,6 +5,8 @@ import com.alibaba.druid.pool.DruidDataSource;
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.*;
 
 /**
  * @author LILONGTAO
@@ -12,33 +14,51 @@ import java.util.Map;
  */
 public class DataSourceHolder {
 
-    private static Map<String, DruidDataSource> DATA_SOURCE_MAP = new HashMap<>();
+    private static DruidDataSource dataSource;
 
     public static void addDataSource(String driverClassName, String url, String username, String password) {
-        DruidDataSource druidDataSource = DATA_SOURCE_MAP.get(url);
-        if (druidDataSource == null) {
+        if (dataSource == null) {
             try {
                 DruidDataSource dataSource = new DruidDataSource();
                 dataSource.setDriverClassName(driverClassName);
                 dataSource.setUsername(username);
                 dataSource.setPassword(password);
                 dataSource.setUrl(url);
-                DATA_SOURCE_MAP.put(url, dataSource);
+                Properties properties = new Properties();
+                properties.setProperty("useSSL", "false");
+                properties.setProperty("allowPublicKeyRetrieval", "true");
+                properties.setProperty("serverTimezone", "GMT+8");
+                dataSource.setConnectProperties(properties);
+                DataSourceHolder.dataSource = dataSource;
             } catch (Exception e) {
-                System.err.println("db配置不正确:" + e.getMessage());
+                throw new IllegalArgumentException("db配置不正确:" + e.getMessage());
             }
         }
     }
 
-    public static Connection getConnection(String url) {
-        DruidDataSource druidDataSource = DATA_SOURCE_MAP.get(url);
-        if (druidDataSource == null) {
+    public static Connection getConnection() {
+        if (dataSource == null) {
             throw new IllegalArgumentException("未配置数据源");
         }
+        Callable<Connection> callable = () -> dataSource.getConnection();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Connection> submit = executor.submit(callable);
         try {
-            return druidDataSource.getConnection();
+            return submit.get(2, TimeUnit.SECONDS);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            dataSource.close();
+            dataSource = null;
+            throw new RuntimeException("数据库连接超时");
+        }
+    }
+
+    public static void clear() {
+        if (dataSource != null) {
+            try {
+                dataSource.close();
+                dataSource = null;
+            } catch (Exception ignore) {
+            }
         }
     }
 }

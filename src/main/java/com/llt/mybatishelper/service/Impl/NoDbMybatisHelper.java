@@ -13,4 +13,5 @@ public class NoDbMybatisHelper extends BaseMybatisHelper {
     protected void updateTable(EntityModel entityModel, String dataSourceUrl) {
         //不对数据库做改动
     }
+
 }

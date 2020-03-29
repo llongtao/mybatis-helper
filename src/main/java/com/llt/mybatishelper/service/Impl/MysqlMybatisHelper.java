@@ -17,9 +17,14 @@ import java.util.Set;
 public class MysqlMybatisHelper extends BaseMybatisHelper {
 
     @Override
-    protected void updateTable(EntityModel entityModel, String dataSourceUrl) {
+    protected void updateTable(EntityModel entityModel, String schema)  {
 
-        Connection connection = DataSourceHolder.getConnection(dataSourceUrl);
+        Connection connection = DataSourceHolder.getConnection();
+        try {
+            connection.setCatalog(schema);
+        } catch (SQLException e) {
+            throw new RuntimeException("切库异常:"+e.getMessage(),e);
+        }
         String tableName = entityModel.getTableName();
         Set<String> columnSet = new HashSet<>();
         try {
@@ -45,4 +50,5 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
             }
         }
     }
+
 }

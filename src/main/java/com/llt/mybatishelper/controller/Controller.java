@@ -1,0 +1,435 @@
+package com.llt.mybatishelper.controller;
+
+import com.alibaba.fastjson.JSON;
+import com.llt.mybatishelper.Main;
+import com.llt.mybatishelper.data.DataSourceHolder;
+import com.llt.mybatishelper.model.BuildConfig;
+import com.llt.mybatishelper.model.Config;
+import com.llt.mybatishelper.model.EntityField;
+import com.llt.mybatishelper.service.MyBatisHelperFactory;
+import com.llt.mybatishelper.utils.CollectionUtils;
+import com.llt.mybatishelper.utils.FileUtils;
+import com.llt.mybatishelper.utils.StringUtils;
+import com.llt.mybatishelper.view.*;
+import com.llt.mybatishelper.view.vo.ConfigVO;
+import com.llt.mybatishelper.view.vo.EntityFieldVO;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.*;
+import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
+import lombok.Getter;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.net.URL;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+@Getter
+public class Controller {
+    public static Stage primaryStage;
+
+    @FXML
+    private CheckBox useDb;
+
+    @FXML
+    private ChoiceBox<String> dbType;
+
+    @FXML
+    private TextField baseDbUsername;
+
+    @FXML
+    private PasswordField baseDbPassword;
+
+    @FXML
+    private Button start;
+
+    @FXML
+    private TextField baseDbUrl;
+
+
+    @FXML
+    private TableView<ConfigVO> buildConfig;
+
+    @FXML
+    private TableColumn<ConfigVO, String> entityFolder;
+
+    @FXML
+    private TableColumn<ConfigVO, String> mapperFolder;
+
+    @FXML
+    private TableColumn<ConfigVO, String> xmlFolder;
+
+    @FXML
+    private TableColumn<ConfigVO, Boolean> useBaseField;
+
+    @FXML
+    private TableColumn<ConfigVO, String> db;
+
+    @FXML
+    private TableColumn<ConfigVO, Boolean> configAdd;
+
+    @FXML
+    private TableColumn<ConfigVO, Boolean> configDelete;
+
+
+    @FXML
+    private TableView<EntityFieldVO> baseModel;
+
+
+    @FXML
+    private TableColumn<EntityFieldVO, String> name;
+
+    @FXML
+    private TableColumn<EntityFieldVO, String> columnName;
+
+    @FXML
+    private TableColumn<EntityFieldVO, String> type;
+
+    @FXML
+    private TableColumn<EntityFieldVO, Integer> length;
+
+    @FXML
+    private TableColumn<EntityFieldVO, String> defaultValue;
+
+    @FXML
+    private TableColumn<EntityFieldVO, Boolean> noNull;
+
+    @FXML
+    private TableColumn<EntityFieldVO, String> description;
+
+    @FXML
+    private TableColumn<EntityFieldVO, Boolean> actionAdd;
+
+    @FXML
+    private TableColumn<EntityFieldVO, Boolean> actionDelete;
+
+    public void init() {
+        configBaseModelTableView();
+        configTreeTableView();
+        configUseDB();
+        configStart();
+        configDbType();
+    }
+
+    private void configBaseModelTableView() {
+        name.setCellValueFactory(new PropertyValueFactory<>("name"));
+        name.setEditable(true);
+        name.setCellFactory(TextFieldTableCell.forTableColumn());
+        name.setOnEditCommit(evt -> {
+            evt.getRowValue().setName(evt.getNewValue());
+            evt.getRowValue().setColumnName(StringUtils.transformUnderline(evt.getNewValue()));
+        });
+
+        columnName.setCellValueFactory(new PropertyValueFactory<>("columnName"));
+        columnName.setEditable(true);
+        columnName.setCellFactory(TextFieldTableCell.forTableColumn());
+        columnName.setOnEditCommit(evt -> {
+            evt.getRowValue().setColumnName(evt.getNewValue());
+
+        });
+
+        type.setCellValueFactory(new PropertyValueFactory<>("type"));
+        type.setEditable(true);
+        type.setCellFactory(TextFieldTableCell.forTableColumn());
+        type.setOnEditCommit(evt -> evt.getRowValue().setType(evt.getNewValue()));
+
+        length.setCellValueFactory(new PropertyValueFactory<>("length"));
+        length.setEditable(true);
+        length.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                return String.valueOf(object);
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                try {
+                    return Integer.parseInt(string);
+                } catch (Exception ignore) {
+                    return 0;
+                }
+            }
+        }));
+        length.setOnEditCommit(evt -> evt.getRowValue().setLength(evt.getNewValue()));
+
+        defaultValue.setCellValueFactory(new PropertyValueFactory<>("defaultValue"));
+        defaultValue.setEditable(true);
+        defaultValue.setCellFactory(TextFieldTableCell.forTableColumn());
+        defaultValue.setOnEditCommit(evt -> evt.getRowValue().setDefaultValue(evt.getNewValue()));
+
+
+        noNull.setCellValueFactory(new PropertyValueFactory<>("noNull"));
+        noNull.setEditable(true);
+        noNull.setCellFactory(CheckBoxTableCell.forTableColumn(noNull));
+        noNull.setOnEditCommit(evt -> evt.getRowValue().setNoNull(evt.getNewValue()));
+
+        description.setCellValueFactory(new PropertyValueFactory<>("description"));
+        description.setEditable(true);
+        description.setCellFactory(TextFieldTableCell.forTableColumn());
+
+        description.setOnEditCommit(evt -> {
+            System.out.println(evt);
+            evt.getRowValue().setDescription(evt.getNewValue());
+        });
+
+
+        // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
+        actionAdd.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<EntityFieldVO, Boolean>, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<EntityFieldVO, Boolean> features) {
+                return new SimpleBooleanProperty(features.getValue() != null);
+            }
+        });
+
+        // create a cell value factory with an add button for each row in the table.
+        actionAdd.setCellFactory(new Callback<TableColumn<EntityFieldVO, Boolean>, TableCell<EntityFieldVO, Boolean>>() {
+            @Override
+            public TableCell<EntityFieldVO, Boolean> call(TableColumn<EntityFieldVO, Boolean> personBooleanTableColumn) {
+                return new AddCell<>(primaryStage, baseModel, EntityFieldVO.class);
+            }
+        });
+
+        // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
+        actionDelete.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<EntityFieldVO, Boolean>, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<EntityFieldVO, Boolean> features) {
+                return new SimpleBooleanProperty(features.getValue() != null);
+            }
+        });
+
+        // create a cell value factory with an add button for each row in the table.
+        actionDelete.setCellFactory(new Callback<TableColumn<EntityFieldVO, Boolean>, TableCell<EntityFieldVO, Boolean>>() {
+            @Override
+            public TableCell<EntityFieldVO, Boolean> call(TableColumn<EntityFieldVO, Boolean> personBooleanTableColumn) {
+                return new DeleteCell<>(primaryStage, baseModel);
+            }
+        });
+
+    }
+
+    private void configTreeTableView() {
+        entityFolder.setCellValueFactory(new PropertyValueFactory<>("entityFolder"));
+        entityFolder.setEditable(true);
+        entityFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
+        entityFolder.setOnEditCommit(evt -> {
+            evt.getRowValue().setEntityFolder(evt.getNewValue());
+            System.out.println(evt);
+        });
+
+        mapperFolder.setCellValueFactory(new PropertyValueFactory<>("mapperFolder"));
+        mapperFolder.setEditable(true);
+        mapperFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
+        mapperFolder.setOnEditCommit(evt -> {
+            evt.getRowValue().setMapperFolder(evt.getNewValue());
+            System.out.println(evt);
+        });
+
+        xmlFolder.setCellValueFactory(new PropertyValueFactory<>("xmlFolder"));
+        xmlFolder.setEditable(true);
+        xmlFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
+        xmlFolder.setOnEditCommit(evt -> {
+            evt.getRowValue().setXmlFolder(evt.getNewValue());
+            System.out.println(evt);
+        });
+        useBaseField.setCellValueFactory(new PropertyValueFactory<>("useBaseField"));
+        useBaseField.setEditable(true);
+        useBaseField.setCellFactory(CheckBoxTableCell.forTableColumn(useBaseField));
+        useBaseField.setOnEditCommit(evt -> {
+            evt.getRowValue().setUseBaseField(evt.getNewValue());
+            System.out.println(evt);
+        });
+        db.setCellValueFactory(new PropertyValueFactory<>("db"));
+        db.setEditable(true);
+        db.setCellFactory(TextFieldTableCell.forTableColumn());
+        db.setOnEditCommit(evt -> evt.getRowValue().setDb(evt.getNewValue()));
+
+
+        // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
+        configAdd.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ConfigVO, Boolean>, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<ConfigVO, Boolean> features) {
+                return new SimpleBooleanProperty(features.getValue() != null);
+            }
+        });
+
+        // create a cell value factory with an add button for each row in the table.
+        configAdd.setCellFactory(new Callback<TableColumn<ConfigVO, Boolean>, TableCell<ConfigVO, Boolean>>() {
+            @Override
+            public TableCell<ConfigVO, Boolean> call(TableColumn<ConfigVO, Boolean> personBooleanTableColumn) {
+                return new AddCell<>(primaryStage, buildConfig, ConfigVO.class);
+            }
+        });
+
+        // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
+        configDelete.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ConfigVO, Boolean>, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<ConfigVO, Boolean> features) {
+                return new SimpleBooleanProperty(features.getValue() != null);
+            }
+        });
+
+        // create a cell value factory with an add button for each row in the table.
+        configDelete.setCellFactory(new Callback<TableColumn<ConfigVO, Boolean>, TableCell<ConfigVO, Boolean>>() {
+            @Override
+            public TableCell<ConfigVO, Boolean> call(TableColumn<ConfigVO, Boolean> personBooleanTableColumn) {
+                return new DeleteCell<>(primaryStage, buildConfig);
+            }
+        });
+
+
+    }
+
+    private void configUseDB() {
+        useDb.setVisible(true);
+        useDb.selectedProperty().addListener((l, o, n) -> {
+            if (n) {
+                baseDbUrl.setDisable(false);
+                baseDbUsername.setDisable(false);
+                baseDbPassword.setDisable(false);
+                //baseDbDriverClassName.setDisable(false);
+                db.setEditable(true);
+            } else {
+                baseDbUrl.setDisable(true);
+                baseDbUsername.setDisable(true);
+                baseDbPassword.setDisable(true);
+                //baseDbDriverClassName.setDisable(true);
+                db.setEditable(false);
+            }
+            save();
+        });
+
+    }
+
+    private void configStart() {
+        start.setOnMouseClicked(event -> {
+
+            start.setDisable(true);
+
+            try {
+                Config config = save();
+                checkStartConfig(config);
+                if (Objects.equals(config.getUseDb(), true)) {
+                    MyBatisHelperFactory.getMybatisHelper(config.getDbType()).run(config);
+                } else {
+                    MyBatisHelperFactory.getMybatisHelper(null).run(config);
+                }
+
+                new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Alert(Alert.AlertType.ERROR, e.getMessage(), new ButtonType[]{ButtonType.CLOSE}).show();
+            }
+            DataSourceHolder.clear();
+            start.setDisable(false);
+            System.out.println("SUCCESS");
+        });
+    }
+
+    private void checkStartConfig(Config config) {
+        boolean useDb = Objects.equals(config.getUseDb(), true);
+        List<BuildConfig> buildConfigList = config.getBuildConfigList();
+        if (CollectionUtils.isEmpty(buildConfigList)) {
+            throw new IllegalArgumentException("配置信息不能为空");
+        }
+        for (BuildConfig buildConfig1 : buildConfigList) {
+            if (StringUtils.isEmpty(buildConfig1.getMapperFolder()) ||
+                    StringUtils.isEmpty(buildConfig1.getEntityFolder()) ||
+                    StringUtils.isEmpty(buildConfig1.getXmlFolder())
+            ) {
+                throw new IllegalArgumentException("配置文件夹信息不能为空");
+            }
+        }
+
+
+        if (useDb) {
+            if (StringUtils.isEmpty(config.getBaseDbUrl()) ||
+                    StringUtils.isEmpty(config.getBaseDbPassword()) ||
+                    StringUtils.isEmpty(config.getBaseDbUsername()) ||
+                    StringUtils.isEmpty(config.getDbType())
+            ) {
+                throw new IllegalArgumentException("若生成表结构则数据库信息必填");
+            }
+            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
+
+            DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
+        }
+    }
+
+    private void configDbType() {
+        dbType.setItems(FXCollections.observableArrayList("mysql"));
+    }
+
+    public Config save() {
+        Config config = new Config();
+        config.setBaseDbUrl(baseDbUrl.getText());
+
+        if (Objects.equals(config.getDbType(), "mysql")) {
+            config.setBaseDbDriverClassName("com.mysql.cj.jdbc.Driver");
+        } else {
+            //TODO 其他数据库
+        }
+        config.setDbType(dbType.getValue());
+        config.setUseDb(useDb.isSelected());
+        config.setBaseDbUsername(baseDbUsername.getText());
+        config.setBaseDbPassword(baseDbPassword.getText());
+        config.setBaseEntityFieldList(baseModel.getItems().stream().map(EntityField::new).collect(Collectors.toList()));
+        config.setBuildConfigList(buildConfig.getItems().stream().map(BuildConfig::new).collect(Collectors.toList()));
+        System.out.println(config);
+
+        FileUtils.serialization(config, "config.json");
+        return config;
+    }
+
+    public void loadData() {
+        Config config = null;
+        try {
+            String configStr = FileUtils.readFileToString("config.json");
+            if (configStr == null) {
+                configStr = FileUtils.readFileToString(getClass().getClassLoader().getResource("config.json").getPath());
+            }
+            config = JSON.parseObject(configStr, Config.class);
+        } catch (Exception ignore) {
+        }
+
+
+        if (config == null || CollectionUtils.isEmpty(config.getBaseEntityFieldList())) {
+            baseModel.setItems(FXCollections.observableArrayList(new EntityFieldVO()));
+        } else {
+            baseModel.setItems(FXCollections.observableArrayList(config.getBaseEntityFieldList().stream().map(EntityFieldVO::new).collect(Collectors.toList())));
+        }
+        if (config == null || CollectionUtils.isEmpty(config.getBuildConfigList())) {
+            buildConfig.setItems(FXCollections.observableArrayList(new ConfigVO()));
+        } else {
+            buildConfig.setItems(FXCollections.observableArrayList(config.getBuildConfigList().stream().map(ConfigVO::new).collect(Collectors.toList())));
+        }
+        if (config != null) {
+            this.dbType.setValue(config.getDbType());
+            this.baseDbUrl.setText(config.getBaseDbUrl());
+            this.baseDbUsername.setText(config.getBaseDbUsername());
+            this.baseDbPassword.setText(config.getBaseDbPassword());
+            this.useDb.setSelected(Objects.equals(config.getUseDb(), true));
+        }
+    }
+
+    private static Controller instance;
+
+    public static Controller getInstance() {
+        return instance;
+    }
+
+    public static void setInstance(Controller controller) {
+        Controller.instance = controller;
+    }
+
+}

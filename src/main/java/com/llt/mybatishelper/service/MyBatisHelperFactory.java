@@ -25,20 +25,18 @@ public class MyBatisHelperFactory {
     /**
      * 通过 dbUrl 获取对应数据库的实现
      *
-     * @param dbUrl 数据库连接
+     * @param dbType 数据库类型
      * @return MybatisHelper对应实现
      */
-    public static MybatisHelper getMybatisHelper(String dbUrl) {
-        String database = StringUtils.getByColonCount(dbUrl, 1);
-
+    public static MybatisHelper getMybatisHelper(String dbType) {
         MybatisHelper mybatisHelper;
-        if (database != null) {
-            mybatisHelper = mybatisHelperMap.get(database.toLowerCase());
+        if (dbType != null) {
+            mybatisHelper = mybatisHelperMap.get(dbType.toLowerCase());
         }else {
             mybatisHelper = mybatisHelperMap.get(null);
         }
         if (mybatisHelper == null) {
-            throw new IllegalArgumentException("没有" + database + "的实现");
+            throw new IllegalArgumentException("没有" + dbType + "的实现");
         }
         return mybatisHelper;
     }

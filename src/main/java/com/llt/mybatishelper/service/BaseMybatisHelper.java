@@ -38,31 +38,18 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     @Override
     public void run(Config config) {
-        String baseDbUrl = config.getBaseDbUrl();
-        String baseDbUsername = config.getBaseDbUsername();
-        String baseDbPassword = config.getBaseDbPassword();
-        String baseDbDriverClassName = config.getBaseDbDriverClassName();
+
         List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
 
 
         config.getBuildConfigList().forEach(buildConfig -> {
-            String dbUrl = buildConfig.getDbUrl();
-            boolean useBaseDb = StringUtils.isEmpty(dbUrl);
-            String dataSourceUrl;
-            if (useBaseDb) {
-                dataSourceUrl = baseDbUrl;
-                DataSourceHolder.addDataSource(baseDbDriverClassName, baseDbUrl, baseDbUsername, baseDbPassword);
-            } else {
-                dataSourceUrl = buildConfig.getDbUrl();
-                DataSourceHolder.addDataSource(baseDbDriverClassName, buildConfig.getDbUrl(), buildConfig.getDbUsername(), buildConfig.getDbPassword());
-            }
 
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readFileToString(filePath);
                 EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
                 if (entityModel != null) {
-                    updateTable(entityModel, dataSourceUrl);
+                    updateTable(entityModel, buildConfig.getDb());
                     buildMapper(entityModel, buildConfig);
                     buildXml(entityModel, buildConfig);
                 }
@@ -76,7 +63,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @param entityModel   实体模型
      * @param dataSourceUrl 当前模型使用的dataSourceUrl
      */
-    protected abstract void updateTable(EntityModel entityModel, String dataSourceUrl);
+    protected abstract void updateTable(EntityModel entityModel, String dataSourceUrl) ;
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
         CompilationUnit baseMapper = MapperBuilder.build(entityModel);
