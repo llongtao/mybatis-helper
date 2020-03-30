@@ -1,5 +1,5 @@
 {
-  "baseDbUrl": "jdbc:mysql://192.168.7.28:3308/biz-relations?autoReconnect=true&useUnicode=true&characterEncoding=utf8&useSSL=true",
+  "baseDbUrl": "localhost:3306",
   "baseDbUsername": "root",
   "baseDbPassword": "123456",
   "baseDbDriverClassName": "com.mysql.cj.jdbc.Driver",

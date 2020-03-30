@@ -117,7 +117,7 @@ public class Controller {
     public void init() {
         configBaseModelTableView();
         configTreeTableView();
-        configUseDB();
+        configUseDb();
         configStart();
         configDbType();
     }
@@ -129,6 +129,7 @@ public class Controller {
         name.setOnEditCommit(evt -> {
             evt.getRowValue().setName(evt.getNewValue());
             evt.getRowValue().setColumnName(StringUtils.transformUnderline(evt.getNewValue()));
+            save();
         });
 
         columnName.setCellValueFactory(new PropertyValueFactory<>("columnName"));
@@ -136,13 +137,16 @@ public class Controller {
         columnName.setCellFactory(TextFieldTableCell.forTableColumn());
         columnName.setOnEditCommit(evt -> {
             evt.getRowValue().setColumnName(evt.getNewValue());
-
+            save();
         });
 
         type.setCellValueFactory(new PropertyValueFactory<>("type"));
         type.setEditable(true);
         type.setCellFactory(TextFieldTableCell.forTableColumn());
-        type.setOnEditCommit(evt -> evt.getRowValue().setType(evt.getNewValue()));
+        type.setOnEditCommit(evt -> {
+            evt.getRowValue().setType(evt.getNewValue());
+            save();
+        });
 
         length.setCellValueFactory(new PropertyValueFactory<>("length"));
         length.setEditable(true);
@@ -161,26 +165,34 @@ public class Controller {
                 }
             }
         }));
-        length.setOnEditCommit(evt -> evt.getRowValue().setLength(evt.getNewValue()));
+        length.setOnEditCommit(evt -> {
+            evt.getRowValue().setLength(evt.getNewValue());
+            save();
+        });
 
         defaultValue.setCellValueFactory(new PropertyValueFactory<>("defaultValue"));
         defaultValue.setEditable(true);
         defaultValue.setCellFactory(TextFieldTableCell.forTableColumn());
-        defaultValue.setOnEditCommit(evt -> evt.getRowValue().setDefaultValue(evt.getNewValue()));
+        defaultValue.setOnEditCommit(evt -> {
+            evt.getRowValue().setDefaultValue(evt.getNewValue());
+            save();
+        });
 
 
         noNull.setCellValueFactory(new PropertyValueFactory<>("noNull"));
         noNull.setEditable(true);
         noNull.setCellFactory(CheckBoxTableCell.forTableColumn(noNull));
-        noNull.setOnEditCommit(evt -> evt.getRowValue().setNoNull(evt.getNewValue()));
+        noNull.setOnEditCommit(evt -> {
+            evt.getRowValue().setNoNull(evt.getNewValue());
+            save();
+        });
 
         description.setCellValueFactory(new PropertyValueFactory<>("description"));
         description.setEditable(true);
         description.setCellFactory(TextFieldTableCell.forTableColumn());
-
         description.setOnEditCommit(evt -> {
-            System.out.println(evt);
             evt.getRowValue().setDescription(evt.getNewValue());
+            save();
         });
 
 
@@ -224,7 +236,7 @@ public class Controller {
         entityFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
         entityFolder.setOnEditCommit(evt -> {
             evt.getRowValue().setEntityFolder(evt.getNewValue());
-            System.out.println(evt);
+            save();
         });
 
         mapperFolder.setCellValueFactory(new PropertyValueFactory<>("mapperFolder"));
@@ -232,7 +244,7 @@ public class Controller {
         mapperFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
         mapperFolder.setOnEditCommit(evt -> {
             evt.getRowValue().setMapperFolder(evt.getNewValue());
-            System.out.println(evt);
+            save();
         });
 
         xmlFolder.setCellValueFactory(new PropertyValueFactory<>("xmlFolder"));
@@ -240,19 +252,22 @@ public class Controller {
         xmlFolder.setCellFactory(FolderSelectTableCell.forTableColumn());
         xmlFolder.setOnEditCommit(evt -> {
             evt.getRowValue().setXmlFolder(evt.getNewValue());
-            System.out.println(evt);
+            save();
         });
         useBaseField.setCellValueFactory(new PropertyValueFactory<>("useBaseField"));
         useBaseField.setEditable(true);
         useBaseField.setCellFactory(CheckBoxTableCell.forTableColumn(useBaseField));
         useBaseField.setOnEditCommit(evt -> {
             evt.getRowValue().setUseBaseField(evt.getNewValue());
-            System.out.println(evt);
+            save();
         });
         db.setCellValueFactory(new PropertyValueFactory<>("db"));
         db.setEditable(true);
         db.setCellFactory(TextFieldTableCell.forTableColumn());
-        db.setOnEditCommit(evt -> evt.getRowValue().setDb(evt.getNewValue()));
+        db.setOnEditCommit(evt -> {
+            evt.getRowValue().setDb(evt.getNewValue());
+            save();
+        });
 
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
@@ -290,20 +305,18 @@ public class Controller {
 
     }
 
-    private void configUseDB() {
+    private void configUseDb() {
         useDb.setVisible(true);
         useDb.selectedProperty().addListener((l, o, n) -> {
             if (n) {
                 baseDbUrl.setDisable(false);
                 baseDbUsername.setDisable(false);
                 baseDbPassword.setDisable(false);
-                //baseDbDriverClassName.setDisable(false);
                 db.setEditable(true);
             } else {
                 baseDbUrl.setDisable(true);
                 baseDbUsername.setDisable(true);
                 baseDbPassword.setDisable(true);
-                //baseDbDriverClassName.setDisable(true);
                 db.setEditable(false);
             }
             save();
@@ -313,12 +326,10 @@ public class Controller {
 
     private void configStart() {
         start.setOnMouseClicked(event -> {
-
             start.setDisable(true);
-
             try {
                 Config config = save();
-                checkStartConfig(config);
+                checkStartConfigAndConfigDataSource(config);
                 if (Objects.equals(config.getUseDb(), true)) {
                     MyBatisHelperFactory.getMybatisHelper(config.getDbType()).run(config);
                 } else {
@@ -336,7 +347,7 @@ public class Controller {
         });
     }
 
-    private void checkStartConfig(Config config) {
+    private void checkStartConfigAndConfigDataSource(Config config) {
         boolean useDb = Objects.equals(config.getUseDb(), true);
         List<BuildConfig> buildConfigList = config.getBuildConfigList();
         if (CollectionUtils.isEmpty(buildConfigList)) {

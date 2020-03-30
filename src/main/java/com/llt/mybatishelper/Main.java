@@ -63,7 +63,7 @@ public class Main extends Application {
         controller.init();
 
         primaryStage.setTitle("mybatis生成器");
-        primaryStage.setScene(new Scene(root, 990, 524));
+        primaryStage.setScene(new Scene(root, 1040, 524));
 
         controller.loadData();
         primaryStage.show();
