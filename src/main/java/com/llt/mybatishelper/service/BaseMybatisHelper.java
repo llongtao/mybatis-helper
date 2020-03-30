@@ -17,7 +17,6 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 
 /**
