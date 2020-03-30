@@ -27,8 +27,8 @@
             <CheckBox fx:id="useDb" layoutX="79.0" layoutY="33.0" mnemonicParsing="false" text="生成表结构" />
             <TableView fx:id="baseModel" layoutX="333.0" layoutY="37.0" prefHeight="200.0" prefWidth="625.0">
               <columns>
-                <TableColumn id="name" fx:id="name" prefWidth="80.0" text="实体列名" />
-                <TableColumn id="columnName" fx:id="columnName" prefWidth="80.0" text="表中列名" />
+                <TableColumn id="name" fx:id="name" text="实体列名" />
+                <TableColumn id="columnName" fx:id="columnName" text="表中列名" />
                   <TableColumn id="type" fx:id="type" prefWidth="60.0" text="java类型" />
                   <TableColumn id="length" fx:id="length" prefWidth="50.0" text="长度" />
                   <TableColumn id="defaultValue" fx:id="defaultValue" prefWidth="75.0" text="默认值" />
