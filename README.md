@@ -11,6 +11,8 @@
 #### 软件架构
 
 JDK 1.8
+javafx
+
 
 #### 使用方式
 
@@ -31,9 +33,14 @@ private String name;
 }
 ```
 
-在项目resources\config.json里配置文件夹和数据库连接
 
 运行Main.main
+
+按照ui界面填写,点击生成即可
+
+注:
+1.若不生成表结构可不填数据库信息
+2.若实体类未继承基类可不填基类信息
 
 #### 更多关键字
 - class注释
@@ -57,7 +64,7 @@ private String name;
   - 当主键只有一个且为整形时默认自增
   - 不允许主键不存在
   - 静态成员不会计入列
-  - 父类成员不会计入列,entity一般不会继承其他类
+  - 父类成员不会计入列,需要在基类字段填写
   - mapper会在你制定的目录下创建base文件夹,并生成baseMapper,不影响现有mapper,现有mapper继承baseMapper即可(会自动继承)
   - 若指定文件夹下可能存在与自动生成同名baseMapper慎重使用,会直接覆盖
   - 因为会创建子目录所以mapper-location 请设置为允许子目录,例如"classpath\*:mappers/\*\*/\*.xml"
