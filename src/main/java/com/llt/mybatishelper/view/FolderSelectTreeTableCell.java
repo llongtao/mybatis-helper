@@ -16,6 +16,10 @@ import javafx.util.StringConverter;
 import java.io.File;
 import java.util.Objects;
 
+/**
+ * @author LILONGTAO
+ * @date 2020-04-22
+ */
 public class FolderSelectTreeTableCell<S> extends TreeTableCell<S,String> {
     private final static StringConverter<?> defaultStringConverter = new StringConverter<Object>() {
         @Override public String toString(Object t) {

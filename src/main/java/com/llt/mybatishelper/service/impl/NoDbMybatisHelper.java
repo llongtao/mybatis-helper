@@ -1,4 +1,4 @@
-package com.llt.mybatishelper.service.Impl;
+package com.llt.mybatishelper.service.impl;
 
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.service.BaseMybatisHelper;

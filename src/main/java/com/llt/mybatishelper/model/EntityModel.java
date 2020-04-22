@@ -2,7 +2,6 @@ package com.llt.mybatishelper.model;
 
 import lombok.Data;
 
-import java.lang.reflect.Field;
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;

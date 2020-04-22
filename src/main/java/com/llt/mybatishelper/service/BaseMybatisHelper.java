@@ -10,7 +10,6 @@ import com.llt.mybatishelper.model.Config;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.FileUtils;
-import com.llt.mybatishelper.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;

@@ -21,7 +21,7 @@ public class ConfigVO {
         mapperFolder = new SimpleStringProperty(buildConfig.getMapperFolder());
         xmlFolder = new SimpleStringProperty(buildConfig.getXmlFolder());
         db = new SimpleStringProperty(buildConfig.getDb());
-        useBaseField = new SimpleBooleanProperty(Objects.equals(buildConfig.getIgnoreBaseField(),true));
+        useBaseField = new SimpleBooleanProperty(!Objects.equals(buildConfig.getIgnoreBaseField(),true));
     }
     public ConfigVO() {
         entityFolder = new SimpleStringProperty();

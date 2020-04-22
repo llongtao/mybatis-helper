@@ -3,8 +3,6 @@ package com.llt.mybatishelper.data;
 import com.alibaba.druid.pool.DruidDataSource;
 
 import java.sql.Connection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 

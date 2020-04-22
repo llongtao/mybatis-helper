@@ -20,6 +20,7 @@ public enum  FieldKey {
      *  .notNull 可选 非空
      *  .default xxx 可选 默认值
      *  .ignore 可选 忽略该字段
+     *  .enum 可选 表示枚举,否则枚举类不生成
      */
     KEY(".key"),
     COLUMN(".column"),

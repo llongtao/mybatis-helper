@@ -13,12 +13,22 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/**
+ * @author LILONGTAO
+ * @date 2020-04-22
+ */
 public class DeleteCell<T> extends TableCell<T, Boolean> {
-    // a button for adding a new person.
+    /**
+     * 删除按钮
+     */
     final Button deleteButton = new Button("-");
-    // pads and centers the add button in the cell.
+    /**
+     * pads and centers the add button in the cell.
+     */
     final StackPane paddedButton = new StackPane();
-    // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
+    /**
+     * records the y pos of the last button press so that the add person dialog can be shown next to the cell.
+     */
     final DoubleProperty buttonY = new SimpleDoubleProperty();
 
     /**
@@ -28,24 +38,16 @@ public class DeleteCell<T> extends TableCell<T, Boolean> {
      * @param table the table to which a new person can be added.
      */
     public DeleteCell(final Stage stage, final TableView table) {
-        //paddedButton.setPadding(new Insets(3));
+
         paddedButton.getChildren().add(deleteButton);
-        deleteButton.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                buttonY.set(mouseEvent.getScreenY());
-            }
-        });
-        deleteButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                int size = table.getItems().size();
-                if (size>1){
-                    table.getSelectionModel().select(getTableRow().getIndex());
-                    int index = table.getSelectionModel().getSelectedIndex();
-                    table.getItems().remove(index);
-                    Controller.getInstance().save();
-                }
+        deleteButton.setOnMousePressed(mouseEvent -> buttonY.set(mouseEvent.getScreenY()));
+        deleteButton.setOnAction(actionEvent -> {
+            int size = table.getItems().size();
+            if (size>1){
+                table.getSelectionModel().select(getTableRow().getIndex());
+                int index = table.getSelectionModel().getSelectedIndex();
+                table.getItems().remove(index);
+                Controller.getInstance().save();
             }
         });
     }

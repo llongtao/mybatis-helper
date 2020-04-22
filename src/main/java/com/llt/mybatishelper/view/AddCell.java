@@ -1,25 +1,34 @@
 package com.llt.mybatishelper.view;
 
-import com.llt.mybatishelper.Main;
 import com.llt.mybatishelper.controller.Controller;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+/**
+ * @author LILONGTAO
+ * @date 2020-04-22
+ */
 public class  AddCell<T> extends TableCell<T, Boolean> {
-    // a button for adding a new person.
+
+    /**
+     *  a button for adding a new person.
+     */
     final Button addButton = new Button("+");
-    // pads and centers the add button in the cell.
+
+    /**
+     *  pads and centers the add button in the cell.
+     */
     final StackPane paddedButton = new StackPane();
-    // records the y pos of the last button press so that the add person dialog can be shown next to the cell.
+
+    /**
+     * records the y pos of the last button press so that the add person dialog can be shown next to the cell.
+     */
     final DoubleProperty buttonY = new SimpleDoubleProperty();
 
     /**
@@ -29,24 +38,15 @@ public class  AddCell<T> extends TableCell<T, Boolean> {
      * @param table the table to which a new person can be added.
      */
     public AddCell(final Stage stage, final TableView table, Class<T> tClass) {
-        //paddedButton.setPadding(new Insets(3));
         paddedButton.getChildren().add(addButton);
-        addButton.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-                buttonY.set(mouseEvent.getScreenY());
-            }
-        });
-        addButton.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                table.getSelectionModel().select(getTableRow().getIndex());
-                int nextIndex = table.getSelectionModel().getSelectedIndex() + 1;
-                try {
-                    table.getItems().add(nextIndex, tClass.newInstance());
-                    Controller.getInstance().save();
-                } catch (Exception ignore) {
-                }
+        addButton.setOnMousePressed(mouseEvent -> buttonY.set(mouseEvent.getScreenY()));
+        addButton.setOnAction(actionEvent -> {
+            table.getSelectionModel().select(getTableRow().getIndex());
+            int nextIndex = table.getSelectionModel().getSelectedIndex() + 1;
+            try {
+                table.getItems().add(nextIndex, tClass.newInstance());
+                Controller.getInstance().save();
+            } catch (Exception ignore) {
             }
         });
     }

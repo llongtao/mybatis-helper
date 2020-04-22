@@ -1,10 +1,9 @@
-package com.llt.mybatishelper.service.Impl;
+package com.llt.mybatishelper.service.impl;
 
 import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.service.BaseMybatisHelper;
 import com.llt.mybatishelper.utils.StringUtils;
-
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,10 +1,7 @@
 package com.llt.mybatishelper.model;
 
-import com.llt.mybatishelper.utils.StringUtils;
 import com.llt.mybatishelper.view.vo.ConfigVO;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * @author LILONGTAO
@@ -36,6 +33,6 @@ public class BuildConfig {
         this.mapperFolder = configVO.getMapperFolder();
         this.xmlFolder = configVO.getXmlFolder();
         this.db = configVO.getDb();
-        this.ignoreBaseField = configVO.isUseBaseField();
+        this.ignoreBaseField = !configVO.isUseBaseField();
     }
 }

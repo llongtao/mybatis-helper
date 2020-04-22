@@ -27,9 +27,6 @@ import javafx.stage.StageStyle;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author LILONGTAO
@@ -40,9 +37,6 @@ public class Main extends Application {
 
     public static void main(String[] args) throws IOException {
         launch(args);
-
-
-
     }
 
     @Override
