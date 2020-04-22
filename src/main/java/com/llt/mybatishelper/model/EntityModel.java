@@ -70,7 +70,7 @@ public class EntityModel {
             }
 
         });
-        if (44 != sb.charAt(sb.length() - 1)) {
+        if (','!= sb.charAt(sb.length() - 1)) {
             return null;
         }
         sb.deleteCharAt(sb.length() - 1);

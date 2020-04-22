@@ -44,7 +44,7 @@
               <columns>
                 <TableColumn fx:id="entityFolder" prefWidth="215.0" text="实体类文件夹" />
                 <TableColumn fx:id="mapperFolder" minWidth="0.0" prefWidth="215.0" text="mapper映射文件夹" />
-                  <TableColumn prefWidth="215.0" text="mapper映射文件夹" fx:id="xmlFolder" />
+                  <TableColumn prefWidth="215.0" text="xml文件夹" fx:id="xmlFolder" />
                   <TableColumn fx:id="useBaseField" prefWidth="60.0" text="继承公共" />
                   <TableColumn fx:id="db" prefWidth="103.0" text="数据库" />
                   <TableColumn fx:id="configAdd" editable="false" prefWidth="35.0" sortable="false" text="添加" />

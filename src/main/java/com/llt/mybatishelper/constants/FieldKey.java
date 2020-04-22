@@ -29,6 +29,7 @@ public enum  FieldKey {
     NO_NULL(".notNull"),
     DEFAULT(".default"),
     IGNORE(".ignore"),
+    ENUM(".enum"),
     ;
 
     String code;

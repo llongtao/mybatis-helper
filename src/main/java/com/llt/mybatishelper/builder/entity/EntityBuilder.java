@@ -172,6 +172,7 @@ public class EntityBuilder {
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
             String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
+            String enumType = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment);
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
             if (columnName == null) {
@@ -183,11 +184,19 @@ public class EntityBuilder {
             if (jdbcType == null) {
                 jdbcType = TYPE_MAP.get(type);
                 if (jdbcType == null) {
-                    continue;
+                    if (enumType == null) {
+                        continue;
+                    }else {
+                        jdbcType = JDBCType.VARCHAR;
+                    }
                 }
             }
             if (size == null) {
-                size = DEFAULT_LENGTH.get(jdbcType);
+                if (enumType != null) {
+                    size = 16;
+                }else {
+                    size = DEFAULT_LENGTH.get(jdbcType);
+                }
             }
             String fullJdbcType = jdbcType.getName();
             if (size != null) {

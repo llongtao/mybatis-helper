@@ -3,6 +3,8 @@ package com.llt.mybatishelper.service.Impl;
 import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.service.BaseMybatisHelper;
+import com.llt.mybatishelper.utils.StringUtils;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,7 +20,9 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
 
     @Override
     protected void updateTable(EntityModel entityModel, String schema)  {
-
+        if (StringUtils.isEmpty(schema)) {
+            throw new RuntimeException("若生成表结构数据库名不能为空");
+        }
         Connection connection = DataSourceHolder.getConnection();
         try {
             connection.setCatalog(schema);
