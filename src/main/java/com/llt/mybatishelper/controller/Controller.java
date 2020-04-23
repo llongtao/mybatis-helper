@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import static com.llt.mybatishelper.constants.Constants.*;
 
@@ -328,6 +329,13 @@ public class Controller {
             ) {
                 throw new IllegalArgumentException("若生成表结构则数据库信息必填");
             }
+            boolean matches = Pattern.matches("^(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5]):([0-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-5]{2}[0-3][0-5])$"
+                    , config.getBaseDbUrl());
+            if (!matches) {
+                throw new RuntimeException("数据库地址应以 ip:port 的形式填写");
+            }
+
+
             String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
 
             DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
