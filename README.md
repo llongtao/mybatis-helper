@@ -41,6 +41,7 @@ private String name;
 按照ui界面填写,点击生成即可
 ![ui界面](https://gz.bcebos.com/v1/longtao/%E5%BE%AE%E4%BF%A1%E6%88%AA%E5%9B%BE_20200423151122.png)
 
+
 注:
 1.若不生成表结构可不填数据库信息
 2.若实体类未继承基类可不填基类信息
