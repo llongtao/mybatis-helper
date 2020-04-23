@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static com.llt.mybatishelper.constants.Constants.DOT;
+
 /**
  * @author LILONGTAO
  */
@@ -41,17 +43,16 @@ public class EntityModel {
 
     private boolean isNew = true;
 
-    private Set<String> existsSet;
 
-    public String toSql() {
+    public String toSql(Set<String> existsSet) {
         if (existsSet == null || existsSet.size() == 0) {
             return buildCreate();
         } else {
-            return buildAlter();
+            return buildAlter(existsSet);
         }
     }
 
-    private String buildAlter() {
+    private String buildAlter(Set<String> existsSet) {
         StringBuilder sb = new StringBuilder();
         sb.append("ALTER TABLE ")
                 .append("`").append(tableName).append("` ")
@@ -69,7 +70,7 @@ public class EntityModel {
             }
 
         });
-        if (','!= sb.charAt(sb.length() - 1)) {
+        if (DOT!= sb.charAt(sb.length() - 1)) {
             return null;
         }
         sb.deleteCharAt(sb.length() - 1);
@@ -138,7 +139,4 @@ public class EntityModel {
 
     }
 
-    public void setExistsColumn(Set<String> columnSet) {
-        existsSet = columnSet;
-    }
 }

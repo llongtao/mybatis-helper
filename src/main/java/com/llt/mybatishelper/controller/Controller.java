@@ -1,7 +1,6 @@
 package com.llt.mybatishelper.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.llt.mybatishelper.Main;
 import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.Config;
@@ -14,31 +13,25 @@ import com.llt.mybatishelper.view.*;
 import com.llt.mybatishelper.view.vo.ConfigVO;
 import com.llt.mybatishelper.view.vo.EntityFieldVO;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 import javafx.util.StringConverter;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import static com.llt.mybatishelper.constants.Constants.*;
 
 /**
  * @author LILONGTAO
  * @date 2020-04-22
  */
+@Slf4j
 @Getter
 public class Controller {
     public static Stage primaryStage;
@@ -124,6 +117,7 @@ public class Controller {
         configUseDb();
         configStart();
         configDbType();
+        log.info("controller init success");
     }
 
     private void configBaseModelTableView() {
@@ -201,36 +195,16 @@ public class Controller {
 
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-        actionAdd.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<EntityFieldVO, Boolean>, ObservableValue<Boolean>>() {
-            @Override
-            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<EntityFieldVO, Boolean> features) {
-                return new SimpleBooleanProperty(features.getValue() != null);
-            }
-        });
+        actionAdd.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        actionAdd.setCellFactory(new Callback<TableColumn<EntityFieldVO, Boolean>, TableCell<EntityFieldVO, Boolean>>() {
-            @Override
-            public TableCell<EntityFieldVO, Boolean> call(TableColumn<EntityFieldVO, Boolean> personBooleanTableColumn) {
-                return new AddCell<>(primaryStage, baseModel, EntityFieldVO.class);
-            }
-        });
+        actionAdd.setCellFactory(personBooleanTableColumn -> new AddCell<>(primaryStage, baseModel, EntityFieldVO.class));
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-        actionDelete.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<EntityFieldVO, Boolean>, ObservableValue<Boolean>>() {
-            @Override
-            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<EntityFieldVO, Boolean> features) {
-                return new SimpleBooleanProperty(features.getValue() != null);
-            }
-        });
+        actionDelete.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        actionDelete.setCellFactory(new Callback<TableColumn<EntityFieldVO, Boolean>, TableCell<EntityFieldVO, Boolean>>() {
-            @Override
-            public TableCell<EntityFieldVO, Boolean> call(TableColumn<EntityFieldVO, Boolean> personBooleanTableColumn) {
-                return new DeleteCell<>(primaryStage, baseModel);
-            }
-        });
+        actionDelete.setCellFactory(personBooleanTableColumn -> new DeleteCell<>(primaryStage, baseModel));
 
     }
 
@@ -275,36 +249,16 @@ public class Controller {
 
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-        configAdd.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ConfigVO, Boolean>, ObservableValue<Boolean>>() {
-            @Override
-            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<ConfigVO, Boolean> features) {
-                return new SimpleBooleanProperty(features.getValue() != null);
-            }
-        });
+        configAdd.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        configAdd.setCellFactory(new Callback<TableColumn<ConfigVO, Boolean>, TableCell<ConfigVO, Boolean>>() {
-            @Override
-            public TableCell<ConfigVO, Boolean> call(TableColumn<ConfigVO, Boolean> personBooleanTableColumn) {
-                return new AddCell<>(primaryStage, buildConfig, ConfigVO.class);
-            }
-        });
+        configAdd.setCellFactory(personBooleanTableColumn -> new AddCell<>(primaryStage, buildConfig, ConfigVO.class));
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
-        configDelete.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ConfigVO, Boolean>, ObservableValue<Boolean>>() {
-            @Override
-            public ObservableValue<Boolean> call(TableColumn.CellDataFeatures<ConfigVO, Boolean> features) {
-                return new SimpleBooleanProperty(features.getValue() != null);
-            }
-        });
+        configDelete.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        configDelete.setCellFactory(new Callback<TableColumn<ConfigVO, Boolean>, TableCell<ConfigVO, Boolean>>() {
-            @Override
-            public TableCell<ConfigVO, Boolean> call(TableColumn<ConfigVO, Boolean> personBooleanTableColumn) {
-                return new DeleteCell<>(primaryStage, buildConfig);
-            }
-        });
+        configDelete.setCellFactory(personBooleanTableColumn -> new DeleteCell<>(primaryStage, buildConfig));
 
 
     }
@@ -347,7 +301,7 @@ public class Controller {
             }
             DataSourceHolder.clear();
             start.setDisable(false);
-            System.out.println("SUCCESS");
+            log.info("SUCCESS");
         });
     }
 
@@ -382,41 +336,44 @@ public class Controller {
     }
 
     private void configDbType() {
-        dbType.setItems(FXCollections.observableArrayList("mysql"));
+        dbType.setItems(FXCollections.observableArrayList(MYSQL));
     }
 
     public Config save() {
         Config config = new Config();
         config.setBaseDbUrl(baseDbUrl.getText());
 
-        if (Objects.equals(config.getDbType(), "mysql")) {
-            config.setBaseDbDriverClassName("com.mysql.cj.jdbc.Driver");
-        } else {
-            //TODO 其他数据库
+        if (Objects.equals(config.getDbType(), MYSQL)) {
+            config.setBaseDbDriverClassName(MYSQL_DRIVER);
         }
+
+        //TODO else 其他数据库
+
         config.setDbType(dbType.getValue());
         config.setUseDb(useDb.isSelected());
         config.setBaseDbUsername(baseDbUsername.getText());
         config.setBaseDbPassword(baseDbPassword.getText());
         config.setBaseEntityFieldList(baseModel.getItems().stream().map(EntityField::new).collect(Collectors.toList()));
         config.setBuildConfigList(buildConfig.getItems().stream().map(BuildConfig::new).collect(Collectors.toList()));
-        System.out.println(config);
 
-        FileUtils.serialization(config, "config.json");
+        log.info("saveConfig:{}",config);
+        FileUtils.serialization(config, CONFIG_FILE_NAME);
         return config;
     }
 
     public void loadData() {
+
         Config config = null;
         try {
-            String configStr = FileUtils.readFileToString("config.json");
+            String configStr = FileUtils.readFileToString(CONFIG_FILE_NAME);
             if (configStr == null) {
-                configStr = FileUtils.readFileToString(getClass().getClassLoader().getResource("config.json").getPath());
+                configStr = FileUtils.readFileToString(Objects.requireNonNull(getClass().getClassLoader().getResource(CONFIG_FILE_NAME)).getPath());
             }
             config = JSON.parseObject(configStr, Config.class);
-        } catch (Exception ignore) {
+        } catch (Exception e) {
+            log.warn("找不到配置文件",e);
         }
-
+        log.info("loadData:{}",config);
 
         if (config == null || CollectionUtils.isEmpty(config.getBaseEntityFieldList())) {
             baseModel.setItems(FXCollections.observableArrayList(new EntityFieldVO()));

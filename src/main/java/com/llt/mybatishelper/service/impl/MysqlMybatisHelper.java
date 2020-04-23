@@ -39,15 +39,14 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        entityModel.setExistsColumn(columnSet);
 
-        String sql = entityModel.toSql();
+        String sql = entityModel.toSql(columnSet);
 
         if (sql != null) {
             System.out.println(sql);
             try {
                 Statement statement = connection.createStatement();
-                statement.execute(entityModel.toSql());
+                statement.execute(sql);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
