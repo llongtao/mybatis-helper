@@ -332,7 +332,7 @@ public class Controller {
             boolean matches = Pattern.matches("^(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\\.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5]):([0-9]|[1-9]\\d{1,3}|[1-5]\\d{4}|6[0-5]{2}[0-3][0-5])$"
                     , config.getBaseDbUrl());
             if (!matches) {
-                throw new RuntimeException("数据库地址应以 ip:port 的形式填写");
+                throw new IllegalArgumentException("数据库地址应以 ip:port 的形式填写");
             }
 
 
