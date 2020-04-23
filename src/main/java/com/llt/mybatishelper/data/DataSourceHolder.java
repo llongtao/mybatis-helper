@@ -63,7 +63,7 @@ public class DataSourceHolder {
             try {
                 dataSource.close();
             } catch (Exception e) {
-                log.error("数据库连接清理异常",e);
+                log.error("清理数据库连接异常",e);
             }
             dataSource = null;
         }

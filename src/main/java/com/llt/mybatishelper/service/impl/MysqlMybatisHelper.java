@@ -4,6 +4,8 @@ import com.llt.mybatishelper.data.DataSourceHolder;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.service.BaseMybatisHelper;
 import com.llt.mybatishelper.utils.StringUtils;
+import lombok.extern.slf4j.Slf4j;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,6 +17,7 @@ import java.util.Set;
  * @author LILONGTAO
  * @date 2019-08-01
  */
+@Slf4j
 public class MysqlMybatisHelper extends BaseMybatisHelper {
 
     @Override

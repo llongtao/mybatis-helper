@@ -8,7 +8,11 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
+import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.visitor.GenericVisitor;
+import com.github.javaparser.ast.visitor.VoidVisitor;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
@@ -68,7 +72,7 @@ public class MapperBuilder {
                 .addClass(className)
                 .setPublic(true)
                 .setInterface(true)
-                .addAnnotation(MAPPER);
+                .addAnnotation(new MarkerAnnotationExpr(MAPPER));
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
 
@@ -96,14 +100,32 @@ public class MapperBuilder {
         listParameter.setName(parameterName + LIST);
         listNodeList.add(listParameter);
 
-        mapperClass.addMethod(INSERT + entityName).setParameters(nodeList).setType(Type.NODE).setBody(null);
-        mapperClass.addMethod(INSERT + entityName + LIST).setParameters(listNodeList).setType(Type.NODE).setBody(null);
-        mapperClass.addMethod(UPDATE + entityName).setType(Type.NODE).setBody(null).setParameters(nodeList);
-        mapperClass.addMethod(UPDATE + entityName+LIST).setType(Type.NODE).setBody(null).setParameters(listNodeList);
-        mapperClass.addMethod(UPDATE_SELECTIVE).setType(Type.NODE).setBody(null).setParameters(nodeList);
-        mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + entityName + ">").setParameters(nodeList);
-        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(entityName).setParameters(keyParameterList);
-        mapperClass.addMethod(DELETE_BY_PRIMARY_KEY).setType(Type.NODE).setBody(null).setParameters(keyParameterList);
+        mapperClass.addMethod(INSERT + entityName).setParameters(nodeList).setType(Type.NODE).setBody(null)
+                .setComment(new JavadocComment("插入\n"+"@param "+parameter.getName()+" 需要插入的实体\n"+"@return 修改行数"));
+
+        mapperClass.addMethod(INSERT + entityName + LIST).setParameters(listNodeList).setType(Type.NODE).setBody(null)
+                .setComment(new JavadocComment("批量插入\n"+"@param "+listParameter.getName()+" 需要插入的实体列表\n"+"@return 修改行数"));
+
+        mapperClass.addMethod(UPDATE + entityName).setType(Type.NODE).setBody(null).setParameters(nodeList)
+                .setComment(new JavadocComment("更新\n"+"@param "+parameter.getName()+" 需要更新的实体\n"+"@return 修改行数"));
+
+        mapperClass.addMethod(UPDATE + entityName+LIST).setType(Type.NODE).setBody(null).setParameters(listNodeList)
+                .setComment(new JavadocComment("批量更新\n"+"@param "+listParameter.getName()+" 需要更新的实体列表\n"+"@return 修改行数"));
+
+        mapperClass.addMethod(UPDATE_SELECTIVE).setType(Type.NODE).setBody(null).setParameters(nodeList)
+                .setComment(new JavadocComment("修改有值的列\n"+"@param "+parameter.getName()+" 需要修改的实体\n"+"@return 修改行数"));
+
+        mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + entityName + ">").setParameters(nodeList)
+                .setComment(new JavadocComment("查询\n"+"@param "+parameter.getName()+" 查询条件实体\n"+"@return 列表"));
+
+        StringBuilder keyParams = new StringBuilder();
+        keyParameterList.forEach(key->keyParams.append("@param ").append(key.getName()).append(" 主键\n"));
+
+        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(entityName).setParameters(keyParameterList)
+                .setComment(new JavadocComment("根据id查询\n"+keyParams+"@return 实体"));
+
+        mapperClass.addMethod(DELETE_BY_PRIMARY_KEY).setType(Type.NODE).setBody(null).setParameters(keyParameterList)
+                .setComment(new JavadocComment("根据id删除\n"+keyParams+"@return 修改行数"));
 
 
         return compilationUnit;

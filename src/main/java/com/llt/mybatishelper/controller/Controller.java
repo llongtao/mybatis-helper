@@ -293,10 +293,9 @@ public class Controller {
                 } else {
                     MyBatisHelperFactory.getMybatisHelper(null).run(config);
                 }
-
                 new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
             } catch (Exception e) {
-                e.printStackTrace();
+                log.warn("生成异常",e);
                 new Alert(Alert.AlertType.ERROR, e.getMessage(), new ButtonType[]{ButtonType.CLOSE}).show();
             }
             DataSourceHolder.clear();

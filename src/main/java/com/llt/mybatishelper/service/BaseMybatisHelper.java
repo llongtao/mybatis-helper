@@ -88,7 +88,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             fileWriter.write(baseMapper.toString());
             fileWriter.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("生成mapper类异常:"+e.getMessage(),e);
         }
     }
 
@@ -119,7 +119,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             writer.write(baseXml);
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("生成xml异常:"+e.getMessage(),e);
         }
     }
 
