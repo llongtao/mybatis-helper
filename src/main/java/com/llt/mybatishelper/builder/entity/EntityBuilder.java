@@ -120,8 +120,6 @@ public class EntityBuilder {
 
         List<EntityField> primaryKeyList = new ArrayList<>();
 
-        EntityField idField = null;
-
         List<EntityField> columnList = new ArrayList<>();
 
         if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
@@ -203,9 +201,7 @@ public class EntityBuilder {
             }
 
             EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), size, defaultValue, nullable, description);
-            if (DEFAULT_KEY.equals(name)) {
-                idField = entityField;
-            }
+
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
             } else {
@@ -213,9 +209,10 @@ public class EntityBuilder {
             }
         }
 
-        if (primaryKeyList.size() == 0 && idField != null) {
-            primaryKeyList.add(idField);
-            columnList.remove(idField);
+        if (primaryKeyList.size() == 0 ) {
+            List<EntityField> idField = columnList.stream().filter(item -> DEFAULT_KEY.equals(item.getName())).collect(Collectors.toList());
+            primaryKeyList.addAll(idField);
+            columnList.removeAll(idField);
         }
         entityModel.setColumnList(columnList);
         entityModel.setPrimaryKeyList(primaryKeyList);
