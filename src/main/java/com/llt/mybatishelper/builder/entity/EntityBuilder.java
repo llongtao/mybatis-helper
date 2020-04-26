@@ -84,10 +84,12 @@ public class EntityBuilder {
         String tableDescription = null;
         String tableName = null;
         String auto = null;
+        String keyType = null;
         if (content != null) {
             tableDescription = StringUtils.getValue(ClassKey.DESC.getCode(), content);
             tableName = StringUtils.getValue(ClassKey.TABLE_NAME.getCode(), content);
             auto = StringUtils.getValue(ClassKey.AUTO.getCode(), content);
+            keyType = StringUtils.getValue(ClassKey.KEY_TYPE.getCode(), content);
         }
         if (auto == null) {
             return null;
@@ -123,7 +125,7 @@ public class EntityBuilder {
         List<EntityField> columnList = new ArrayList<>();
 
         if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
-            BuildBaseFieldList(baseEntityFieldList, columnList);
+            buildBaseFieldList(baseEntityFieldList, columnList,keyType);
         }
 
         for (Node field : fieldList) {
@@ -220,13 +222,16 @@ public class EntityBuilder {
         return entityModel;
     }
 
-    private static void BuildBaseFieldList(List<EntityField> baseEntityFieldList, List<EntityField> columnList) {
+    private static void buildBaseFieldList(List<EntityField> baseEntityFieldList, List<EntityField> columnList, String keyType) {
         if (baseEntityFieldList != null) {
             for (EntityField entityField : baseEntityFieldList) {
                 String name = entityField.getName();
                 String columnName = entityField.getColumnName();
                 String type = entityField.getType();
                 Integer length = entityField.getLength();
+                if (!StringUtils.isEmpty(keyType)&&"id".equals(name)) {
+                    type = keyType;
+                }
                 if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(name)) {
                     continue;
                 }
