@@ -67,12 +67,12 @@ public class MapperBuilder {
         compilationUnit.addImport(IMPORT_LIST);
         compilationUnit.addImport(IMPORT_ANNOTATIONS_MAPPER);
         compilationUnit.addImport(entityClassName);
-
+        MarkerAnnotationExpr mapperAnnotationExpr = new MarkerAnnotationExpr(MAPPER);
         ClassOrInterfaceDeclaration mapperClass = compilationUnit
                 .addClass(className)
                 .setPublic(true)
                 .setInterface(true)
-                .addAnnotation(new MarkerAnnotationExpr(MAPPER));
+                .addAnnotation(mapperAnnotationExpr);
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
 
 
@@ -159,7 +159,7 @@ public class MapperBuilder {
                 .addClass(entityModel.getMapperName())
                 .setPublic(true)
                 .setInterface(true)
-                .addAnnotation(MAPPER);
+                .addAnnotation(new MarkerAnnotationExpr(MAPPER));
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
         mapperClass.addExtendedType(entityModel.getBaseMapperName());
         mapperClass.addOrphanComment(new LineComment(TIPS));
