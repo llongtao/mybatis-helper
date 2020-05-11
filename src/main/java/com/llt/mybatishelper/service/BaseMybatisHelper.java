@@ -36,12 +36,9 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     @Override
     public void run(Config config) {
-
         List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
 
-
         config.getBuildConfigList().forEach(buildConfig -> {
-
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readFileToString(filePath);

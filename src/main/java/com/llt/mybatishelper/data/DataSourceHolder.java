@@ -1,9 +1,11 @@
 package com.llt.mybatishelper.data;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.druid.pool.DruidPooledConnection;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.concurrent.*;
 
@@ -24,6 +26,8 @@ public class DataSourceHolder {
 
     private static DruidDataSource dataSource;
 
+    private static  Connection connection ;
+
     public static void addDataSource(String driverClassName, String url, String username, String password) {
         if (dataSource == null) {
             try {
@@ -42,14 +46,28 @@ public class DataSourceHolder {
     }
 
     public static Connection getConnection() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                return connection;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         if (dataSource == null) {
             throw new IllegalArgumentException("未配置数据源");
         }
-        Callable<Connection> callable = () -> dataSource.getConnection();
+
+        Callable<Connection> callable = () -> {
+            log.info("getConn");
+            DruidPooledConnection conn = dataSource.getConnection();
+            log.info("getConnSuccess:{}",conn);
+            connection = conn;
+            return conn;
+        };
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Connection> submit = executor.submit(callable);
         try {
-            return submit.get(2, TimeUnit.SECONDS);
+            return submit.get(3, TimeUnit.SECONDS);
         } catch (Exception e) {
             dataSource.close();
             dataSource = null;
