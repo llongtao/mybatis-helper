@@ -66,7 +66,6 @@ public class EntityBuilder {
     public static EntityModel build(String classStr, BuildConfig buildConfig, List<EntityField> baseEntityFieldList) {
         EntityModel entityModel = new EntityModel();
 
-
         CompilationUnit compilationUnit = StaticJavaParser.parse(classStr);
         Optional<PackageDeclaration> packageDeclaration = compilationUnit.getPackageDeclaration();
         String packageName = packageDeclaration.get().getName().toString();
@@ -83,10 +82,12 @@ public class EntityBuilder {
         }
         String tableDescription = null;
         String tableName = null;
+        String entityName = null;
         String auto = null;
         if (content != null) {
             tableDescription = StringUtils.getValue(ClassKey.DESC.getCode(), content);
             tableName = StringUtils.getValue(ClassKey.TABLE_NAME.getCode(), content);
+            entityName = StringUtils.getValue(ClassKey.ENTITY_NAME.getCode(), content);
             auto = StringUtils.getValue(ClassKey.AUTO.getCode(), content);
         }
         if (auto == null) {
@@ -94,20 +95,28 @@ public class EntityBuilder {
         }
         entityModel.setDescription(tableDescription);
         String className = classDeclaration.getName().toString();
-        entityModel.setTableName(tableName == null ? StringUtils.transformUnderline(className) : tableName);
-        entityModel.setEntityName(className);
+        if (tableName == null) {
+            entityModel.setTableName(StringUtils.transformUnderline(className) );
+        }else {
+            entityModel.setTableName( tableName);
+        }
 
+        entityModel.setClassName(className);
         String entityClassName = packageName + DOT + className;
         entityModel.setEntityClassName(entityClassName);
         String mapperPackage;
         try {
-            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
+            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT),StringUtils.getStringByDot(entityModel.getPackageName(), 2) );
         } catch (Exception e) {
             throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
         }
+        if (entityName == null) {
+            entityName = className;
+        }
+        entityModel.setEntityName(entityName);
         String baseMapperPackage = mapperPackage + ".base";
-        String baseMapperName = BASE + className + MAPPER;
-        String mapperName = className + MAPPER;
+        String baseMapperName = BASE + entityName + MAPPER;
+        String mapperName = entityName + MAPPER;
         entityModel.setBaseMapperName(baseMapperName);
         entityModel.setMapperName(mapperName);
         entityModel.setBaseMapperClassName(baseMapperPackage + DOT + baseMapperName);
@@ -126,6 +135,11 @@ public class EntityBuilder {
 
         if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
             BuildBaseFieldList(baseEntityFieldList, columnList);
+            for (EntityField entityField : columnList) {
+                if (DEFAULT_KEY.equals(entityField.getName())) {
+                    idField = entityField;
+                }
+            }
         }
 
         for (Node field : fieldList) {

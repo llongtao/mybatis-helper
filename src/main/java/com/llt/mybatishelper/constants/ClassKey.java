@@ -20,6 +20,8 @@ public enum ClassKey {
     AUTO(".auto"),
     TABLE_NAME(".tableName"),
     DESC(".desc"),
+    ENTITY_NAME(".entityName"),
+
     ;
 
     String code;

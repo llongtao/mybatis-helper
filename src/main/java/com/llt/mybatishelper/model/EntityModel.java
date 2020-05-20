@@ -33,6 +33,8 @@ public class EntityModel {
 
     private String entityName;
 
+    private String className;
+
     private String tableName;
 
     private String description;
