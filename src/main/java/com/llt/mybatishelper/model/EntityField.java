@@ -24,6 +24,8 @@ public class EntityField {
 
     private String fullJdbcType;
 
+    private Boolean isEnum;
+
     private Integer length;
 
     private String defaultValue;
@@ -43,5 +45,14 @@ public class EntityField {
 
     }
     public EntityField() {
+    }
+
+    public EntityField(EntityField item) {
+        this.name = item.getName();
+        this.columnName = item.getColumnName();
+        this.type = item.getType();
+        this.length = item.getLength();
+        this.defaultValue = item.getDefaultValue();
+        this.description = item.getDescription();
     }
 }

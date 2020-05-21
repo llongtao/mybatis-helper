@@ -33,6 +33,8 @@ public class EntityBuilder {
 
     static {
         TYPE_MAP = new HashMap<>();
+        TYPE_MAP.put("Enum", JDBCType.VARCHAR);
+        TYPE_MAP.put("enum", JDBCType.VARCHAR);
         TYPE_MAP.put("String", JDBCType.VARCHAR);
         TYPE_MAP.put("Integer", JDBCType.INTEGER);
         TYPE_MAP.put("int", JDBCType.INTEGER);
@@ -171,7 +173,7 @@ public class EntityBuilder {
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
             String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
-            String enumType = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment);
+            boolean isEnum = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment)!=null;
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
             if (columnName == null) {
@@ -183,26 +185,33 @@ public class EntityBuilder {
             if (jdbcType == null) {
                 jdbcType = TYPE_MAP.get(type);
                 if (jdbcType == null) {
-                    if (enumType == null) {
-                        continue;
-                    }else {
+                    if (isEnum) {
                         jdbcType = JDBCType.VARCHAR;
+                    }else {
+                        continue;
                     }
                 }
             }
             if (size == null) {
-                if (enumType != null) {
+                if (isEnum) {
                     size = 16;
                 }else {
                     size = DEFAULT_LENGTH.get(jdbcType);
                 }
             }
             String fullJdbcType = jdbcType.getName();
-            if (size != null) {
-                fullJdbcType = fullJdbcType + "(" + size + ")";
+            if (jdbcType == JDBCType.DECIMAL) {
+                if (size != null) {
+                    fullJdbcType = fullJdbcType + "(19,6)";
+                }
+            }else {
+                if (size != null) {
+                    fullJdbcType = fullJdbcType + "(" + size + ")";
+                }
             }
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), size, defaultValue, nullable, description);
+
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(),isEnum, size, defaultValue, nullable, description);
 
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
@@ -224,14 +233,19 @@ public class EntityBuilder {
 
     private static void buildBaseFieldList(List<EntityField> baseEntityFieldList, List<EntityField> columnList, String keyType) {
         if (baseEntityFieldList != null) {
+
             for (EntityField entityField : baseEntityFieldList) {
-                String name = entityField.getName();
-                String columnName = entityField.getColumnName();
-                String type = entityField.getType();
-                Integer length = entityField.getLength();
+                EntityField field = new EntityField(entityField);
+                String name = field.getName();
+
                 if (!StringUtils.isEmpty(keyType)&&"id".equals(name)) {
-                    type = keyType;
+                    field.setType(keyType);
                 }
+                String type =field.getType();
+                String columnName = field.getColumnName();
+
+                Integer length = field.getLength();
+
                 if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(name)) {
                     continue;
                 }
@@ -239,15 +253,15 @@ public class EntityBuilder {
                     continue;
                 }
                 if (StringUtils.isEmpty(columnName)) {
-                    entityField.setColumnName(StringUtils.transformUnderline(name));
+                    field.setColumnName(StringUtils.transformUnderline(name));
                 } else {
-                    entityField.setName(StringUtils.transformHump(columnName));
+                    field.setName(StringUtils.transformHump(columnName));
                 }
                 JDBCType jdbcType = TYPE_MAP.get(type);
                 if (jdbcType == null) {
                     continue;
                 }
-                entityField.setJdbcType(jdbcType);
+                field.setJdbcType(jdbcType);
 
                 if (length == null) {
                     length = DEFAULT_LENGTH.get(jdbcType);
@@ -256,9 +270,10 @@ public class EntityBuilder {
                 if (length != null) {
                     fullJdbcType = fullJdbcType + "(" + length + ")";
                 }
-                entityField.setFullJdbcType(fullJdbcType);
-                entityField.setNullable(!Objects.equals(entityField.getNullable(), false));
-                columnList.add(entityField);
+                field.setFullJdbcType(fullJdbcType);
+                field.setNullable(!Objects.equals(field.getNullable(), false));
+                field.setIsEnum("enum".equalsIgnoreCase(type));
+                columnList.add(field);
             }
         }
     }

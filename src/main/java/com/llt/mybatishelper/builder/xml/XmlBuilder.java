@@ -306,7 +306,7 @@ public class XmlBuilder {
         query.addText(TWO_TAB + FROM).addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
         Element queryWhere = query.addElement(WHERE);
         entityFieldList.forEach(entityField -> queryWhere.addElement(IF)
-                .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (STRING.equals(entityField.getType()) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
+                .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (isStringField(entityField) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
                 .addText(FOUR_TAB + AND + SPACE + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET)
                 .addText(THREE_TAB));
         updateSelective.addText(TWO_TAB);
@@ -347,11 +347,15 @@ public class XmlBuilder {
                 .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
         Element updateSelectiveSet = updateSelective.addElement(SET);
         entityModel.getColumnList().forEach(entityField -> updateSelectiveSet.addElement(IF)
-                .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (STRING.equals(entityField.getType()) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
+                .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (isStringField(entityField) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
                 .addText(FOUR_TAB + SPLIT + entityField.getColumnName() + SPLIT + EQ + LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET + COMMA)
                 .addText(THREE_TAB));
         updateSelective.add(where.createCopy());
         return updateSelective;
+    }
+
+    private static boolean isStringField(EntityField entityField) {
+        return STRING.equals(entityField.getType()) && !entityField.getIsEnum();
     }
 
     public static Document buildEmpty(EntityModel entityModel) {

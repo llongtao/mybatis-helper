@@ -67,7 +67,7 @@ public class DataSourceHolder {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Connection> submit = executor.submit(callable);
         try {
-            return submit.get(3, TimeUnit.SECONDS);
+            return submit.get(5, TimeUnit.SECONDS);
         } catch (Exception e) {
             dataSource.close();
             dataSource = null;

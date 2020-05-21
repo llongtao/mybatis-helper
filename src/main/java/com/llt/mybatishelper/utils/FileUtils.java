@@ -15,7 +15,7 @@ public class FileUtils {
 
     public static String readFileToString(String path) {
         File file = new File(path);
-        if (!file.exists()) {
+        if (!file.exists() || file.isDirectory()) {
             return null;
         }
         StringBuilder stringBuilder = new StringBuilder();

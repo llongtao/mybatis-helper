@@ -42,11 +42,13 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readFileToString(filePath);
-                EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
-                if (entityModel != null) {
-                    updateTable(entityModel, buildConfig.getDb());
-                    buildMapper(entityModel, buildConfig);
-                    buildXml(entityModel, buildConfig);
+                if (entityClassStr != null) {
+                    EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
+                    if (entityModel != null) {
+                        updateTable(entityModel, buildConfig.getDb());
+                        buildMapper(entityModel, buildConfig);
+                        buildXml(entityModel, buildConfig);
+                    }
                 }
             });
         });
