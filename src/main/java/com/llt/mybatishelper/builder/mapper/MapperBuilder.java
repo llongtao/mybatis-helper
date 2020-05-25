@@ -60,6 +60,7 @@ public class MapperBuilder {
         String entityClassName = entityModel.getEntityClassName();
         String className = entityModel.getBaseMapperName();
         String entityName = entityModel.getEntityName();
+        String classNm = entityModel.getClassName();
 
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(mapperPackage);
@@ -79,7 +80,7 @@ public class MapperBuilder {
         NodeList<Parameter> nodeList = new NodeList<>();
         Parameter parameter = new Parameter();
         String parameterName = StringUtils.firstToLower(entityModel.getEntityName());
-        parameter.setType(entityName);
+        parameter.setType(classNm);
         assert parameterName != null;
         parameter.setName(parameterName);
         nodeList.add(parameter);
@@ -96,7 +97,7 @@ public class MapperBuilder {
 
         NodeList<Parameter> listNodeList = new NodeList<>();
         Parameter listParameter = new Parameter();
-        listParameter.setType("List<" + entityName + ">");
+        listParameter.setType("List<" + classNm + ">");
         listParameter.setName(parameterName + LIST);
         listNodeList.add(listParameter);
 
@@ -115,13 +116,13 @@ public class MapperBuilder {
         mapperClass.addMethod(UPDATE_SELECTIVE).setType(Type.NODE).setBody(null).setParameters(nodeList)
                 .setComment(new JavadocComment("修改有值的列\n"+"@param "+parameter.getName()+" 需要修改的实体\n"+"@return 修改行数"));
 
-        mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + entityName + ">").setParameters(nodeList)
+        mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + classNm + ">").setParameters(nodeList)
                 .setComment(new JavadocComment("查询\n"+"@param "+parameter.getName()+" 查询条件实体\n"+"@return 列表"));
 
         StringBuilder keyParams = new StringBuilder();
         keyParameterList.forEach(key->keyParams.append("@param ").append(key.getName()).append(" 主键\n"));
 
-        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(entityName).setParameters(keyParameterList)
+        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(classNm).setParameters(keyParameterList)
                 .setComment(new JavadocComment("根据id查询\n"+keyParams+"@return 实体"));
 
         mapperClass.addMethod(DELETE_BY_PRIMARY_KEY).setType(Type.NODE).setBody(null).setParameters(keyParameterList)

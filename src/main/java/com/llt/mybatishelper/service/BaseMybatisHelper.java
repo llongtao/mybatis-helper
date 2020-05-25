@@ -50,6 +50,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                         buildXml(entityModel, buildConfig);
                     }
                 }
+
             });
         });
     }
