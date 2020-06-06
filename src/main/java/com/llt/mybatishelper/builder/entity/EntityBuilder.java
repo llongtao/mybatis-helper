@@ -134,17 +134,10 @@ public class EntityBuilder {
 
         List<EntityField> primaryKeyList = new ArrayList<>();
 
-        EntityField idField = null;
-
         List<EntityField> columnList = new ArrayList<>();
 
         if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
-            BuildBaseFieldList(baseEntityFieldList, columnList);
-            for (EntityField entityField : columnList) {
-                if (DEFAULT_KEY.equals(entityField.getName())) {
-                    idField = entityField;
-                }
-            }
+            buildBaseFieldList(baseEntityFieldList, columnList,keyType);
         }
 
         for (Node field : fieldList) {
