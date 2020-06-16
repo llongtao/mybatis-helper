@@ -3,7 +3,6 @@ package com.llt.mybatishelper.model;
 import com.llt.mybatishelper.view.vo.EntityFieldVO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.sql.JDBCType;
 

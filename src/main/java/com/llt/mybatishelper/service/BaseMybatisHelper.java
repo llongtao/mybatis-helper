@@ -53,6 +53,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
             });
         });
+        DataSourceHolder.clear();
     }
 
     /**

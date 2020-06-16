@@ -12,6 +12,7 @@ import com.llt.mybatishelper.model.BuildConfig;
 import com.llt.mybatishelper.model.EntityField;
 import com.llt.mybatishelper.model.EntityModel;
 import com.llt.mybatishelper.utils.StringUtils;
+
 import java.sql.JDBCType;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -101,9 +102,9 @@ public class EntityBuilder {
         entityModel.setDescription(tableDescription);
         String className = classDeclaration.getName().toString();
         if (tableName == null) {
-            entityModel.setTableName(StringUtils.transformUnderline(className) );
-        }else {
-            entityModel.setTableName( tableName);
+            entityModel.setTableName(StringUtils.transformUnderline(className));
+        } else {
+            entityModel.setTableName(tableName);
         }
 
         entityModel.setClassName(className);
@@ -111,7 +112,7 @@ public class EntityBuilder {
         entityModel.setEntityClassName(entityClassName);
         String mapperPackage;
         try {
-            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT),StringUtils.getStringByDot(entityModel.getPackageName(), 2) );
+            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
         } catch (Exception e) {
             throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
         }
@@ -134,17 +135,11 @@ public class EntityBuilder {
 
         List<EntityField> primaryKeyList = new ArrayList<>();
 
-        EntityField idField = null;
 
         List<EntityField> columnList = new ArrayList<>();
 
         if (!Objects.equals(buildConfig.getIgnoreBaseField(), true)) {
-            BuildBaseFieldList(baseEntityFieldList, columnList);
-            for (EntityField entityField : columnList) {
-                if (DEFAULT_KEY.equals(entityField.getName())) {
-                    idField = entityField;
-                }
-            }
+            buildBaseFieldList(baseEntityFieldList, columnList, keyType);
         }
 
         for (Node field : fieldList) {
@@ -190,7 +185,7 @@ public class EntityBuilder {
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
             String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
-            boolean isEnum = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment)!=null;
+            boolean isEnum = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment) != null;
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
             if (columnName == null) {
@@ -204,7 +199,7 @@ public class EntityBuilder {
                 if (jdbcType == null) {
                     if (isEnum) {
                         jdbcType = JDBCType.VARCHAR;
-                    }else {
+                    } else {
                         continue;
                     }
                 }
@@ -212,23 +207,25 @@ public class EntityBuilder {
             if (size == null) {
                 if (isEnum) {
                     size = 16;
-                }else {
+                } else {
                     size = DEFAULT_LENGTH.get(jdbcType);
                 }
             }
             String fullJdbcType = jdbcType.getName();
             if (jdbcType == JDBCType.DECIMAL) {
-                if (size != null) {
+                if (size == null) {
                     fullJdbcType = fullJdbcType + "(19,6)";
+                } else {
+                    fullJdbcType = fullJdbcType + "(19," + size + ")";
                 }
-            }else {
+            } else {
                 if (size != null) {
                     fullJdbcType = fullJdbcType + "(" + size + ")";
                 }
             }
 
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(),isEnum, size, defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), isEnum, size, defaultValue, nullable, description);
 
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
@@ -237,7 +234,7 @@ public class EntityBuilder {
             }
         }
 
-        if (primaryKeyList.size() == 0 ) {
+        if (primaryKeyList.size() == 0) {
             List<EntityField> idField = columnList.stream().filter(item -> DEFAULT_KEY.equals(item.getName())).collect(Collectors.toList());
             primaryKeyList.addAll(idField);
             columnList.removeAll(idField);
@@ -255,10 +252,10 @@ public class EntityBuilder {
                 EntityField field = new EntityField(entityField);
                 String name = field.getName();
 
-                if (!StringUtils.isEmpty(keyType)&&"id".equals(name)) {
+                if (!StringUtils.isEmpty(keyType) && "id".equals(name)) {
                     field.setType(keyType);
                 }
-                String type =field.getType();
+                String type = field.getType();
                 String columnName = field.getColumnName();
 
                 Integer length = field.getLength();
