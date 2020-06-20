@@ -21,7 +21,7 @@ public class BeanUtil {
         entityField.setName(item.getName());
         entityField.setColumnName(item.getColumnName());
         entityField.setType(item.getType());
-        entityField.setLength(item.getLength());
+        entityField.setLength(String.valueOf(item.getLength()));
         entityField.setDefaultValue(item.getDefaultValue());
         entityField.setNullable(!item.isNoNull());
         entityField.setDescription(item.getDescription());

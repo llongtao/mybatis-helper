@@ -15,6 +15,8 @@ import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -81,12 +83,11 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             File file = new File(buildConfig.getMapperFolder() + SLASH_BASE);
             mkdir(file);
             if (mapper != null) {
-                FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA));
+                OutputStreamWriter fileWriter = new OutputStreamWriter(new FileOutputStream(new File(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA)), StandardCharsets.UTF_8);
                 fileWriter.write(mapper.toString());
                 fileWriter.close();
             }
-
-            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA));
+            OutputStreamWriter fileWriter = new OutputStreamWriter(new FileOutputStream(new File(buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA)), StandardCharsets.UTF_8);
             fileWriter.write(baseMapper.toString());
             fileWriter.close();
         } catch (IOException e) {

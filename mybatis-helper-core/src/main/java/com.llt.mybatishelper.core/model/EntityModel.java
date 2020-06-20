@@ -1,6 +1,8 @@
 package com.llt.mybatishelper.core.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import static com.llt.mybatishelper.core.constants.Constants.DOT;
  * @author LILONGTAO
  */
 @Data
+@NoArgsConstructor
 public class EntityModel {
 
     private String packageName;

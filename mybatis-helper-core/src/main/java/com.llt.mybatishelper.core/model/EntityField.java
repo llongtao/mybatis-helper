@@ -2,12 +2,15 @@ package com.llt.mybatishelper.core.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.sql.JDBCType;
 
 /**
  * @author LILONGTAO
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class EntityField {
 
@@ -23,7 +26,7 @@ public class EntityField {
 
     private Boolean isEnum;
 
-    private Integer length;
+    private String length;
 
     private String defaultValue;
 
@@ -32,8 +35,6 @@ public class EntityField {
     private String description;
 
 
-    public EntityField() {
-    }
 
     public EntityField(EntityField item) {
         this.name = item.getName();

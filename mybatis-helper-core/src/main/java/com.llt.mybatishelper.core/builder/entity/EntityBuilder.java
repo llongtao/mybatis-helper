@@ -57,11 +57,12 @@ public class EntityBuilder {
         TYPE_MAP.put("BigDecimal", JDBCType.DECIMAL);
     }
 
-    private static final Map<JDBCType, Integer> DEFAULT_LENGTH;
+    private static final Map<JDBCType, String> DEFAULT_LENGTH;
 
     static {
         DEFAULT_LENGTH = new HashMap<>();
-        DEFAULT_LENGTH.put(JDBCType.VARCHAR, 255);
+        DEFAULT_LENGTH.put(JDBCType.VARCHAR, "255");
+        DEFAULT_LENGTH.put(JDBCType.DECIMAL, "19,6");
     }
 
     private static final String DEFAULT_KEY = "id";
@@ -112,7 +113,9 @@ public class EntityBuilder {
         entityModel.setEntityClassName(entityClassName);
         String mapperPackage;
         try {
-            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT),StringUtils.getStringByDot(entityModel.getPackageName(), 2) );
+            String mapperFolder = buildConfig.getMapperFolder();
+            String splitFlag = mapperFolder.contains("\\")?"\\":"/";
+            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace(splitFlag, DOT),StringUtils.getStringByDot(entityModel.getPackageName(), 2) );
         } catch (Exception e) {
             throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
         }
@@ -162,10 +165,10 @@ public class EntityBuilder {
                 continue;
             }
             boolean isPrimaryKey = null != primaryKey;
-            Integer size = null;
+            String size = null;
             if (!StringUtils.isEmpty(lengthStr)) {
                 try {
-                    size = Integer.parseInt(lengthStr);
+                    size = lengthStr;
                 } catch (Exception ignore) {
                 }
             }
@@ -205,20 +208,14 @@ public class EntityBuilder {
             }
             if (size == null) {
                 if (isEnum) {
-                    size = 16;
+                    size = "16";
                 }else {
                     size = DEFAULT_LENGTH.get(jdbcType);
                 }
             }
             String fullJdbcType = jdbcType.getName();
-            if (jdbcType == JDBCType.DECIMAL) {
-                if (size != null) {
-                    fullJdbcType = fullJdbcType + "(19,6)";
-                }
-            }else {
-                if (size != null) {
-                    fullJdbcType = fullJdbcType + "(" + size + ")";
-                }
+            if (!StringUtils.isEmpty(size)) {
+                fullJdbcType = fullJdbcType + "(" + size + ")";
             }
 
 
@@ -255,7 +252,7 @@ public class EntityBuilder {
                 String type =field.getType();
                 String columnName = field.getColumnName();
 
-                Integer length = field.getLength();
+                String length = field.getLength();
 
                 if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(name)) {
                     continue;
@@ -278,7 +275,7 @@ public class EntityBuilder {
                     length = DEFAULT_LENGTH.get(jdbcType);
                 }
                 String fullJdbcType = jdbcType.getName();
-                if (length != null) {
+                if (!StringUtils.isEmpty(length)) {
                     fullJdbcType = fullJdbcType + "(" + length + ")";
                 }
                 field.setFullJdbcType(fullJdbcType);

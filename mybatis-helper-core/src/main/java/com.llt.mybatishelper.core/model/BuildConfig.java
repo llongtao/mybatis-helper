@@ -1,11 +1,15 @@
 package com.llt.mybatishelper.core.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author LILONGTAO
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BuildConfig {
 
     private String entityFolder;
@@ -24,8 +28,6 @@ public class BuildConfig {
 
     private Boolean ignoreBaseField;
 
-    public BuildConfig(){
-    }
 
 
 }

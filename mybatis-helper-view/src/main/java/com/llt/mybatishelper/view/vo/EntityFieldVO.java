@@ -33,7 +33,10 @@ public class EntityFieldVO {
         type = new SimpleStringProperty(item.getType());
         jdbcType = new SimpleStringProperty(String.valueOf(item.getJdbcType()));
         fullJdbcType = new SimpleStringProperty(item.getFullJdbcType());
-        length = new SimpleIntegerProperty(item.getLength()==null?0:item.getLength());
+        try{
+            length = new SimpleIntegerProperty(item.getLength()==null?0:Integer.parseInt(item.getLength()));
+        }catch (Exception ignore){}
+
         defaultValue = new SimpleStringProperty(item.getDefaultValue());
         noNull = new SimpleBooleanProperty(!Objects.equals(item.getNullable(),true));
         description= new SimpleStringProperty(item.getDescription());
