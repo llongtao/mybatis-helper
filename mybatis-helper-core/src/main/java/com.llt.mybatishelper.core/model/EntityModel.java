@@ -115,6 +115,8 @@ public class EntityModel {
             String defaultValue = column.getDefaultValue();
             if (defaultValue != null) {
                 sb.append("DEFAULT '").append(defaultValue).append("' ");
+            }else {
+                sb.append("NULL DEFAULT NULL ");
             }
             String description = column.getDescription();
             if (description != null) {
