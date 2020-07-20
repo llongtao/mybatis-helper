@@ -101,7 +101,7 @@ public class Controller {
     private TableColumn<EntityFieldVO, String> type;
 
     @FXML
-    private TableColumn<EntityFieldVO, Integer> length;
+    private TableColumn<EntityFieldVO, String> length;
 
     @FXML
     private TableColumn<EntityFieldVO, String> defaultValue;
@@ -155,21 +155,7 @@ public class Controller {
 
         length.setCellValueFactory(new PropertyValueFactory<>("length"));
         length.setEditable(true);
-        length.setCellFactory(TextFieldTableCell.forTableColumn(new StringConverter<Integer>() {
-            @Override
-            public String toString(Integer object) {
-                return String.valueOf(object);
-            }
-
-            @Override
-            public Integer fromString(String string) {
-                try {
-                    return Integer.parseInt(string);
-                } catch (Exception ignore) {
-                    return 0;
-                }
-            }
-        }));
+        length.setCellFactory(TextFieldTableCell.forTableColumn());
         length.setOnEditCommit(evt -> {
             evt.getRowValue().setLength(evt.getNewValue());
             save();

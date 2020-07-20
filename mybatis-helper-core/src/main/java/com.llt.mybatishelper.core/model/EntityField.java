@@ -23,7 +23,7 @@ public class EntityField {
 
     private Boolean isEnum;
 
-    private Integer length;
+    private String length;
 
     private String defaultValue;
 

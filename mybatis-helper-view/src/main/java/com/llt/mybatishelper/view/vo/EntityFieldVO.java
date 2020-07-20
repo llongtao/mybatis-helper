@@ -18,7 +18,7 @@ public class EntityFieldVO {
 
     private StringProperty fullJdbcType;
 
-    private IntegerProperty length;
+    private StringProperty length;
 
     private StringProperty defaultValue;
 
@@ -33,7 +33,7 @@ public class EntityFieldVO {
         type = new SimpleStringProperty(item.getType());
         jdbcType = new SimpleStringProperty(String.valueOf(item.getJdbcType()));
         fullJdbcType = new SimpleStringProperty(item.getFullJdbcType());
-        length = new SimpleIntegerProperty(item.getLength()==null?0:item.getLength());
+        length = new SimpleStringProperty(item.getLength());
         defaultValue = new SimpleStringProperty(item.getDefaultValue());
         noNull = new SimpleBooleanProperty(!Objects.equals(item.getNullable(),true));
         description= new SimpleStringProperty(item.getDescription());
@@ -44,7 +44,7 @@ public class EntityFieldVO {
         type = new SimpleStringProperty();
         jdbcType = new SimpleStringProperty();
         fullJdbcType = new SimpleStringProperty();
-        length = new SimpleIntegerProperty();
+        length = new SimpleStringProperty();
         defaultValue = new SimpleStringProperty();
         noNull = new SimpleBooleanProperty(false);
         description= new SimpleStringProperty();
@@ -91,11 +91,11 @@ public class EntityFieldVO {
         return fullJdbcType;
     }
 
-    public int getLength() {
+    public String getLength() {
         return length.get();
     }
 
-    public IntegerProperty lengthProperty() {
+    public StringProperty lengthProperty() {
         return length;
     }
 
@@ -137,7 +137,7 @@ public class EntityFieldVO {
         this.fullJdbcType.set(fullJdbcType);
     }
 
-    public void setLength(int length) {
+    public void setLength(String length) {
         this.length.set(length);
     }
 

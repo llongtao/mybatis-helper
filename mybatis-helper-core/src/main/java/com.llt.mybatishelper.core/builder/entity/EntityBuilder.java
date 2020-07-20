@@ -57,11 +57,13 @@ public class EntityBuilder {
         TYPE_MAP.put("BigDecimal", JDBCType.DECIMAL);
     }
 
-    private static final Map<JDBCType, Integer> DEFAULT_LENGTH;
+    private static final Map<JDBCType, String> DEFAULT_LENGTH;
 
     static {
         DEFAULT_LENGTH = new HashMap<>();
-        DEFAULT_LENGTH.put(JDBCType.VARCHAR, 255);
+        DEFAULT_LENGTH.put(JDBCType.VARCHAR, "255");
+        DEFAULT_LENGTH.put(JDBCType.DECIMAL, "19,6");
+
     }
 
     private static final String DEFAULT_KEY = "id";
@@ -162,13 +164,7 @@ public class EntityBuilder {
                 continue;
             }
             boolean isPrimaryKey = null != primaryKey;
-            Integer size = null;
-            if (!StringUtils.isEmpty(lengthStr)) {
-                try {
-                    size = Integer.parseInt(lengthStr);
-                } catch (Exception ignore) {
-                }
-            }
+            String size = lengthStr;
 
             boolean nullable = null == StringUtils.getValue(FieldKey.NO_NULL.getCode(), fieldComment);
             JDBCType jdbcType = null;
@@ -205,20 +201,14 @@ public class EntityBuilder {
             }
             if (size == null) {
                 if (isEnum) {
-                    size = 16;
+                    size = "16";
                 } else {
                     size = DEFAULT_LENGTH.get(jdbcType);
                 }
             }
             String fullJdbcType = jdbcType.getName();
-            if (jdbcType == JDBCType.DECIMAL) {
-                if (size != null) {
-                    fullJdbcType = fullJdbcType + "(19,6)";
-                }
-            } else {
-                if (size != null && size != 0) {
-                    fullJdbcType = fullJdbcType + "(" + size + ")";
-                }
+            if (!StringUtils.isEmpty(size) && !"0".equals(size)) {
+                fullJdbcType = fullJdbcType + "(" + size + ")";
             }
 
 
@@ -255,7 +245,7 @@ public class EntityBuilder {
                 String type = field.getType();
                 String columnName = field.getColumnName();
 
-                Integer length = field.getLength();
+                String length = field.getLength();
 
                 if (StringUtils.isEmpty(columnName) && StringUtils.isEmpty(name)) {
                     continue;
@@ -278,7 +268,7 @@ public class EntityBuilder {
                     length = DEFAULT_LENGTH.get(jdbcType);
                 }
                 String fullJdbcType = jdbcType.getName();
-                if (length != null &&length != 0) {
+                if (!StringUtils.isEmpty(length) && !"0".equals(length)) {
                     fullJdbcType = fullJdbcType + "(" + length + ")";
                 }
                 field.setFullJdbcType(fullJdbcType);
