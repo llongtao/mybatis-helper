@@ -114,7 +114,8 @@ public class DefaultEntityBuilder {
         entityModel.setEntityClassName(entityClassName);
         String mapperPackage;
         try {
-            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace("\\", DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
+            String spilt = buildConfig.getMapperFolder().contains("\\")?"\\":"/";
+            mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace(spilt, DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
         } catch (Exception e) {
             throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
         }
