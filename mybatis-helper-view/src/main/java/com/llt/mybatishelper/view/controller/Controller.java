@@ -3,9 +3,9 @@ package com.llt.mybatishelper.view.controller;
 import com.alibaba.fastjson.JSON;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
 import com.llt.mybatishelper.core.model.BuildConfig;
+import com.llt.mybatishelper.core.model.BuildResult;
 import com.llt.mybatishelper.core.model.Config;
-import com.llt.mybatishelper.core.model.EntityField;
-import com.llt.mybatishelper.core.service.MyBatisHelperFactory;
+import com.llt.mybatishelper.core.start.MyBatisHelperStarter;
 import com.llt.mybatishelper.core.utils.CollectionUtils;
 import com.llt.mybatishelper.core.utils.FileUtils;
 import com.llt.mybatishelper.core.utils.StringUtils;
@@ -21,7 +21,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -281,8 +280,16 @@ public class Controller {
             try {
                 Config config = save();
                 checkStartConfigAndConfigDataSource(config);
-                MyBatisHelperFactory.getMybatisHelper(config.getDbType()).run(config);
-                new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
+
+                BuildResult run = MyBatisHelperStarter.db(config.getDbType()).run(config);
+                if (run.isSucceed()) {
+                    new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
+                }else {
+                    log.warn("生成异常",run.getE());
+                    new Alert(Alert.AlertType.ERROR, run.getE().getMessage(), new ButtonType[]{ButtonType.CLOSE}).show();
+                }
+                log.info(JSON.toJSONString(run.getLogs()));
+
             } catch (Exception e) {
                 log.warn("生成异常",e);
                 new Alert(Alert.AlertType.ERROR, e.getMessage(), new ButtonType[]{ButtonType.CLOSE}).show();

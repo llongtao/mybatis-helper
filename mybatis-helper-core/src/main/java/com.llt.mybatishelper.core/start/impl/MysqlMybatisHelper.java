@@ -1,10 +1,12 @@
-package com.llt.mybatishelper.core.service.impl;
+package com.llt.mybatishelper.core.start.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
+import com.llt.mybatishelper.core.log.ResultLog;
 import com.llt.mybatishelper.core.model.EntityField;
 import com.llt.mybatishelper.core.model.EntityModel;
-import com.llt.mybatishelper.core.service.BaseMybatisHelper;
+import com.llt.mybatishelper.core.start.BaseMybatisHelper;
 import com.llt.mybatishelper.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
@@ -43,18 +45,23 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
             while (resultSet.next()) {
                 columnSet.add(resultSet.getString(1).trim().toLowerCase());
             }
+            ResultLog.info("获取"+entityModel.getTableName()+"列:"+ JSON.toJSONString(columnSet));
         } catch (SQLException e) {
+            ResultLog.warn("获取"+entityModel.getTableName()+"列失败:"+e.getMessage());
             e.printStackTrace();
         }
 
         String sql = toSql(entityModel,columnSet);
 
         if (sql != null) {
-            System.out.println(sql);
+            log.info("sql:"+sql);
+            ResultLog.info("sql:"+sql);
             try {
                 Statement statement = connection.createStatement();
                 statement.execute(sql);
+                ResultLog.info("sql执行成功");
             } catch (SQLException e) {
+                ResultLog.warn("sql失败:"+e.getMessage());
                 e.printStackTrace();
             }
         }

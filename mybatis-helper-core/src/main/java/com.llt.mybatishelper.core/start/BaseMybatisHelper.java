@@ -1,14 +1,12 @@
-package com.llt.mybatishelper.core.service;
+package com.llt.mybatishelper.core.start;
 
 import com.github.javaparser.ast.*;
 import com.llt.mybatishelper.core.builder.entity.DefaultEntityBuilder;
 import com.llt.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
-import com.llt.mybatishelper.core.model.BuildConfig;
-import com.llt.mybatishelper.core.model.Config;
-import com.llt.mybatishelper.core.model.EntityField;
-import com.llt.mybatishelper.core.model.EntityModel;
+import com.llt.mybatishelper.core.log.ResultLog;
+import com.llt.mybatishelper.core.model.*;
 import com.llt.mybatishelper.core.utils.FileUtils;
 import lombok.AllArgsConstructor;
 import org.dom4j.Document;
@@ -36,12 +34,21 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
 
     @Override
-    public int run(Config config) {
+    public BuildResult run(Config config) {
+        try{
+            return BuildResult.succeed(start(config));
+        }catch (Exception e){
+            return BuildResult.error(e);
+        }
+    }
 
+    private Integer start(Config config) {
         //config db
         boolean useDb = Objects.equals(config.getUseDb(), true);
+        ResultLog.info("useDb:"+useDb);
         if (Objects.equals(config.getUseDb(),true)) {
             String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
+            ResultLog.info("dbUrl:"+dbUrl);
             DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
         }
 
@@ -51,16 +58,25 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         config.getBuildConfigList().forEach(buildConfig -> {
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
+
                 String entityClassStr = FileUtils.readJavaFileToString(filePath);
+                ResultLog.info("readFile:"+filePath);
+
                 if (entityClassStr != null) {
                     EntityModel entityModel = DefaultEntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
+                    ResultLog.info("buildEntityModel success");
+
                     if (entityModel != null) {
                         sum.incrementAndGet();
                         if (useDb) {
                             updateTable(entityModel, buildConfig.getDb());
+                            ResultLog.info("updateTable "+entityModel.getTableName()+" success");
                         }
                         buildMapper(entityModel, buildConfig);
+                        ResultLog.info("buildMapper "+entityModel.getTableName()+" success");
+
                         buildXml(entityModel, buildConfig);
+                        ResultLog.info("buildXml "+entityModel.getTableName()+" success");
                     }
                 }
 

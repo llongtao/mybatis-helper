@@ -2,6 +2,7 @@ package com.llt.mybatishelper.core.data;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.llt.mybatishelper.core.log.ResultLog;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -38,8 +39,10 @@ public class DataSourceHolder {
                 dataSource.setUrl(url);
                 dataSource.setConnectProperties(PROPERTIES);
                 DataSourceHolder.dataSource = dataSource;
+                ResultLog.info("dataSourceInit:"+url);
             } catch (Exception e) {
                 log.error("db配置不正确",e);
+                ResultLog.info("db配置不正确:"+e.getMessage());
                 throw new IllegalArgumentException("db配置不正确:" + e.getMessage());
             }
         }
@@ -51,16 +54,20 @@ public class DataSourceHolder {
                 return connection;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            ResultLog.warn("检查数据库连接失败:"+e.getMessage());
+            log.error("检查数据库连接失败",e);
         }
         if (dataSource == null) {
+            ResultLog.error("未配置数据源");
             throw new IllegalArgumentException("未配置数据源");
         }
 
         Callable<Connection> callable = () -> {
             log.info("getConn");
+            ResultLog.info("正在获取数据库连接");
             DruidPooledConnection conn = dataSource.getConnection();
             log.info("getConnSuccess:{}",conn);
+            ResultLog.info("获取数据库连接成功");
             connection = conn;
             return conn;
         };
@@ -72,6 +79,7 @@ public class DataSourceHolder {
             dataSource.close();
             dataSource = null;
             log.error("数据库连接超时",e);
+            ResultLog.error("数据库连接超时:"+e.getMessage());
             throw new RuntimeException("数据库连接超时");
         }
     }

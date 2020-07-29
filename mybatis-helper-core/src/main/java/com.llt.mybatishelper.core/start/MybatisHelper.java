@@ -1,6 +1,7 @@
-package com.llt.mybatishelper.core.service;
+package com.llt.mybatishelper.core.start;
 
 
+import com.llt.mybatishelper.core.model.BuildResult;
 import com.llt.mybatishelper.core.model.Config;
 
 /**
@@ -13,5 +14,5 @@ public interface MybatisHelper {
      *
      * @param config 配置文件
      */
-    int run(Config config);
+    BuildResult run(Config config);
 }
