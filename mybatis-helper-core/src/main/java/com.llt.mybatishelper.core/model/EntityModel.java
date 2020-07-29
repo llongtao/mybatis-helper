@@ -66,6 +66,8 @@ public class EntityModel {
                 sb.append("`").append(column.getColumnName()).append("` ").append(column.getFullJdbcType()).append(" ");
                 if (!column.getNullable()) {
                     sb.append("NOT NULL ");
+                }else {
+                    sb.append("NULL DEFAULT NULL ");
                 }
                 sb.append(",");
             }
