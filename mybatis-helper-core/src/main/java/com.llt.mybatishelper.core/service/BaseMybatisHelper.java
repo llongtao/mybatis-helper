@@ -1,9 +1,10 @@
 package com.llt.mybatishelper.core.service;
 
 import com.github.javaparser.ast.*;
-import com.llt.mybatishelper.core.builder.entity.EntityBuilder;
-import com.llt.mybatishelper.core.builder.mapper.MapperBuilder;
-import com.llt.mybatishelper.core.builder.xml.XmlBuilder;
+import com.llt.mybatishelper.core.builder.entity.DefaultEntityBuilder;
+import com.llt.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
+import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
+import com.llt.mybatishelper.core.data.DataSourceHolder;
 import com.llt.mybatishelper.core.model.BuildConfig;
 import com.llt.mybatishelper.core.model.Config;
 import com.llt.mybatishelper.core.model.EntityField;
@@ -36,6 +37,15 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     @Override
     public int run(Config config) {
+
+        //config db
+        boolean useDb = Objects.equals(config.getUseDb(), true);
+        if (Objects.equals(config.getUseDb(),true)) {
+            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
+            DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
+        }
+
+
         List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
         AtomicInteger sum = new AtomicInteger();
         config.getBuildConfigList().forEach(buildConfig -> {
@@ -43,10 +53,12 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             allFilePath.forEach(filePath -> {
                 String entityClassStr = FileUtils.readJavaFileToString(filePath);
                 if (entityClassStr != null) {
-                    EntityModel entityModel = EntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
+                    EntityModel entityModel = DefaultEntityBuilder.build(entityClassStr,buildConfig,baseEntityFieldList);
                     if (entityModel != null) {
                         sum.incrementAndGet();
-                        updateTable(entityModel, buildConfig.getDb());
+                        if (useDb) {
+                            updateTable(entityModel, buildConfig.getDb());
+                        }
                         buildMapper(entityModel, buildConfig);
                         buildXml(entityModel, buildConfig);
                     }
@@ -54,6 +66,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
             });
         });
+        DataSourceHolder.clear();
         return sum.get();
     }
 
@@ -66,16 +79,16 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     protected abstract void updateTable(EntityModel entityModel, String dataSourceUrl) ;
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
-        CompilationUnit baseMapper = MapperBuilder.build(entityModel);
+        CompilationUnit baseMapper = buildMapperClass(entityModel);
 
         String mapperClassStr =  FileUtils.readJavaFileToString(buildConfig.getMapperFolder() + "\\"+entityModel.getMapperName()+JAVA);
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
-             mapper = MapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
+             mapper = DefaultMapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
         }else {
             //mapper不存在,创建mapper
-            mapper = MapperBuilder.buildEmpty(entityModel);
+            mapper = DefaultMapperBuilder.buildEmpty(entityModel);
         }
         try {
             File file = new File(buildConfig.getMapperFolder() + SLASH_BASE);
@@ -94,8 +107,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
     }
 
+
+
     private void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
-        Document baseXml = XmlBuilder.build(entityModel);
+        Document baseXml = buildXmlDoc(entityModel);
         OutputFormat format = OutputFormat.createPrettyPrint();
         format.setIndentSize(4);
         format.setTrimText(false);
@@ -105,7 +120,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         Document xml = null;
         if (!xmlFile.exists()) {
             //xml不存在时创建
-            xml = XmlBuilder.buildEmpty(entityModel);
+            xml = DefaultXmlBuilder.buildEmpty(entityModel);
         }
 
         try {
@@ -123,6 +138,25 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         } catch (IOException e) {
             throw new RuntimeException("生成xml异常:"+e.getMessage(),e);
         }
+    }
+
+
+    /**
+     * 用实体定义构建class
+     * @param entityModel 实体定义
+     * @return CompilationUnit
+     */
+    protected CompilationUnit buildMapperClass(EntityModel entityModel) {
+        return DefaultMapperBuilder.build(entityModel);
+    }
+
+    /**
+     *  用实体定义构建xml文档
+     * @param entityModel 实体定义
+     * @return Document
+     */
+    protected Document buildXmlDoc(EntityModel entityModel) {
+        return DefaultXmlBuilder.build(entityModel," ");
     }
 
     private void mkdir(File file) {

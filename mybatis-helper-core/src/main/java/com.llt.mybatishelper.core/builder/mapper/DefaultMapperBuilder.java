@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class MapperBuilder {
+public class DefaultMapperBuilder {
 
 
     private static final String MAPPER = "Mapper";

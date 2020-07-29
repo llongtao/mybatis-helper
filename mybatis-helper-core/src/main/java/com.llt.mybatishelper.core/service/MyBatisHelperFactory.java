@@ -1,8 +1,6 @@
 package com.llt.mybatishelper.core.service;
 
 import com.llt.mybatishelper.core.service.impl.MysqlMybatisHelper;
-import com.llt.mybatishelper.core.service.impl.NoDbMybatisHelper;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,13 +10,10 @@ import java.util.Map;
  */
 public class MyBatisHelperFactory {
 
-    private static Map<String,MybatisHelper> mybatisHelperMap = new HashMap<>();
+    private static final Map<String,MybatisHelper> MYBATIS_HELPER_MAP = new HashMap<>();
 
     static {
-        mybatisHelperMap.put("mysql", new MysqlMybatisHelper());
-        NoDbMybatisHelper noDbMybatisHelper = new NoDbMybatisHelper();
-        mybatisHelperMap.put(null,noDbMybatisHelper );
-        mybatisHelperMap.put("",noDbMybatisHelper);
+        MYBATIS_HELPER_MAP.put("mysql", new MysqlMybatisHelper());
     }
 
     /**
@@ -28,11 +23,9 @@ public class MyBatisHelperFactory {
      * @return MybatisHelper对应实现
      */
     public static MybatisHelper getMybatisHelper(String dbType) {
-        MybatisHelper mybatisHelper;
+        MybatisHelper mybatisHelper =null;
         if (dbType != null) {
-            mybatisHelper = mybatisHelperMap.get(dbType.toLowerCase());
-        }else {
-            mybatisHelper = mybatisHelperMap.get(null);
+            mybatisHelper = MYBATIS_HELPER_MAP.get(dbType.toLowerCase());
         }
         if (mybatisHelper == null) {
             throw new IllegalArgumentException("没有" + dbType + "的实现");

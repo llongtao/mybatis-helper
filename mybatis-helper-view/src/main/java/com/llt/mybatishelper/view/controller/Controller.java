@@ -281,11 +281,7 @@ public class Controller {
             try {
                 Config config = save();
                 checkStartConfigAndConfigDataSource(config);
-                if (Objects.equals(config.getUseDb(), true)) {
-                    MyBatisHelperFactory.getMybatisHelper(config.getDbType()).run(config);
-                } else {
-                    MyBatisHelperFactory.getMybatisHelper(null).run(config);
-                }
+                MyBatisHelperFactory.getMybatisHelper(config.getDbType()).run(config);
                 new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
             } catch (Exception e) {
                 log.warn("生成异常",e);
@@ -328,9 +324,7 @@ public class Controller {
             }
 
 
-            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
 
-            DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
         }
     }
 

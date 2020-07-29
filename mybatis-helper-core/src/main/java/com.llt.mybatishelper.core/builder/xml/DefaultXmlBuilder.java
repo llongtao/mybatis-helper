@@ -12,7 +12,7 @@ import java.util.List;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class XmlBuilder {
+public class DefaultXmlBuilder {
 
     private static final String MAPPER = "mapper";
 
@@ -98,7 +98,7 @@ public class XmlBuilder {
 
     private static final String FROM = "from";
 
-    private static final String SPLIT = "`";
+    private static String SPLIT = "`";
 
     private static final String AND = "and";
 
@@ -145,7 +145,8 @@ public class XmlBuilder {
     private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
 
 
-    public static Document build(EntityModel entityModel) {
+    public static Document build(EntityModel entityModel,String split) {
+        SPLIT = split;
         String entityName = entityModel.getEntityName();
         // 创建Document
         Document document = DocumentHelper.createDocument();

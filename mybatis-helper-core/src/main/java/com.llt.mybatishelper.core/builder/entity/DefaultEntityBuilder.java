@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class EntityBuilder {
+public class DefaultEntityBuilder {
 
 
     private static final String DOT = ".";
