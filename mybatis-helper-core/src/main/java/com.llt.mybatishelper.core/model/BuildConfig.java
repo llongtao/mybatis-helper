@@ -1,11 +1,14 @@
 package com.llt.mybatishelper.core.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * @author LILONGTAO
  */
 @Data
+@AllArgsConstructor
 public class BuildConfig {
 
     private String entityFolder;
