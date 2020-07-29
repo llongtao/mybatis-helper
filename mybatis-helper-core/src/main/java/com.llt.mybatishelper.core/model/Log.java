@@ -3,7 +3,9 @@ package com.llt.mybatishelper.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @AllArgsConstructor
@@ -13,7 +15,7 @@ public class Log {
     private Level level;
     private String msg;
 
-    public enum Level{
+    public enum Level {
 
         /**
          *
@@ -21,5 +23,12 @@ public class Log {
         INFO,
         WARN,
         ERROR
+    }
+
+    @Override
+    public String toString() {
+        return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) + " " +
+                level.name() +" "+
+                msg;
     }
 }
