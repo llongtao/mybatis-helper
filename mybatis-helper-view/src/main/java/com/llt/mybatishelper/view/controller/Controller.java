@@ -29,9 +29,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.llt.mybatishelper.core.constants.Constants.CONFIG_FILE_NAME;
-import static com.llt.mybatishelper.core.constants.Constants.MYSQL;
-import static com.llt.mybatishelper.core.constants.Constants.MYSQL_DRIVER;
+import static com.llt.mybatishelper.core.constants.Constants.*;
 
 /**
  * @author LILONGTAO
@@ -336,7 +334,7 @@ public class Controller {
     }
 
     private void configDbType() {
-        dbType.setItems(FXCollections.observableArrayList(MYSQL));
+        dbType.setItems(FXCollections.observableArrayList(MYSQL,PGSQL));
     }
 
     public Config save() {

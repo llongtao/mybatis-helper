@@ -1,6 +1,8 @@
 package com.llt.mybatishelper.core.start;
 
 import com.llt.mybatishelper.core.start.impl.MysqlMybatisHelper;
+import com.llt.mybatishelper.core.start.impl.PgSqlMybatisHelper;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +16,8 @@ public class MyBatisHelperStarter {
 
     static {
         MYBATIS_HELPER_MAP.put("mysql", new MysqlMybatisHelper());
+        MYBATIS_HELPER_MAP.put("pgsql", new PgSqlMybatisHelper());
+
     }
 
     /**

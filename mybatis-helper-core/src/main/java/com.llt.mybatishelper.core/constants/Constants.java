@@ -7,6 +7,8 @@ package com.llt.mybatishelper.core.constants;
 public class Constants {
     public static final String MYSQL = "mysql";
 
+    public static final String PGSQL = "pgsql";
+
     public static final String MYSQL_DRIVER ="com.mysql.cj.jdbc.Driver";
 
     public static final String CONFIG_FILE_NAME = "config.json";
