@@ -363,9 +363,9 @@ public class Controller {
 
         Config config = null;
         try {
-            String configStr = FileUtils.readFileToString(CONFIG_FILE_NAME);
+            String configStr = FileUtils.readFileToString(CONFIG_FILE_NAME,"utf-8");
             if (configStr == null) {
-                configStr = FileUtils.readFileToString(Objects.requireNonNull(getClass().getClassLoader().getResource(CONFIG_FILE_NAME)).getPath());
+                configStr = FileUtils.readFileToString(Objects.requireNonNull(getClass().getClassLoader().getResource(CONFIG_FILE_NAME)).getPath(),"utf-8");
             }
             config = JSON.parseObject(configStr, Config.class);
         } catch (Exception e) {

@@ -27,16 +27,8 @@ import static com.llt.mybatishelper.core.constants.Constants.DOT;
 public class MysqlMybatisHelper extends BaseMybatisHelper {
 
     @Override
-    protected void updateTable(EntityModel entityModel, String schema)  {
-        if (StringUtils.isEmpty(schema)) {
-            throw new RuntimeException("若生成表结构数据库名不能为空");
-        }
-        Connection connection = DataSourceHolder.getConnection();
-        try {
-            connection.setCatalog(schema);
-        } catch (SQLException e) {
-            throw new RuntimeException("切库异常:"+e.getMessage(),e);
-        }
+    protected void updateTable(EntityModel entityModel, Connection connection)  {
+
         String tableName = entityModel.getTableName();
         Set<String> columnSet = new HashSet<>();
         try {
@@ -65,7 +57,6 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 e.printStackTrace();
             }
         }
-        DataSourceHolder.clear();
     }
 
     @Override

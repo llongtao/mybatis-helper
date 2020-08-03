@@ -8,19 +8,20 @@ import com.llt.mybatishelper.core.data.DataSourceHolder;
 import com.llt.mybatishelper.core.log.ResultLog;
 import com.llt.mybatishelper.core.model.*;
 import com.llt.mybatishelper.core.utils.FileUtils;
+import com.llt.mybatishelper.core.utils.StringUtils;
 import lombok.AllArgsConstructor;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-
 import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author LILONGTAO
  */
-@AllArgsConstructor
 public abstract class BaseMybatisHelper implements MybatisHelper {
 
 
@@ -32,6 +33,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     private static final String SLASH_BASE_SLASH = "\\base\\";
 
+    private String charset = "utf-8";
 
     @Override
     public BuildResult run(Config config) {
@@ -43,6 +45,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     }
 
     private Integer start(Config config) {
+        this.charset = config.getCharset();
         //config db
         boolean useDb = Objects.equals(config.getUseDb(), true);
         ResultLog.info("useDb:"+useDb);
@@ -59,7 +62,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
 
-                String entityClassStr = FileUtils.readJavaFileToString(filePath);
+                String entityClassStr = FileUtils.readJavaFileToString(filePath,charset);
                 ResultLog.info("readFile:"+filePath);
 
                 if (entityClassStr != null) {
@@ -69,7 +72,17 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                     if (entityModel != null) {
                         sum.incrementAndGet();
                         if (useDb) {
-                            updateTable(entityModel, buildConfig.getDb());
+                            String schema = buildConfig.getDb();
+                            if (StringUtils.isEmpty(schema)) {
+                                throw new RuntimeException("若生成表结构数据库名不能为空");
+                            }
+                            Connection connection = DataSourceHolder.getConnection();
+                            try {
+                                connection.setCatalog(schema);
+                            } catch (SQLException e) {
+                                throw new RuntimeException("切库异常:"+e.getMessage(),e);
+                            }
+                            updateTable(entityModel,connection);
                             ResultLog.info("updateTable "+entityModel.getTableName()+" success");
                         }
                         buildMapper(entityModel, buildConfig);
@@ -90,14 +103,14 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * 更新数据库表
      *
      * @param entityModel   实体模型
-     * @param dataSourceUrl 当前模型使用的dataSourceUrl
+     * @param connection 当前模型使用的数据库连接
      */
-    protected abstract void updateTable(EntityModel entityModel, String dataSourceUrl) ;
+    protected abstract void updateTable(EntityModel entityModel, Connection connection) ;
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
         CompilationUnit baseMapper = buildMapperClass(entityModel);
 
-        String mapperClassStr =  FileUtils.readJavaFileToString(buildConfig.getMapperFolder() + "\\"+entityModel.getMapperName()+JAVA);
+        String mapperClassStr =  FileUtils.readJavaFileToString(buildConfig.getMapperFolder() + "\\"+entityModel.getMapperName()+JAVA,charset);
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
@@ -110,14 +123,12 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             File file = new File(buildConfig.getMapperFolder() + SLASH_BASE);
             mkdir(file);
             if (mapper != null) {
-                FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA));
-                fileWriter.write(mapper.toString());
-                fileWriter.close();
+                String fileName = buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA;
+                FileUtils.writerString2File(fileName,mapper.toString(),charset);
             }
 
-            FileWriter fileWriter = new FileWriter(new File(buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA));
-            fileWriter.write(baseMapper.toString());
-            fileWriter.close();
+            String baseFileName = buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA;
+            FileUtils.writerString2File(baseFileName,baseMapper.toString(),charset);
         } catch (IOException e) {
             throw new RuntimeException("生成mapper类异常:"+e.getMessage(),e);
         }

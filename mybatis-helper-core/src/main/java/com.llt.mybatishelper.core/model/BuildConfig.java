@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
  * @author LILONGTAO
  */
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class BuildConfig {
 
@@ -26,9 +27,6 @@ public class BuildConfig {
     private String dbPassword;
 
     private Boolean ignoreBaseField;
-
-    public BuildConfig(){
-    }
 
 
 }

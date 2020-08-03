@@ -28,5 +28,5 @@ public class Config {
 
     private List<BuildConfig> buildConfigList;
 
-
+    private String charset;
 }

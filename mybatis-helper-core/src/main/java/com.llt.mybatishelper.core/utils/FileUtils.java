@@ -15,24 +15,35 @@ public class FileUtils {
 
     private static final String JAVA_FILE_END = ".java";
 
-    public static String readJavaFileToString(String path) {
+    private static final String DEF_CHARSET="utf-8";
+
+    public static String readJavaFileToString(String path, String charset) {
         File file = new File(path);
         if (!file.getName().toLowerCase().endsWith(JAVA_FILE_END)) {
             return null;
         }
-        return readFileToString(file);
+        return readFileToString(file,charset);
 
     }
 
+    public static void writerString2File(String file, String str, String charset) throws IOException {
+        if (charset == null) {
+            charset = DEF_CHARSET;
+        }
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(new File(file)), charset);
+        outputStreamWriter.write(str);
+        outputStreamWriter.close();
+    }
 
-    public static List<String> getAllFilePath(String path){
+
+    public static List<String> getAllFilePath(String path) {
         ArrayList<String> listFileName = new ArrayList<>();
-        getAllFileName(path,listFileName);
+        getAllFileName(path, listFileName);
         return listFileName;
     }
+
     /**
      * 获取一个文件夹下的所有文件全路径
-     *
      */
     private static void getAllFileName(String path, ArrayList<String> listFileName) {
         File file = new File(path);
@@ -41,7 +52,7 @@ public class FileUtils {
         if (names != null) {
             String[] completeNames = new String[names.length];
             for (int i = 0; i < names.length; i++) {
-                completeNames[i] = path +"\\"+ names[i];
+                completeNames[i] = path + "\\" + names[i];
             }
             listFileName.addAll(Arrays.asList(completeNames));
         }
@@ -56,26 +67,30 @@ public class FileUtils {
 
     }
 
-    public static void serialization(Object o,String name) {
+    public static void serialization(Object o, String name) {
 
-        try(PrintWriter printWriter = new PrintWriter(name)) {
+        try (PrintWriter printWriter = new PrintWriter(name)) {
             printWriter.print(JSON.toJSONString(o));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String readFileToString(String path) {
+    public static String readFileToString(String path,String charset) {
         File file = new File(path);
-        return readFileToString(file);
+        return readFileToString(file, charset);
     }
-    public static String readFileToString(File file) {
+
+    public static String readFileToString(File file,String charset) {
         if (!file.exists() || file.isDirectory()) {
             return null;
         }
+        if (charset == null) {
+            charset = DEF_CHARSET;
+        }
 
         StringBuilder stringBuilder = new StringBuilder();
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8))) {
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(file), charset))) {
             String thisLine;
             while ((thisLine = in.readLine()) != null) {
                 stringBuilder.append(thisLine).append("\n");
