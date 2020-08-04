@@ -6,7 +6,7 @@
 #### 项目介绍
 
 由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
-目前仅实现 创建mysql表和mapper 和 不创建表,仅创建mapper
+目前实现 mysql所有功能和pgsql建表之外的操作
 
 #### 软件架构
 
@@ -50,7 +50,9 @@ private String name;
 - class注释
 
   - **.auto 必选** 包含该字段才会自动生成
-  - .tableName xxx 可选 自定义表名,若不自定义使用类名下划线形式
+  - .tableName xxx 可选 自定义表名,默认使用类名下划线形式
+  - .entityName xxx 可选 自定义实体名,默认使用类名
+  - .keyType xxx 可选 当主键在基类时指定基类主键类型,默认使用基类主键类型
   - .desc xxx 可选 自定义该表描述
 
 - field注释
