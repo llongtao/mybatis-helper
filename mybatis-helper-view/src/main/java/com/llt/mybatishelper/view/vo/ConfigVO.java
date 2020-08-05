@@ -6,15 +6,17 @@ import javafx.beans.property.*;
 import java.util.Objects;
 
 public class ConfigVO {
-    private StringProperty entityFolder;
+    private final StringProperty entityFolder;
 
-    private StringProperty mapperFolder;
+    private final StringProperty mapperFolder;
 
-    private StringProperty xmlFolder;
+    private final StringProperty xmlFolder;
 
-    private StringProperty db;
+    private final StringProperty db;
 
-    private BooleanProperty useBaseField;
+    private final BooleanProperty useBaseField;
+
+    private final BooleanProperty enable;
 
     public ConfigVO(BuildConfig buildConfig) {
         entityFolder = new SimpleStringProperty(buildConfig.getEntityFolder());
@@ -22,13 +24,17 @@ public class ConfigVO {
         xmlFolder = new SimpleStringProperty(buildConfig.getXmlFolder());
         db = new SimpleStringProperty(buildConfig.getDb());
         useBaseField = new SimpleBooleanProperty(!Objects.equals(buildConfig.getIgnoreBaseField(),true));
+        enable = new SimpleBooleanProperty(!Objects.equals(buildConfig.getDisable(),true));
     }
+
+
     public ConfigVO() {
         entityFolder = new SimpleStringProperty();
         mapperFolder = new SimpleStringProperty();
         xmlFolder = new SimpleStringProperty();
         db = new SimpleStringProperty();
         useBaseField = new SimpleBooleanProperty(true);
+        enable= new SimpleBooleanProperty(true);
     }
 
 
@@ -90,5 +96,17 @@ public class ConfigVO {
 
     public void setDb(String db) {
         this.db.set(db);
+    }
+
+    public boolean isEnable() {
+        return enable.get();
+    }
+
+    public BooleanProperty enableProperty() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable.set(enable);
     }
 }

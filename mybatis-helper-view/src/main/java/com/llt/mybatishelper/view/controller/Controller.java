@@ -75,6 +75,9 @@ public class Controller {
     private TableColumn<ConfigVO, Boolean> useBaseField;
 
     @FXML
+    private TableColumn<ConfigVO, Boolean> enable;
+
+    @FXML
     private TableColumn<ConfigVO, String> db;
 
     @FXML
@@ -188,7 +191,7 @@ public class Controller {
         actionAdd.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        actionAdd.setCellFactory(personBooleanTableColumn -> new AddCell<>(primaryStage, baseModel, EntityFieldVO.class));
+        actionAdd.setCellFactory(personBooleanTableColumn -> new AddCell<>(primaryStage, baseModel, new EntityFieldVO()));
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
         actionDelete.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
@@ -229,6 +232,13 @@ public class Controller {
             evt.getRowValue().setUseBaseField(evt.getNewValue());
             save();
         });
+        enable.setCellValueFactory(new PropertyValueFactory<>("enable"));
+        enable.setEditable(true);
+        enable.setCellFactory(CheckBoxTableCell.forTableColumn(enable));
+        enable.setOnEditCommit(evt -> {
+            evt.getRowValue().setEnable(evt.getNewValue());
+            save();
+        });
         db.setCellValueFactory(new PropertyValueFactory<>("db"));
         db.setEditable(true);
         db.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -242,7 +252,14 @@ public class Controller {
         configAdd.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
 
         // create a cell value factory with an add button for each row in the table.
-        configAdd.setCellFactory(personBooleanTableColumn -> new AddCell<>(primaryStage, buildConfig, ConfigVO.class));
+        configAdd.setCellFactory(personBooleanTableColumn -> {
+            List<BuildConfig> buildConfigList = getInstance().save().getBuildConfigList();
+            if (!CollectionUtils.isEmpty(buildConfigList)) {
+                BuildConfig config = buildConfigList.get(0);
+                return new AddCell<>(primaryStage, buildConfig, new ConfigVO(config))   ;
+            }
+            return new AddCell<>(primaryStage, buildConfig, new ConfigVO())   ;
+        });
 
         // define a simple boolean cell value for the action column so that the column will only be shown for non-empty rows.
         configDelete.setCellValueFactory(features -> new SimpleBooleanProperty(features.getValue() != null));
@@ -281,7 +298,7 @@ public class Controller {
 
                 BuildResult run = MyBatisHelperStarter.db(config.getDbType()).run(config);
                 if (run.isSucceed()) {
-                    new Alert(Alert.AlertType.NONE, "已生成,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
+                    new Alert(Alert.AlertType.NONE, "已生成:"+run.getTotal()+"条记录,请查看指定目录下base文件夹", new ButtonType[]{ButtonType.CLOSE}).show();
                 }else {
                     log.warn("生成异常",run.getE());
                     new Alert(Alert.AlertType.ERROR, run.getE().getMessage(), new ButtonType[]{ButtonType.CLOSE}).show();

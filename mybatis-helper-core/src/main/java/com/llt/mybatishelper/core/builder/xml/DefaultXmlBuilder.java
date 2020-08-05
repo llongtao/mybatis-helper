@@ -2,9 +2,11 @@ package com.llt.mybatishelper.core.builder.xml;
 
 import com.llt.mybatishelper.core.model.EntityField;
 import com.llt.mybatishelper.core.model.EntityModel;
+import com.llt.mybatishelper.core.utils.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -142,10 +144,12 @@ public class DefaultXmlBuilder {
 
     private static final String SEMICOLON = ";";
 
+    private static final String TYPE_HANDLER = "typeHandler";
+
     private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
 
 
-    public static Document build(EntityModel entityModel,String split) {
+    public static Document build(EntityModel entityModel, String split) {
         SPLIT = split;
         String entityName = entityModel.getEntityName();
         // 创建Document
@@ -156,7 +160,8 @@ public class DefaultXmlBuilder {
         String mapperClassName = entityModel.getBaseMapperClassName();
         String entityClassName = entityModel.getEntityClassName();
         root.addAttribute(NAMESPACE, mapperClassName);
-        // 在根节点下添加第一个子节点
+
+        // 构建BaseResultMap
         buildResult(entityModel, root, entityClassName);
 
         List<EntityField> entityFieldList = new ArrayList<>();
@@ -164,9 +169,10 @@ public class DefaultXmlBuilder {
         entityFieldList.addAll(entityModel.getColumnList());
 
         StringBuilder baseColumn = new StringBuilder();
-        entityFieldList.forEach(entityField -> baseColumn.append(TWO_TAB + SPLIT).append(entityField.getColumnName()).append(SPLIT + COMMA));
+        entityFieldList.forEach(entityField -> baseColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
         baseColumn.deleteCharAt(baseColumn.length() - 1);
 
+        //构建BaseColumn_sql
         buildBaseColumn(root, baseColumn);
 
         //构建select
@@ -217,11 +223,11 @@ public class DefaultXmlBuilder {
                 .addAttribute(SEPARATOR, SEMICOLON);
         values.addText(FOUR_TAB + UPDATE + FOUR_TAB + SPLIT + entityModel.getTableName() + SPLIT);
         Element updateSet = values.addElement(SET);
-        entityModel.getColumnList().forEach(entityField -> updateSet.addText(FIVE_TAB + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + LEFT_BRACKET + ITEM + DOT + entityField.getName() + COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET + COMMA));
+        entityModel.getColumnList().forEach(entityField -> updateSet.addText(FIVE_TAB + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + itemParamValue(entityField) + COMMA));
         updateSet.addText(FOUR_TAB);
 
         StringBuilder whereId = new StringBuilder();
-        entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(FIVE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(EQ).append(LEFT_BRACKET).append(ITEM).append(DOT).append(primaryKey.getName()).append("}"));
+        entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(FIVE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(EQ).append(itemParamValue(primaryKey)));
         values.addElement(WHERE).addText(whereId.toString()).addText(FOUR_TAB);
         Element nullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
         nullUpdateList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
@@ -244,10 +250,19 @@ public class DefaultXmlBuilder {
                 .addAttribute(COLUMN, primaryKey.getColumnName())
                 .addAttribute(JDBC_TYPE, primaryKey.getJdbcType().getName())
                 .addAttribute(PROPERTY, primaryKey.getName()));
-        entityModel.getColumnList().forEach(column -> resultMap.addElement(RESULT)
-                .addAttribute(COLUMN, column.getColumnName())
-                .addAttribute(JDBC_TYPE, column.getJdbcType().getName())
-                .addAttribute(PROPERTY, column.getName()));
+        entityModel.getColumnList().forEach(column -> {
+            Element element = resultMap.addElement(RESULT);
+            element.addAttribute(COLUMN, column.getColumnName());
+            String typeHandler = column.getTypeHandler();
+            if (StringUtils.isEmpty(typeHandler)) {
+                element.addAttribute(JDBC_TYPE, column.getJdbcType().getName());
+            } else {
+                element.addAttribute(TYPE_HANDLER, typeHandler);
+            }
+            element.addAttribute(PROPERTY, column.getName());
+        });
+
+
     }
 
     private static void buildDelete(EntityModel entityModel, Element root, Element where) {
@@ -281,7 +296,7 @@ public class DefaultXmlBuilder {
                 .addAttribute(SUFFIX_OVERRIDES, COMMA);
         entityFieldList.forEach(entityField -> trimValues.addElement(IF)
                 .addAttribute(TEST, entityField.getName() + DIFFER_NULL)
-                .addText(FOUR_TAB + LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET + COMMA)
+                .addText(FOUR_TAB + simpleParamValue(entityField) + COMMA)
                 .addText(THREE_TAB));
     }
 
@@ -292,7 +307,7 @@ public class DefaultXmlBuilder {
                 .addText(TWO_TAB + UPDATE)
                 .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
         Element updateSet = update.addElement(SET);
-        entityModel.getColumnList().forEach(entityField -> updateSet.addText(THREE_TAB + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + LEFT_BRACKET + entityField.getName() + COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET + COMMA));
+        entityModel.getColumnList().forEach(entityField -> updateSet.addText(THREE_TAB + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + paramValue(entityField) + COMMA));
         updateSet.addText(TWO_TAB);
         update.add(where.createCopy());
     }
@@ -308,9 +323,55 @@ public class DefaultXmlBuilder {
         Element queryWhere = query.addElement(WHERE);
         entityFieldList.forEach(entityField -> queryWhere.addElement(IF)
                 .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (isStringField(entityField) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
-                .addText(FOUR_TAB + AND + SPACE + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET)
+                .addText(FOUR_TAB + AND + SPACE + SPLIT + entityField.getColumnName() + SPLIT + SPACE + EQ + SPACE + simpleParamValue(entityField))
                 .addText(THREE_TAB));
         updateSelective.addText(TWO_TAB);
+    }
+
+
+    /**
+     *
+     * @param entityField 列对象
+     * @return #{id}
+     */
+    private static String simpleParamValue(EntityField entityField) {
+        String typeHandler = entityField.getTypeHandler();
+        if (!StringUtils.isEmpty(typeHandler)) {
+            return LEFT_BRACKET + entityField.getName() + COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
+        }
+        return LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET;
+    }
+
+    /**
+     *
+     * @param entityField 列对象
+     * @return #{item.id,jdbcType = BIGINT}
+     */
+    private static String itemParamValue(EntityField entityField){
+        String typeHandler = entityField.getTypeHandler();
+        if (!StringUtils.isEmpty(typeHandler)) {
+            return LEFT_BRACKET + ITEM + DOT + entityField.getName() +
+                    COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
+        }else {
+            return LEFT_BRACKET + ITEM + DOT + entityField.getName() +
+                    COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET;
+        }
+    }
+
+    /**
+     *
+     * @param entityField 列对象
+     * @return #{id,jdbcType = BIGINT},
+     */
+    private static String paramValue(EntityField entityField){
+        String typeHandler = entityField.getTypeHandler();
+        if (!StringUtils.isEmpty(typeHandler)) {
+            return LEFT_BRACKET  + entityField.getName() +
+                    COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
+        }else {
+            return LEFT_BRACKET + entityField.getName() +
+                    COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET;
+        }
     }
 
     private static void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
@@ -331,13 +392,15 @@ public class DefaultXmlBuilder {
                 .addAttribute(SEPARATOR, COMMA);
         StringBuilder items = new StringBuilder(FOUR_TAB);
         items.append(LEFT_PARENTHESIS);
-        entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(LEFT_BRACKET).append(ITEM).append(DOT).append(entityField.getName()).append(COMMA).append(JDBC_TYPE).append(EQ).append(entityField.getJdbcType()).append(RIGHT_BRACKET).append(COMMA));
+        entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue( entityField)).append(COMMA));
         items.deleteCharAt(items.length() - 1);
         items.append(FOUR_TAB).append(RIGHT_PARENTHESIS);
         values.addText(items.toString()).addText(THREE_TAB);
         Element nullInsertList = insertList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
         nullInsertList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
     }
+
+
 
 
     private static Element buildUpdateSelective(EntityModel entityModel, Element root, String entityClassName, Element where) {
@@ -349,14 +412,14 @@ public class DefaultXmlBuilder {
         Element updateSelectiveSet = updateSelective.addElement(SET);
         entityModel.getColumnList().forEach(entityField -> updateSelectiveSet.addElement(IF)
                 .addAttribute(TEST, entityField.getName() + SPACE + DIFFER_NULL + (isStringField(entityField) ? SPACE + AND + SPACE + entityField.getName() + SPACE + DIFFER_EMPTY : EMPTY))
-                .addText(FOUR_TAB + SPLIT + entityField.getColumnName() + SPLIT + EQ + LEFT_BRACKET + entityField.getName() + RIGHT_BRACKET + COMMA)
+                .addText(FOUR_TAB + SPLIT + entityField.getColumnName() + SPLIT + EQ + simpleParamValue(entityField) + COMMA)
                 .addText(THREE_TAB));
         updateSelective.add(where.createCopy());
         return updateSelective;
     }
 
     private static boolean isStringField(EntityField entityField) {
-        return STRING.equals(entityField.getType()) && !entityField.getIsEnum();
+        return STRING.equals(entityField.getJavaType());
     }
 
     public static Document buildEmpty(EntityModel entityModel) {

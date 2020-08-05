@@ -32,6 +32,7 @@ public enum  FieldKey {
     DEFAULT(".default"),
     IGNORE(".ignore"),
     TYPE(".type"),
+    TYPE_HANDLER(".typeHandler"),
     ;
 
     String code;
