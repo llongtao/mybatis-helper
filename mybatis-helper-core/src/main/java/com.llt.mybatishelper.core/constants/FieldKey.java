@@ -21,6 +21,7 @@ public enum  FieldKey {
      *  .default xxx 可选 默认值
      *  .ignore 可选 忽略该字段
      *  .enum 可选 表示枚举,否则枚举类不生成
+     *  .type 可选 指定field值类型
      */
     KEY(".key"),
     COLUMN(".column"),
@@ -30,7 +31,7 @@ public enum  FieldKey {
     NO_NULL(".notNull"),
     DEFAULT(".default"),
     IGNORE(".ignore"),
-    ENUM(".enum"),
+    TYPE(".type"),
     ;
 
     String code;

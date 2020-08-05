@@ -6,6 +6,7 @@ import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.comments.Comment;
 import com.llt.mybatishelper.core.constants.ClassKey;
 import com.llt.mybatishelper.core.constants.FieldKey;
 import com.llt.mybatishelper.core.model.BuildConfig;
@@ -71,21 +72,21 @@ public class DefaultEntityBuilder {
     public static EntityModel build(String classStr, BuildConfig buildConfig, List<EntityField> baseEntityFieldList) {
         EntityModel entityModel = new EntityModel();
 
-
         CompilationUnit compilationUnit = StaticJavaParser.parse(classStr);
         Optional<PackageDeclaration> packageDeclaration = compilationUnit.getPackageDeclaration();
-        String packageName = packageDeclaration.get().getName().toString();
+        String packageName;
+        if (packageDeclaration.isPresent()) {
+            packageName = packageDeclaration.get().getName().toString();
+        }else {
+            return null;
+        }
         entityModel.setPackageName(packageName);
 
 
         List<Node> childNodes = compilationUnit.getChildNodes();
         ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) childNodes.stream().filter(node -> node instanceof ClassOrInterfaceDeclaration).collect(Collectors.toList()).get(0);
 
-        String content = null;
-        try {
-            content = classDeclaration.getComment().get().getContent();
-        } catch (Exception ignore) {
-        }
+        String content  = classDeclaration.getComment().map(Comment::getContent).orElse(null);
         String tableDescription = null;
         String tableName = null;
         String entityName = null;
@@ -148,11 +149,7 @@ public class DefaultEntityBuilder {
             if (((FieldDeclaration) field).isStatic()) {
                 continue;
             }
-            String fieldComment = null;
-            try {
-                fieldComment = field.getComment().get().getContent();
-            } catch (Exception ignore) {
-            }
+            String fieldComment =field.getComment().map(Comment::getContent).orElse(null);
             String lengthStr = null;
             String primaryKey = null;
             String ignoreField = null;
@@ -181,7 +178,7 @@ public class DefaultEntityBuilder {
             String defaultValue = StringUtils.getValue(FieldKey.DEFAULT.getCode(), fieldComment);
             String description = StringUtils.getValue(FieldKey.DESC.getCode(), fieldComment);
             String columnName = StringUtils.getValue(FieldKey.COLUMN.getCode(), fieldComment);
-            boolean isEnum = StringUtils.getValue(FieldKey.ENUM.getCode(), fieldComment) != null;
+            String type = StringUtils.getValue(FieldKey.TYPE.getCode(), fieldComment);
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
             if (columnName == null) {
@@ -189,23 +186,18 @@ public class DefaultEntityBuilder {
             }
 
 
-            String type = StringUtils.getAfterDot(((FieldDeclaration) field).getVariables().get(0).getType().toString());
+            if (StringUtils.isEmpty(type)) {
+                type = StringUtils.getAfterDot(((FieldDeclaration) field).getVariables().get(0).getType().toString());
+            }
+
             if (jdbcType == null) {
                 jdbcType = TYPE_MAP.get(type);
                 if (jdbcType == null) {
-                    if (isEnum) {
-                        jdbcType = JDBCType.VARCHAR;
-                    } else {
-                        continue;
-                    }
+                    continue;
                 }
             }
             if (size == null) {
-                if (isEnum) {
-                    size = "16";
-                } else {
-                    size = DEFAULT_LENGTH.get(jdbcType);
-                }
+                size = DEFAULT_LENGTH.get(jdbcType);
             }
             String fullJdbcType = jdbcType.getName();
             if (!StringUtils.isEmpty(size) && !"0".equals(size)) {
@@ -213,7 +205,7 @@ public class DefaultEntityBuilder {
             }
 
 
-            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), isEnum, size, defaultValue, nullable, description);
+            EntityField entityField = new EntityField(name, columnName, type, jdbcType, fullJdbcType.toUpperCase(), false, size, defaultValue, nullable, description);
 
             if (isPrimaryKey) {
                 primaryKeyList.add(entityField);
