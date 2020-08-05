@@ -101,11 +101,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         return sum.get();
     }
 
-    /**
-     * 获取数据库驱动全类名
-     * @return 全类名
-     */
-    protected abstract String getDbDriverClassName();
+
 
 
     private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel) {
@@ -158,30 +154,6 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         ResultLog.info("updateTable "+ entityModel.getTableName()+" success");
     }
 
-    /**
-     * 构建建表语句
-     * @param entityModel 实体模型
-     * @return 建表sql
-     */
-    protected abstract String buildCreateSql(EntityModel entityModel);
-
-    /**
-     * 构建修改表语句
-     * @param entityModel 实体模型
-     * @param existsColumnSet 已存在列
-     * @return 改表sql
-     */
-    protected abstract String buildAlterSql(EntityModel entityModel, Set<String> existsColumnSet);
-
-    /**
-     * 获取指定表第一列为列名的的sql
-     * @param schema schema
-     * @param tableName tableName
-     * @return sql
-     */
-    protected abstract String getTableExistColumnSql(String schema, String tableName) ;
-
-
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
         CompilationUnit baseMapper = buildMapperClass(entityModel);
 
@@ -189,7 +161,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
-             mapper = DefaultMapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
+            mapper = DefaultMapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
         }else {
             //mapper不存在,创建mapper
             mapper = DefaultMapperBuilder.buildEmpty(entityModel);
@@ -209,8 +181,6 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
         ResultLog.info("buildMapper "+entityModel.getTableName()+" success");
     }
-
-
 
     private void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
         Document baseXml = buildXmlDoc(entityModel);
@@ -243,6 +213,35 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
         ResultLog.info("buildXml "+entityModel.getTableName()+" success");
     }
+
+    /**
+     * 获取数据库驱动全类名
+     * @return 全类名
+     */
+    protected abstract String getDbDriverClassName();
+
+    /**
+     * 构建建表语句
+     * @param entityModel 实体模型
+     * @return 建表sql
+     */
+    protected abstract String buildCreateSql(EntityModel entityModel);
+
+    /**
+     * 构建修改表语句
+     * @param entityModel 实体模型
+     * @param existsColumnSet 已存在列
+     * @return 改表sql
+     */
+    protected abstract String buildAlterSql(EntityModel entityModel, Set<String> existsColumnSet);
+
+    /**
+     * 获取指定表第一列为列名的的sql
+     * @param schema schema
+     * @param tableName tableName
+     * @return sql
+     */
+    protected abstract String getTableExistColumnSql(String schema, String tableName) ;
 
 
     /**
