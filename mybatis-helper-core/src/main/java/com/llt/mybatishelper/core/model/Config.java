@@ -20,8 +20,6 @@ public class Config {
 
     private String baseDbPassword;
 
-    private String baseDbDriverClassName;
-
     private Boolean useDb;
 
     private List<EntityField> baseEntityFieldList;

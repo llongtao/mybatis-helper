@@ -358,12 +358,6 @@ public class Controller {
         Config config = new Config();
         config.setBaseDbUrl(baseDbUrl.getText());
 
-        if (Objects.equals(config.getDbType(), MYSQL)) {
-            config.setBaseDbDriverClassName(MYSQL_DRIVER);
-        }
-
-        //TODO else 其他数据库
-
         config.setDbType(dbType.getValue());
         config.setUseDb(useDb.isSelected());
         config.setBaseDbUsername(baseDbUsername.getText());

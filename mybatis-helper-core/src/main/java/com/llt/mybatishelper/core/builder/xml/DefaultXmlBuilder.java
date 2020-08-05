@@ -230,7 +230,7 @@ public class DefaultXmlBuilder {
         entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(FIVE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(EQ).append(itemParamValue(primaryKey)));
         values.addElement(WHERE).addText(whereId.toString()).addText(FOUR_TAB);
         Element nullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
-        nullUpdateList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
+        nullUpdateList.addText(THREE_TAB).addText("select 0 from "+entityModel.getTableName()).addText(TWO_TAB);
         //noNullUpdateList.addText(TWO_TAB);
     }
 
@@ -397,7 +397,7 @@ public class DefaultXmlBuilder {
         items.append(FOUR_TAB).append(RIGHT_PARENTHESIS);
         values.addText(items.toString()).addText(THREE_TAB);
         Element nullInsertList = insertList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
-        nullInsertList.addText(THREE_TAB).addText("select 0 from dual").addText(TWO_TAB);
+        nullInsertList.addText(THREE_TAB).addText("select 0 from "+entityModel.getTableName()).addText(TWO_TAB);
     }
 
 

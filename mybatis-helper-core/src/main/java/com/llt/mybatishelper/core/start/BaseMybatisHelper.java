@@ -1,28 +1,33 @@
 package com.llt.mybatishelper.core.start;
 
+import com.alibaba.fastjson.JSON;
 import com.github.javaparser.ast.*;
 import com.llt.mybatishelper.core.builder.entity.DefaultEntityBuilder;
 import com.llt.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
 import com.llt.mybatishelper.core.exception.MybatisHelperException;
+import com.llt.mybatishelper.core.exception.SqlExecException;
 import com.llt.mybatishelper.core.log.ResultLog;
 import com.llt.mybatishelper.core.model.*;
 import com.llt.mybatishelper.core.utils.FileUtils;
 import com.llt.mybatishelper.core.utils.StringUtils;
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import java.io.*;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author LILONGTAO
  */
+@Slf4j
 public abstract class BaseMybatisHelper implements MybatisHelper {
 
 
@@ -53,7 +58,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         if (Objects.equals(config.getUseDb(),true)) {
             String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
             ResultLog.info("dbUrl:"+dbUrl);
-            DataSourceHolder.addDataSource(config.getBaseDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
+
+            DataSourceHolder.addDataSource(getDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
         }
 
 
@@ -95,6 +101,13 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         return sum.get();
     }
 
+    /**
+     * 获取数据库驱动全类名
+     * @return 全类名
+     */
+    protected abstract String getDbDriverClassName();
+
+
     private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel) {
         String schema = buildConfig.getDb();
         if (StringUtils.isEmpty(schema)) {
@@ -106,17 +119,68 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         } catch (SQLException e) {
             throw new MybatisHelperException("切库异常:"+e.getMessage(),e);
         }
-        updateTable(entityModel,connection);
+
+        String tableName = entityModel.getTableName();
+        Set<String> columnSet = new HashSet<>();
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(getTableExistColumnSql(schema,tableName));
+            while (resultSet.next()) {
+                columnSet.add(resultSet.getString(1).trim().toLowerCase());
+            }
+            ResultLog.info("获取"+entityModel.getTableName()+"列:"+ JSON.toJSONString(columnSet));
+        } catch (SQLException e) {
+            ResultLog.warn("获取"+entityModel.getTableName()+"列失败:"+e.getMessage());
+            e.printStackTrace();
+        }
+
+        String sql;
+        if (columnSet.isEmpty()) {
+            sql = buildCreateSql(entityModel);
+        }else {
+            sql = buildAlterSql(entityModel,columnSet);
+        }
+
+
+        if (sql != null) {
+            log.info("sql:"+sql);
+            ResultLog.info("sql:"+sql);
+            try {
+                Statement statement = connection.createStatement();
+                statement.execute(sql);
+                ResultLog.info("sql执行成功");
+            } catch (SQLException e) {
+                ResultLog.error("sql失败:"+e.getMessage());
+                throw new SqlExecException("sql失败:"+e.getMessage());
+            }
+        }
+
         ResultLog.info("updateTable "+ entityModel.getTableName()+" success");
     }
 
     /**
-     * 更新数据库表
-     *
-     * @param entityModel   实体模型
-     * @param connection 当前模型使用的数据库连接
+     * 构建建表语句
+     * @param entityModel 实体模型
+     * @return 建表sql
      */
-    protected abstract void updateTable(EntityModel entityModel, Connection connection) ;
+    protected abstract String buildCreateSql(EntityModel entityModel);
+
+    /**
+     * 构建修改表语句
+     * @param entityModel 实体模型
+     * @param existsColumnSet 已存在列
+     * @return 改表sql
+     */
+    protected abstract String buildAlterSql(EntityModel entityModel, Set<String> existsColumnSet);
+
+    /**
+     * 获取指定表第一列为列名的的sql
+     * @param schema schema
+     * @param tableName tableName
+     * @return sql
+     */
+    protected abstract String getTableExistColumnSql(String schema, String tableName) ;
+
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
         CompilationUnit baseMapper = buildMapperClass(entityModel);

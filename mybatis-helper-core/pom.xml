@@ -27,6 +27,12 @@
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.15</version>
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+            <version>42.2.12</version>
+        </dependency>
 
 
         <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->

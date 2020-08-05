@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.llt.mybatishelper.core.constants.Constants.DOT;
+import static com.llt.mybatishelper.core.constants.Constants.MYSQL_DRIVER;
 
 /**
  * @author LILONGTAO
@@ -27,37 +28,10 @@ import static com.llt.mybatishelper.core.constants.Constants.DOT;
 @Slf4j
 public class MysqlMybatisHelper extends BaseMybatisHelper {
 
+
     @Override
-    protected void updateTable(EntityModel entityModel, Connection connection)  {
-
-        String tableName = entityModel.getTableName();
-        Set<String> columnSet = new HashSet<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = (SELECT DATABASE()) AND TABLE_NAME = '" + tableName + "'");
-            while (resultSet.next()) {
-                columnSet.add(resultSet.getString(1).trim().toLowerCase());
-            }
-            ResultLog.info("获取"+entityModel.getTableName()+"列:"+ JSON.toJSONString(columnSet));
-        } catch (SQLException e) {
-            ResultLog.warn("获取"+entityModel.getTableName()+"列失败:"+e.getMessage());
-            e.printStackTrace();
-        }
-
-        String sql = toSql(entityModel,columnSet);
-
-        if (sql != null) {
-            log.info("sql:"+sql);
-            ResultLog.info("sql:"+sql);
-            try {
-                Statement statement = connection.createStatement();
-                statement.execute(sql);
-                ResultLog.info("sql执行成功");
-            } catch (SQLException e) {
-                ResultLog.error("sql失败:"+e.getMessage());
-                throw new SqlExecException("sql失败:"+e.getMessage());
-            }
-        }
+    protected String getTableExistColumnSql(String schema, String tableName) {
+        return "SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = (SELECT DATABASE()) AND TABLE_NAME = '" + tableName + "'";
     }
 
     @Override
@@ -65,15 +39,9 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
         return DefaultXmlBuilder.build(entityModel,"`");
     }
 
-    private String toSql(EntityModel entityModel, Set<String> existsSet) {
-        if (existsSet == null || existsSet.size() == 0) {
-            return buildCreate(entityModel);
-        } else {
-            return buildAlter(entityModel,existsSet);
-        }
-    }
 
-    private String buildAlter(EntityModel entityModel, Set<String> existsSet) {
+    @Override
+    protected String buildAlterSql(EntityModel entityModel, Set<String> existsSet) {
         StringBuilder sb = new StringBuilder();
         sb.append("ALTER TABLE ")
                 .append("`").append(entityModel.getTableName()).append("` ")
@@ -101,7 +69,13 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
         return sb.toString();
     }
 
-    private String buildCreate(EntityModel entityModel) {
+    @Override
+    protected String getDbDriverClassName() {
+        return MYSQL_DRIVER;
+    }
+
+    @Override
+    protected String buildCreateSql(EntityModel entityModel) {
         //主键只有一个且为数字的时候,自动设置自增
         List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
         boolean useAutoIncrement = primaryKeyList != null && primaryKeyList.size() == 1
