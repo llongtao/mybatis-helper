@@ -44,6 +44,7 @@ private String name;
 
 注:
 1.若不生成表结构可不填数据库信息
+
 2.若实体类未继承基类可不填基类信息
 
 #### 更多关键字
@@ -65,6 +66,7 @@ private String name;
   - .default xxx 可选 默认值
   - .ignore 可选 忽略该字段
   - .enum 可选 表示一个枚举,若不加则不生成枚举
+  - .typeHandler xx 可选 填写全类名
 
 - 其他细节
   - 当主键不存在时自动使用field名为id的列为主键
@@ -77,6 +79,15 @@ private String name;
   - 因为会创建子目录所以mapper-location 请设置为允许子目录,例如"classpath\*:mappers/\*\*/\*.xml"
   - 不允许不规范的javadoc注释,例如注释下有空行,或者多个javadoc注释
 
-
+修改记录
+ - v1.1.0
+   - 支持自定义表名与实体名
+   - 长度修改为字符串
+   - 分离view与core
+ - v1.2.0
+   - 支持pgsql 构建xml mapper
+   - 支持typeHandler
+   - 支持勾选配置
+   - 删除enum注释,改用type或JDBCType+typeHandler表示
 
 

@@ -37,14 +37,14 @@ public class  AddCell<T> extends TableCell<T, Boolean> {
      * @param stage the stage in which the table is placed.
      * @param table the table to which a new person can be added.
      */
-    public AddCell(final Stage stage, final TableView table, Class<T> tClass) {
+    public AddCell(final Stage stage, final TableView table, Object model) {
         paddedButton.getChildren().add(addButton);
         addButton.setOnMousePressed(mouseEvent -> buttonY.set(mouseEvent.getScreenY()));
         addButton.setOnAction(actionEvent -> {
             table.getSelectionModel().select(getTableRow().getIndex());
             int nextIndex = table.getSelectionModel().getSelectedIndex() + 1;
             try {
-                table.getItems().add(nextIndex, tClass.newInstance());
+                table.getItems().add(nextIndex, model);
                 Controller.getInstance().save();
             } catch (Exception ignore) {
             }

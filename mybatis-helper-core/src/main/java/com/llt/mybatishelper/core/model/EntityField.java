@@ -3,6 +3,7 @@ package com.llt.mybatishelper.core.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.sql.JDBCType;
+import java.util.Objects;
 
 /**
  * @author LILONGTAO
@@ -15,13 +16,13 @@ public class EntityField {
 
     private String columnName;
 
+    private String javaType;
+
     private String type;
 
     private JDBCType jdbcType;
 
     private String fullJdbcType;
-
-    private Boolean isEnum;
 
     private String length;
 
@@ -31,6 +32,7 @@ public class EntityField {
 
     private String description;
 
+    private String typeHandler;
 
     public EntityField() {
     }
@@ -42,5 +44,22 @@ public class EntityField {
         this.length = item.getLength();
         this.defaultValue = item.getDefaultValue();
         this.description = item.getDescription();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof EntityField)) {
+            return false;
+        }
+        EntityField that = (EntityField) o;
+        return getName().equals(that.getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName());
     }
 }

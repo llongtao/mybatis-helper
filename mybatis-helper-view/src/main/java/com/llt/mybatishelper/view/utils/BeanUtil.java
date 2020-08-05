@@ -14,6 +14,7 @@ public class BeanUtil {
         buildConfig.setXmlFolder(configVO.getXmlFolder());
         buildConfig.setDb(configVO.getDb());
         buildConfig.setIgnoreBaseField(!configVO.isUseBaseField());
+        buildConfig.setDisable(!configVO.isEnable());
        return buildConfig;
     }
     public static EntityField entityfieldvo2Entityfield(EntityFieldVO item){

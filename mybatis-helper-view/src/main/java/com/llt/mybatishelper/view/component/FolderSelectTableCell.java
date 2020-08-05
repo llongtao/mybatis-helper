@@ -181,7 +181,14 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
             String cellData =null;
             ObservableValue<?> selectedProperty = getSelectedProperty();
             if (selectedProperty != null && selectedProperty.getValue()!=null) {
-                cellData = Objects.toString( getSelectedProperty().getValue());
+                String showValue = Objects.toString(getSelectedProperty().getValue());
+                if (!StringUtils.isEmpty(showValue)) {
+                    if (showValue.length() > 25) {
+                        cellData = "..."+showValue.substring(showValue.length()-25);
+                    }else {
+                        cellData = showValue;
+                    }
+                }
             }
             if (StringUtils.isEmpty(cellData)) {
                 cellData = "选择文件夹";

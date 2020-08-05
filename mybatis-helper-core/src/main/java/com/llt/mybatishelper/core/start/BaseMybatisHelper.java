@@ -5,6 +5,7 @@ import com.llt.mybatishelper.core.builder.entity.DefaultEntityBuilder;
 import com.llt.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
+import com.llt.mybatishelper.core.exception.MybatisHelperException;
 import com.llt.mybatishelper.core.log.ResultLog;
 import com.llt.mybatishelper.core.model.*;
 import com.llt.mybatishelper.core.utils.FileUtils;
@@ -58,7 +59,13 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
         List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
         AtomicInteger sum = new AtomicInteger();
-        config.getBuildConfigList().forEach(buildConfig -> {
+
+        List<BuildConfig> buildConfigList = config.getBuildConfigList();
+        for (BuildConfig buildConfig : buildConfigList) {
+            if (Objects.equals(buildConfig.getDisable() ,true)) {
+                continue;
+            }
+
             List<String> allFilePath = FileUtils.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
 
@@ -70,33 +77,37 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                     ResultLog.info("buildEntityModel success");
 
                     if (entityModel != null) {
-                        sum.incrementAndGet();
                         if (useDb) {
-                            String schema = buildConfig.getDb();
-                            if (StringUtils.isEmpty(schema)) {
-                                throw new RuntimeException("若生成表结构数据库名不能为空");
-                            }
-                            Connection connection = DataSourceHolder.getConnection();
-                            try {
-                                connection.setCatalog(schema);
-                            } catch (SQLException e) {
-                                throw new RuntimeException("切库异常:"+e.getMessage(),e);
-                            }
-                            updateTable(entityModel,connection);
-                            ResultLog.info("updateTable "+entityModel.getTableName()+" success");
+                            buildDbTable(buildConfig, entityModel);
                         }
                         buildMapper(entityModel, buildConfig);
-                        ResultLog.info("buildMapper "+entityModel.getTableName()+" success");
 
                         buildXml(entityModel, buildConfig);
-                        ResultLog.info("buildXml "+entityModel.getTableName()+" success");
+
+                        sum.incrementAndGet();
                     }
                 }
-
             });
-        });
+        }
+
+
         DataSourceHolder.clear();
         return sum.get();
+    }
+
+    private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel) {
+        String schema = buildConfig.getDb();
+        if (StringUtils.isEmpty(schema)) {
+            throw new MybatisHelperException("若生成表结构数据库名不能为空");
+        }
+        Connection connection = DataSourceHolder.getConnection();
+        try {
+            connection.setCatalog(schema);
+        } catch (SQLException e) {
+            throw new MybatisHelperException("切库异常:"+e.getMessage(),e);
+        }
+        updateTable(entityModel,connection);
+        ResultLog.info("updateTable "+ entityModel.getTableName()+" success");
     }
 
     /**
@@ -132,6 +143,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         } catch (IOException e) {
             throw new RuntimeException("生成mapper类异常:"+e.getMessage(),e);
         }
+        ResultLog.info("buildMapper "+entityModel.getTableName()+" success");
     }
 
 
@@ -165,6 +177,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         } catch (IOException e) {
             throw new RuntimeException("生成xml异常:"+e.getMessage(),e);
         }
+        ResultLog.info("buildXml "+entityModel.getTableName()+" success");
     }
 
 
@@ -188,7 +201,9 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     private void mkdir(File file) {
         if (!file.exists()) {
-            file.mkdir();
+            if (!file.mkdir()) {
+                throw new MybatisHelperException("创建文件夹失败");
+            }
         }
     }
 

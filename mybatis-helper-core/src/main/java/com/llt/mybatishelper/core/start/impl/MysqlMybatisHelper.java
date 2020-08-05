@@ -3,6 +3,7 @@ package com.llt.mybatishelper.core.start.impl;
 import com.alibaba.fastjson.JSON;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
+import com.llt.mybatishelper.core.exception.SqlExecException;
 import com.llt.mybatishelper.core.log.ResultLog;
 import com.llt.mybatishelper.core.model.EntityField;
 import com.llt.mybatishelper.core.model.EntityModel;
@@ -53,8 +54,8 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 statement.execute(sql);
                 ResultLog.info("sql执行成功");
             } catch (SQLException e) {
-                ResultLog.warn("sql失败:"+e.getMessage());
-                e.printStackTrace();
+                ResultLog.error("sql失败:"+e.getMessage());
+                throw new SqlExecException("sql失败:"+e.getMessage());
             }
         }
     }

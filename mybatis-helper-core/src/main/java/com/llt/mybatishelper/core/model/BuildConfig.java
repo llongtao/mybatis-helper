@@ -28,5 +28,6 @@ public class BuildConfig {
 
     private Boolean ignoreBaseField;
 
+    private Boolean disable;
 
 }
