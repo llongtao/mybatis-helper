@@ -178,15 +178,16 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
                 setText(c.toString(item));
             }
 
+            String path =null;
             String cellData =null;
             ObservableValue<?> selectedProperty = getSelectedProperty();
             if (selectedProperty != null && selectedProperty.getValue()!=null) {
-                String showValue = Objects.toString(getSelectedProperty().getValue());
-                if (!StringUtils.isEmpty(showValue)) {
-                    if (showValue.length() > 25) {
-                        cellData = "..."+showValue.substring(showValue.length()-25);
+                path = Objects.toString(getSelectedProperty().getValue());
+                if (!StringUtils.isEmpty(path)) {
+                    if (path.length() > 25) {
+                        cellData = "..."+path.substring(path.length()-25);
                     }else {
-                        cellData = showValue;
+                        cellData = path;
                     }
                 }
             }
@@ -194,7 +195,7 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
                 cellData = "选择文件夹";
             }
             btn.setText(cellData);
-            String dir = cellData;
+            String dir = path;
             btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent event) {
