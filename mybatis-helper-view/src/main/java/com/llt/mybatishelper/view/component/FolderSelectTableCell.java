@@ -5,14 +5,11 @@ import com.llt.mybatishelper.view.controller.Controller;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
 import java.io.File;
 import java.util.Objects;
 
@@ -20,16 +17,10 @@ import java.util.Objects;
  * @author LILONGTAO
  * @date 2020-04-22
  */
+@SuppressWarnings("rawtypes")
 public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
-    private final static StringConverter<?> DEFAULT_STRING_CONVERTER = new StringConverter<Object>() {
-        @Override public String toString(Object t) {
-            return t == null ? null : t.toString();
-        }
 
-        @Override public Object fromString(String string) {
-            return string;
-        }
-    };
+    private static final int SHOW_LEN = 25;
 
 
     public static <S> Callback<TableColumn<S, String>, TableCell<S, String>> forTableColumn() {
@@ -38,24 +29,9 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
 
 
     public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> forTableColumn(
-            final Callback<Integer, ObservableValue<String>> getSelectedProperty) {
-        return forTableColumn(getSelectedProperty, null);
-    }
-
-
-    public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> forTableColumn(
-            final Callback<Integer, ObservableValue<String>> getSelectedProperty,
-            final boolean showLabel) {
-        StringConverter<T> converter = !showLabel ?
-                null : defaultStringConverter();
-        return forTableColumn(getSelectedProperty, converter);
-    }
-
-
-    public static <S, T> Callback<TableColumn<S, T>, TableCell<S, T>> forTableColumn(
             final Callback<Integer, ObservableValue<String>> getSelectedProperty,
             final StringConverter<T> converter) {
-        return list -> new FolderSelectTableCell<S, T>(getSelectedProperty, converter);
+        return list -> new FolderSelectTableCell<>(getSelectedProperty, converter);
     }
 
 
@@ -94,8 +70,8 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
      *                                                                         *
      **************************************************************************/
 
-    // --- converter
-    private ObjectProperty<StringConverter<T>> converter =
+
+    private final ObjectProperty<StringConverter<T>> converter =
             new SimpleObjectProperty<StringConverter<T>>(this, "converter") {
                 @Override
                 protected void invalidated() {
@@ -125,8 +101,8 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
     }
 
 
-    // --- selected state callback property
-    private ObjectProperty<Callback<Integer, ObservableValue<String>>>
+
+    private final ObjectProperty<Callback<Integer, ObservableValue<String>>>
             selectedStateCallback =
             new SimpleObjectProperty<>(
                     this, "selectedStateCallback");
@@ -154,7 +130,7 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
     }
 
 
-    /***************************************************************************
+    /* *************************************************************************
      *                                                                         *
      * Public API                                                              *
      *                                                                         *
@@ -166,7 +142,6 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
     @SuppressWarnings("unchecked")
     @Override
     public void updateItem(T item, boolean empty) {
-        //super.updateItem(item, empty);
 
         if (empty) {
             setText(null);
@@ -184,8 +159,8 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
             if (selectedProperty != null && selectedProperty.getValue()!=null) {
                 path = Objects.toString(getSelectedProperty().getValue());
                 if (!StringUtils.isEmpty(path)) {
-                    if (path.length() > 25) {
-                        cellData = "..."+path.substring(path.length()-25);
+                    if (path.length() > SHOW_LEN) {
+                        cellData = "..."+path.substring(path.length()-SHOW_LEN);
                     }else {
                         cellData = path;
                     }
@@ -196,40 +171,34 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
             }
             btn.setText(cellData);
             String dir = path;
-            btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    DirectoryChooser chooser = new DirectoryChooser();
-                    try{
-                        File file = new File(dir);
-                        if(file.exists()&&file.isDirectory()){
-                            chooser.setInitialDirectory(file);
-                        }
-                    }catch (Exception ignore){}
-
-                    File chosenDir = chooser.showDialog(Controller.primaryStage);
-                    if (chosenDir != null) {
-                        String absolutePath = chosenDir.getAbsolutePath();
-                        btn.setText(absolutePath);
-                        TablePosition<S, T> stTablePosition = new TablePosition<>(getTableView(), getIndex(), getTableColumn());
-                        TableColumn.CellEditEvent editEvent = new TableColumn.CellEditEvent(
-                                getTableView(),
-                                stTablePosition,
-                                TableColumn.editCommitEvent(),
-                                absolutePath
-                        );
-                        Event.fireEvent(getTableColumn(), editEvent);
-                        Controller.getInstance().save();
-                    } else {
-                        System.out.print("no directory chosen");
+            btn.setOnAction(event -> {
+                DirectoryChooser chooser = new DirectoryChooser();
+                try{
+                    File file = new File(dir);
+                    if(file.exists()&&file.isDirectory()){
+                        chooser.setInitialDirectory(file);
                     }
+                }catch (Exception ignore){}
+
+                File chosenDir = chooser.showDialog(Controller.primaryStage);
+                if (chosenDir != null) {
+                    String absolutePath = chosenDir.getAbsolutePath();
+                    btn.setText(absolutePath);
+                    TablePosition<S, T> stTablePosition = new TablePosition<>(getTableView(), getIndex(), getTableColumn());
+                    TableColumn.CellEditEvent editEvent = new TableColumn.CellEditEvent(
+                            getTableView(),
+                            stTablePosition,
+                            TableColumn.editCommitEvent(),
+                            absolutePath
+                    );
+                    Event.fireEvent(getTableColumn(), editEvent);
+                    Controller.getInstance().save();
+                } else {
+                    System.out.print("no directory chosen");
                 }
             });
             setGraphic(btn);
         }
-    }
-    private void preUpdate(T item){
-        super.updateItem(item, false);
     }
 
 
@@ -249,11 +218,6 @@ public class FolderSelectTableCell<S, T> extends TableCell<S, T> {
                 getSelectedStateCallback().call(getIndex()) :
                 getTableColumn().getCellObservableValue(getIndex());
 
-    }
-
-    @SuppressWarnings("unchecked")
-    static <T> StringConverter<T> defaultStringConverter() {
-        return (StringConverter<T>) DEFAULT_STRING_CONVERTER;
     }
 
 }

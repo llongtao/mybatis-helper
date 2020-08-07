@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -295,6 +296,19 @@ public class Controller {
     private void configStart() {
         start.setOnMouseClicked(event -> {
             start.setDisable(true);
+            if (dropTable.isSelected()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "重建表会删除所有数据,确认执行?", ButtonType.OK, ButtonType.CANCEL);
+                Optional<ButtonType> buttonType = alert.showAndWait();
+                boolean present = buttonType.isPresent();
+                if (!present ) {
+                    start.setDisable(false);
+                    return;
+                }
+                if (buttonType.get() == ButtonType.CANCEL) {
+                    start.setDisable(false);
+                    return;
+                }
+            }
             try {
                 Config config = save();
                 checkStartConfigAndConfigDataSource(config);
