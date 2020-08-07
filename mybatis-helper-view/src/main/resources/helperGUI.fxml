@@ -18,17 +18,18 @@
         <AnchorPane  prefHeight="618.0" prefWidth="1040.0" VBox.vgrow="ALWAYS">
             <children>
                 <Button fx:id="start" layoutX="500.0" layoutY="478.0" mnemonicParsing="false" text="开始生成"/>
-                <TextField fx:id="baseDbUrl" layoutX="79.0" layoutY="115.0" prefHeight="26.0" prefWidth="230.0"
+                <TextField fx:id="baseDbUrl" layoutX="79.0" layoutY="145.0" prefHeight="26.0" prefWidth="230.0"
                            promptText="localhost:3306">
                     <opaqueInsets>
                         <Insets/>
                     </opaqueInsets>
                 </TextField>
-                <TextField fx:id="baseDbUsername" layoutX="79.0" layoutY="141.0" prefHeight="26.0" prefWidth="230.0"
+                <TextField fx:id="baseDbUsername" layoutX="79.0" layoutY="171.0" prefHeight="26.0" prefWidth="230.0"
                            promptText="root"/>
-                <PasswordField fx:id="baseDbPassword" layoutX="79.0" layoutY="167.0" prefHeight="26.0" prefWidth="230.0"
+                <PasswordField fx:id="baseDbPassword" layoutX="79.0" layoutY="197.0" prefHeight="26.0" prefWidth="230.0"
                                promptText="123456"/>
                 <CheckBox fx:id="useDb" layoutX="79.0" layoutY="33.0" mnemonicParsing="false" text="生成表结构"/>
+                <CheckBox fx:id="dropTable" layoutX="79.0" layoutY="66.0" mnemonicParsing="false" text="重建表"/>
                 <TableView fx:id="baseModel" layoutX="333.0" layoutY="37.0" prefHeight="200.0" prefWidth="625.0">
                     <columns>
                         <TableColumn id="name" fx:id="name" text="字段名"/>
@@ -58,7 +59,7 @@
                 </TableView>
                 <Text layoutX="520.0" layoutY="262.0" strokeType="OUTSIDE" strokeWidth="0.0" text="配置"
                       wrappingWidth="30.66666603088379"/>
-                <ChoiceBox fx:id="dbType" layoutX="79.0" layoutY="79.0" prefWidth="150.0"/>
+                <ChoiceBox fx:id="dbType" layoutX="79.0" layoutY="99.0" prefWidth="150.0"/>
             </children>
         </AnchorPane>
     </children>

@@ -22,6 +22,8 @@ public class Config {
 
     private Boolean useDb;
 
+    private Boolean dropTable;
+
     private List<EntityField> baseEntityFieldList;
 
     private List<BuildConfig> buildConfigList;

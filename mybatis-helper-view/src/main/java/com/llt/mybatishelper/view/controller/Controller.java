@@ -44,6 +44,9 @@ public class Controller {
     private CheckBox useDb;
 
     @FXML
+    private CheckBox dropTable;
+
+    @FXML
     private ChoiceBox<String> dbType;
 
     @FXML
@@ -360,6 +363,7 @@ public class Controller {
 
         config.setDbType(dbType.getValue());
         config.setUseDb(useDb.isSelected());
+        config.setDropTable(dropTable.isSelected());
         config.setBaseDbUsername(baseDbUsername.getText());
         config.setBaseDbPassword(baseDbPassword.getText());
         config.setBaseEntityFieldList(baseModel.getItems().stream().map(BeanUtil::entityfieldvo2Entityfield).collect(Collectors.toList()));

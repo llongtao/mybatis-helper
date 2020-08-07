@@ -2,6 +2,7 @@ package com.llt.mybatishelper.core.data;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidPooledConnection;
+import com.llt.mybatishelper.core.exception.MybatisHelperException;
 import com.llt.mybatishelper.core.log.ResultLog;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,11 +40,9 @@ public class DataSourceHolder {
                 dataSource.setUrl(url);
                 dataSource.setConnectProperties(PROPERTIES);
                 DataSourceHolder.dataSource = dataSource;
-                ResultLog.info("dataSourceInit:"+url);
             } catch (Exception e) {
                 log.error("db配置不正确",e);
-                ResultLog.info("db配置不正确:"+e.getMessage());
-                throw new IllegalArgumentException("db配置不正确:" + e.getMessage());
+                throw new MybatisHelperException("db配置不正确:" + e.getMessage());
             }
         }
     }
@@ -59,7 +58,7 @@ public class DataSourceHolder {
         }
         if (dataSource == null) {
             ResultLog.error("未配置数据源");
-            throw new IllegalArgumentException("未配置数据源");
+            throw new MybatisHelperException("未配置数据源");
         }
 
         Callable<Connection> callable = () -> {
@@ -80,7 +79,7 @@ public class DataSourceHolder {
             dataSource = null;
             log.error("数据库连接超时",e);
             ResultLog.error("数据库连接超时:"+e.getMessage());
-            throw new RuntimeException("数据库连接超时");
+            throw new MybatisHelperException("数据库连接超时");
         }
     }
 

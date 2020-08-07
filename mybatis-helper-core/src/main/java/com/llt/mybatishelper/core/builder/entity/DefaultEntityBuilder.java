@@ -48,8 +48,9 @@ public class DefaultEntityBuilder {
         TYPE_MAP.put("boolean", JDBCType.BIT);
         TYPE_MAP.put("Date", JDBCType.TIMESTAMP);
         TYPE_MAP.put("char", JDBCType.CHAR);
-        TYPE_MAP.put("byte", JDBCType.TINYINT);
         TYPE_MAP.put("Character", JDBCType.CHAR);
+        TYPE_MAP.put("byte", JDBCType.TINYINT);
+        TYPE_MAP.put("Byte", JDBCType.TINYINT);
         TYPE_MAP.put("LocalTime", JDBCType.TIME);
         TYPE_MAP.put("LocalDate", JDBCType.DATE);
         TYPE_MAP.put("LocalDateTime", JDBCType.TIMESTAMP);

@@ -24,6 +24,11 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
 
 
     @Override
+    protected String getDropTableSql(String schema, String tableName) {
+        return "DROP TABLE IF EXISTS "+tableName;
+    }
+
+    @Override
     protected String getDbDriverClassName() {
         return PGSQL_DRIVER;
     }

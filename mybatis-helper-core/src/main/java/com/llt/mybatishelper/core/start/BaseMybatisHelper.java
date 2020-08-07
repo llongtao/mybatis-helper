@@ -84,7 +84,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
                     if (entityModel != null) {
                         if (useDb) {
-                            buildDbTable(buildConfig, entityModel);
+                            buildDbTable(buildConfig, entityModel,config);
                         }
                         buildMapper(entityModel, buildConfig);
 
@@ -104,7 +104,9 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
 
 
-    private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel) {
+    private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel, Config config) {
+
+
         String schema = buildConfig.getDb();
         if (StringUtils.isEmpty(schema)) {
             throw new MybatisHelperException("若生成表结构数据库名不能为空");
@@ -112,14 +114,39 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         Connection connection = DataSourceHolder.getConnection();
         try {
             connection.setCatalog(schema);
+            connection.setAutoCommit(false);
         } catch (SQLException e) {
+            rollback(connection);
             throw new MybatisHelperException("切库异常:"+e.getMessage(),e);
         }
 
+        Statement statement;
+        try {
+            statement = connection.createStatement();
+        } catch (SQLException e) {
+            rollback(connection);
+            throw new MybatisHelperException("获取 statement 失败:"+e.getMessage(),e);
+        }
+
         String tableName = entityModel.getTableName();
+
+
+        Boolean dropTable = config.getDropTable();
+        if (Objects.equals(dropTable, true) ) {
+            try {
+                String dropTableSql = getDropTableSql(schema, tableName);
+                log.info("sql:"+dropTableSql);
+                statement.execute(dropTableSql);
+                ResultLog.info("获取删除表失败:");
+            } catch (SQLException e) {
+                ResultLog.warn("获取"+entityModel.getTableName()+"列失败:"+e.getMessage());
+                e.printStackTrace();
+            }
+        }
+
+
         Set<String> columnSet = new HashSet<>();
         try {
-            Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(getTableExistColumnSql(schema,tableName));
             while (resultSet.next()) {
                 columnSet.add(resultSet.getString(1).trim().toLowerCase());
@@ -142,17 +169,36 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             log.info("sql:"+sql);
             ResultLog.info("sql:"+sql);
             try {
-                Statement statement = connection.createStatement();
                 statement.execute(sql);
                 ResultLog.info("sql执行成功");
             } catch (SQLException e) {
                 ResultLog.error("sql失败:"+e.getMessage());
+                rollback(connection);
                 throw new SqlExecException("sql失败:"+e.getMessage());
             }
         }
+        commit(connection);
 
         ResultLog.info("updateTable "+ entityModel.getTableName()+" success");
     }
+
+    private void commit(Connection connection) {
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void rollback(Connection connection) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected abstract String getDropTableSql(String schema, String tableName);
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
         CompilationUnit baseMapper = buildMapperClass(entityModel);
