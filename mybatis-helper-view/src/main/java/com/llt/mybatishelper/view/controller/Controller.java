@@ -296,7 +296,7 @@ public class Controller {
     private void configStart() {
         start.setOnMouseClicked(event -> {
             start.setDisable(true);
-            if (dropTable.isSelected()) {
+            if (dropTable.isSelected()&&useDb.isSelected()) {
                 Alert alert = new Alert(Alert.AlertType.WARNING, "重建表会删除所有数据,确认执行?", ButtonType.OK, ButtonType.CANCEL);
                 Optional<ButtonType> buttonType = alert.showAndWait();
                 boolean present = buttonType.isPresent();
