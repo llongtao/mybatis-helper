@@ -175,8 +175,8 @@ public class DefaultXmlBuilder {
         entityFieldList.forEach(entityField -> baseColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
         baseColumn.deleteCharAt(baseColumn.length() - 1);
         StringBuilder noPkColumn = new StringBuilder();
-        entityModel.getColumnList().forEach(entityField -> noPkColumn.append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
-        noPkColumn.deleteCharAt(baseColumn.length() - 1);
+        entityModel.getColumnList().forEach(entityField -> noPkColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
+        noPkColumn.deleteCharAt(noPkColumn.length() - 1);
 
         //构建BaseColumn_sql
         buildBaseColumn(root, baseColumn, BASE_COLUMN);
