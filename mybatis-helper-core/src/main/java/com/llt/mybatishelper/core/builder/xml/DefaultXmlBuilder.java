@@ -34,6 +34,8 @@ public class DefaultXmlBuilder {
 
     private static final String BASE_COLUMN = "BaseColumn";
 
+    private static final String BASE_NO_PK_COLUMN = "BaseNoPkColumn";
+
     private static final String SQL = "sql";
 
     private static final String DELETE = "delete";
@@ -152,6 +154,7 @@ public class DefaultXmlBuilder {
     public static Document build(EntityModel entityModel, String split) {
         SPLIT = split;
         String entityName = entityModel.getEntityName();
+        boolean autoIncr = entityModel.autoIncr();
         // 创建Document
         Document document = DocumentHelper.createDocument();
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
@@ -171,9 +174,14 @@ public class DefaultXmlBuilder {
         StringBuilder baseColumn = new StringBuilder();
         entityFieldList.forEach(entityField -> baseColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
         baseColumn.deleteCharAt(baseColumn.length() - 1);
+        StringBuilder noPkColumn = new StringBuilder();
+        entityModel.getColumnList().forEach(entityField -> noPkColumn.append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
+        noPkColumn.deleteCharAt(baseColumn.length() - 1);
 
         //构建BaseColumn_sql
-        buildBaseColumn(root, baseColumn);
+        buildBaseColumn(root, baseColumn, BASE_COLUMN);
+        //构建BaseColumn_sql
+        buildBaseColumn(root, noPkColumn, BASE_NO_PK_COLUMN);
 
         //构建select
         Element selectByPrimaryKey = root.addElement(SELECT)
@@ -182,6 +190,8 @@ public class DefaultXmlBuilder {
                 .addText(TWO_TAB + SELECT);
         Element baseColumnElement = selectByPrimaryKey.addElement(INCLUDE)
                 .addAttribute(REF_ID, BASE_COLUMN);
+        Element noPkColumnElement = selectByPrimaryKey.addElement(INCLUDE)
+                .addAttribute(REF_ID, BASE_NO_PK_COLUMN);
         StringBuilder whereId = new StringBuilder();
         entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(THREE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(" = ").append("#{").append(primaryKey.getName()).append("}"));
         selectByPrimaryKey.addText(TWO_TAB + FROM)
@@ -204,7 +214,7 @@ public class DefaultXmlBuilder {
         buildQuery(entityModel, entityName, root, entityClassName, entityFieldList, updateSelective);
 
         //构建insertList
-        buildInsertList(entityModel, entityName, root, entityClassName, entityFieldList, baseColumnElement);
+        buildInsertList(entityModel, entityName, root, entityClassName, entityFieldList, autoIncr ? noPkColumnElement : baseColumnElement);
 
         //构建updateList
         buildUpdateList(entityModel, entityName, root, entityClassName);
@@ -230,13 +240,13 @@ public class DefaultXmlBuilder {
         entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(FIVE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(EQ).append(itemParamValue(primaryKey)));
         values.addElement(WHERE).addText(whereId.toString()).addText(FOUR_TAB);
         Element nullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
-        nullUpdateList.addText(THREE_TAB).addText("select 0 from "+entityModel.getTableName()).addText(TWO_TAB);
+        nullUpdateList.addText(THREE_TAB).addText("select 0 from " + entityModel.getTableName()).addText(TWO_TAB);
         //noNullUpdateList.addText(TWO_TAB);
     }
 
-    private static void buildBaseColumn(Element root, StringBuilder baseColumn) {
+    private static void buildBaseColumn(Element root, StringBuilder baseColumn, String id) {
         root.addElement(SQL)
-                .addAttribute(ID, BASE_COLUMN)
+                .addAttribute(ID, id)
                 .addText(baseColumn.toString())
                 .addText(ONE_TAB);
     }
@@ -277,8 +287,12 @@ public class DefaultXmlBuilder {
     private static void buildInsert(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList) {
         Element insert = root.addElement(INSERT)
                 .addAttribute(ID, INSERT + entityName)
-                .addAttribute(PARAMETER_TYPE, entityClassName)
-                .addText(TWO_TAB + INSERT + SPACE + INTO)
+                .addAttribute(PARAMETER_TYPE, entityClassName);
+        if (entityModel.autoIncr()) {
+            insert.addAttribute("useGeneratedKeys", "true");
+        }
+
+        insert.addText(TWO_TAB + INSERT + SPACE + INTO)
                 .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
 
         Element trimColumn = insert.addElement(TRIM)
@@ -330,7 +344,6 @@ public class DefaultXmlBuilder {
 
 
     /**
-     *
      * @param entityField 列对象
      * @return #{id}
      */
@@ -343,32 +356,30 @@ public class DefaultXmlBuilder {
     }
 
     /**
-     *
      * @param entityField 列对象
      * @return #{item.id,jdbcType = BIGINT}
      */
-    private static String itemParamValue(EntityField entityField){
+    private static String itemParamValue(EntityField entityField) {
         String typeHandler = entityField.getTypeHandler();
         if (!StringUtils.isEmpty(typeHandler)) {
             return LEFT_BRACKET + ITEM + DOT + entityField.getName() +
                     COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
-        }else {
+        } else {
             return LEFT_BRACKET + ITEM + DOT + entityField.getName() +
                     COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET;
         }
     }
 
     /**
-     *
      * @param entityField 列对象
      * @return #{id,jdbcType = BIGINT},
      */
-    private static String paramValue(EntityField entityField){
+    private static String paramValue(EntityField entityField) {
         String typeHandler = entityField.getTypeHandler();
         if (!StringUtils.isEmpty(typeHandler)) {
-            return LEFT_BRACKET  + entityField.getName() +
+            return LEFT_BRACKET + entityField.getName() +
                     COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
-        }else {
+        } else {
             return LEFT_BRACKET + entityField.getName() +
                     COMMA + JDBC_TYPE + EQ + entityField.getJdbcType() + RIGHT_BRACKET;
         }
@@ -378,6 +389,10 @@ public class DefaultXmlBuilder {
         Element insertList = root.addElement(INSERT)
                 .addAttribute(ID, INSERT + entityName + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName);
+        if (entityModel.autoIncr()) {
+            insertList.addAttribute("useGeneratedKeys", "true");
+        }
+
         Element noNullInsertList = insertList.addElement(IF).addAttribute(TEST, "list!=null and list.size>0");
         noNullInsertList.addText(THREE_TAB + INSERT_INTO).addText(THREE_TAB + SPLIT + entityModel.getTableName() + SPLIT);
         Element insertListTrim = noNullInsertList.addElement(TRIM)
@@ -392,15 +407,18 @@ public class DefaultXmlBuilder {
                 .addAttribute(SEPARATOR, COMMA);
         StringBuilder items = new StringBuilder(FOUR_TAB);
         items.append(LEFT_PARENTHESIS);
-        entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue( entityField)).append(COMMA));
+        if (entityModel.autoIncr()) {
+            entityModel.getColumnList().forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue(entityField)).append(COMMA));
+        } else {
+            entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue(entityField)).append(COMMA));
+        }
+
         items.deleteCharAt(items.length() - 1);
         items.append(FOUR_TAB).append(RIGHT_PARENTHESIS);
         values.addText(items.toString()).addText(THREE_TAB);
         Element nullInsertList = insertList.addElement(IF).addAttribute(TEST, "list==null or list.size==0");
-        nullInsertList.addText(THREE_TAB).addText("select 0 from "+entityModel.getTableName()).addText(TWO_TAB);
+        nullInsertList.addText(THREE_TAB).addText("select 0 from " + entityModel.getTableName()).addText(TWO_TAB);
     }
-
-
 
 
     private static Element buildUpdateSelective(EntityModel entityModel, Element root, String entityClassName, Element where) {
