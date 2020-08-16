@@ -190,7 +190,7 @@ public class DefaultXmlBuilder {
                 .addText(TWO_TAB + SELECT);
         Element baseColumnElement = selectByPrimaryKey.addElement(INCLUDE)
                 .addAttribute(REF_ID, BASE_COLUMN);
-        Element noPkColumnElement = selectByPrimaryKey.addElement(INCLUDE)
+        Element noPkColumnElement = DocumentHelper.createElement(INCLUDE)
                 .addAttribute(REF_ID, BASE_NO_PK_COLUMN);
         StringBuilder whereId = new StringBuilder();
         entityModel.getPrimaryKeyList().forEach(primaryKey -> whereId.append(THREE_TAB + AND + SPACE).append(primaryKey.getColumnName()).append(" = ").append("#{").append(primaryKey.getName()).append("}"));
