@@ -173,11 +173,10 @@ public class DefaultXmlBuilder {
 
         StringBuilder baseColumn = new StringBuilder();
         entityFieldList.forEach(entityField -> baseColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
-        baseColumn.deleteCharAt(baseColumn.length() - 1);
+        deleteLast(baseColumn);
         StringBuilder noPkColumn = new StringBuilder();
         entityModel.getColumnList().forEach(entityField -> noPkColumn.append(TWO_TAB).append(SPLIT).append(entityField.getColumnName()).append(SPLIT).append(COMMA));
-        noPkColumn.deleteCharAt(noPkColumn.length() - 1);
-
+        deleteLast(noPkColumn);
         //构建BaseColumn_sql
         buildBaseColumn(root, baseColumn, BASE_COLUMN);
         //构建BaseColumn_sql
@@ -220,6 +219,12 @@ public class DefaultXmlBuilder {
         buildUpdateList(entityModel, entityName, root, entityClassName);
 
         return document;
+    }
+
+    private static void deleteLast(StringBuilder sb){
+        if (sb.length() > 0) {
+            sb.deleteCharAt(sb.length() - 1);
+        }
     }
 
     private static void buildUpdateList(EntityModel entityModel, String entityName, Element root, String entityClassName) {
