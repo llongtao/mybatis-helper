@@ -148,10 +148,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                 String dropTableSql = getDropTableSql(schema, tableName);
                 log.info("sql:" + dropTableSql);
                 statement.execute(dropTableSql);
-                ResultLog.info("获取删除表失败:");
+                ResultLog.info("删除表成功");
             } catch (SQLException e) {
-                ResultLog.warn("获取" + entityModel.getTableName() + "列失败:" + e.getMessage());
-                e.printStackTrace();
+                ResultLog.warn("删除" + entityModel.getTableName() + "表失败:" + e.getMessage());
+                log.error("删除" + entityModel.getTableName() + "表失败",e);
             }
         }
 
@@ -165,7 +165,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             ResultLog.info("获取" + entityModel.getTableName() + "列:" + JSON.toJSONString(columnSet));
         } catch (SQLException e) {
             ResultLog.warn("获取" + entityModel.getTableName() + "列失败:" + e.getMessage());
-            e.printStackTrace();
+            log.error("获取" + entityModel.getTableName() + "列失败",e);
         }
 
         String sql;
