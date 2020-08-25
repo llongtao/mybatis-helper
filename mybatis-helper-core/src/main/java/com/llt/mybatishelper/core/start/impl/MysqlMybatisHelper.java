@@ -4,6 +4,7 @@ import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
 import com.llt.mybatishelper.core.model.EntityField;
 import com.llt.mybatishelper.core.model.EntityModel;
 import com.llt.mybatishelper.core.start.BaseMybatisHelper;
+import com.llt.mybatishelper.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
 import java.sql.*;
@@ -107,7 +108,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 sb.append("NOT NULL ");
             }
             String defaultValue = column.getDefaultValue();
-            if (defaultValue != null) {
+            if (!StringUtils.isBlank(defaultValue)) {
                 sb.append("DEFAULT '").append(defaultValue).append("' ");
             }else {
                 sb.append("NULL DEFAULT NULL ");
