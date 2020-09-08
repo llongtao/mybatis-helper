@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -42,6 +43,9 @@ public class Controller {
 
     @FXML
     private CheckBox useDb;
+
+    @FXML
+    private CheckBox dropTable;
 
     @FXML
     private ChoiceBox<String> dbType;
@@ -292,6 +296,19 @@ public class Controller {
     private void configStart() {
         start.setOnMouseClicked(event -> {
             start.setDisable(true);
+            if (dropTable.isSelected()&&useDb.isSelected()) {
+                Alert alert = new Alert(Alert.AlertType.WARNING, "重建表会删除所有数据,确认执行?", ButtonType.OK, ButtonType.CANCEL);
+                Optional<ButtonType> buttonType = alert.showAndWait();
+                boolean present = buttonType.isPresent();
+                if (!present ) {
+                    start.setDisable(false);
+                    return;
+                }
+                if (buttonType.get() == ButtonType.CANCEL) {
+                    start.setDisable(false);
+                    return;
+                }
+            }
             try {
                 Config config = save();
                 checkStartConfigAndConfigDataSource(config);
@@ -358,14 +375,9 @@ public class Controller {
         Config config = new Config();
         config.setBaseDbUrl(baseDbUrl.getText());
 
-        if (Objects.equals(config.getDbType(), MYSQL)) {
-            config.setBaseDbDriverClassName(MYSQL_DRIVER);
-        }
-
-        //TODO else 其他数据库
-
         config.setDbType(dbType.getValue());
         config.setUseDb(useDb.isSelected());
+        config.setDropTable(dropTable.isSelected());
         config.setBaseDbUsername(baseDbUsername.getText());
         config.setBaseDbPassword(baseDbPassword.getText());
         config.setBaseEntityFieldList(baseModel.getItems().stream().map(BeanUtil::entityfieldvo2Entityfield).collect(Collectors.toList()));

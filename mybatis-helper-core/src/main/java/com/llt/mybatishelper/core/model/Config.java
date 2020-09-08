@@ -20,9 +20,9 @@ public class Config {
 
     private String baseDbPassword;
 
-    private String baseDbDriverClassName;
-
     private Boolean useDb;
+
+    private Boolean dropTable;
 
     private List<EntityField> baseEntityFieldList;
 

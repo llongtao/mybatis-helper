@@ -1,6 +1,7 @@
 package com.llt.mybatishelper.core.model;
 
 import lombok.Data;
+
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,5 +45,9 @@ public class EntityModel {
 
     private boolean isNew = true;
 
-
+    public boolean autoIncr() {
+        return primaryKeyList != null
+                && primaryKeyList.size() == 1
+                && "Integer".equals(primaryKeyList.get(0).getJavaType());
+    }
 }
