@@ -8,6 +8,9 @@
 由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
 目前实现 mysql所有功能和pgsql建表之外的操作
 
+#### idea插件版
+https://github.com/llongtao/mybatis-pro-max-plug
+
 #### 软件架构
 
 JDK 1.8
