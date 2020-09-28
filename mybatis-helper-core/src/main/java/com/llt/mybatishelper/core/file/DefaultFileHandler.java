@@ -22,6 +22,11 @@ public class DefaultFileHandler implements FileHandler{
     }
 
     @Override
+    public String readFileToString(String filePath, String charset) {
+        return FileUtils.readFileToString(filePath,charset);
+    }
+
+    @Override
     public void mkdir(String path) {
         File file = new File(path);
         if (!file.exists()) {

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.llt.mybatishelper.demo.mapper.base.BaseUserMapper">
+    <resultMap id="BaseResultMap" type="com.llt.mybatishelper.demo.entity.User">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="sex" typeHandler="com.llt.mybatishelper.demo.typehanlder.SexTypeHandler" property="sex"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="money" jdbcType="DECIMAL" property="money"/>
+    </resultMap>
+    <sql id="BaseColumn">
+		`id`,
+		`sex`,
+		`name`,
+		`email`,
+		`money`
+	</sql>
+    <sql id="BaseNoPkColumn">
+		`sex`,
+		`name`,
+		`email`,
+		`money`
+	</sql>
+    <select id="queryByPrimaryKey" resultMap="BaseResultMap">
+		select
+        <include refid="BaseColumn"/>
+		from
+		`user`
+        <where>
+			and id = #{id}
+		</where>
+    </select>
+    <delete id="deleteByPrimaryKey">
+		delete
+		from
+		`user`
+        <where>
+			and id = #{id}
+		</where>
+    </delete>
+    <insert id="insertUser" parameterType="com.llt.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+		insert into
+		`user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+				`id`,
+			</if>
+            <if test="sex!=null">
+				`sex`,
+			</if>
+            <if test="name!=null">
+				`name`,
+			</if>
+            <if test="email!=null">
+				`email`,
+			</if>
+            <if test="money!=null">
+				`money`,
+			</if>
+        </trim>
+		values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id!=null">
+				#{id},
+			</if>
+            <if test="sex!=null">
+				#{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+			</if>
+            <if test="name!=null">
+				#{name},
+			</if>
+            <if test="email!=null">
+				#{email},
+			</if>
+            <if test="money!=null">
+				#{money},
+			</if>
+        </trim>
+    </insert>
+    <update id="updateSelective" parameterType="com.llt.mybatishelper.demo.entity.User">
+		update
+		`user`
+        <set>
+            <if test="sex !=null">
+				`sex` = #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+			</if>
+            <if test="name !=null and name !=''">
+				`name` = #{name},
+			</if>
+            <if test="email !=null and email !=''">
+				`email` = #{email},
+			</if>
+            <if test="money !=null">
+				`money` = #{money},
+			</if>
+        </set>
+        <where>
+			and id = #{id}
+		</where>
+		
+    </update>
+    <update id="updateUser" parameterType="com.llt.mybatishelper.demo.entity.User">
+		update
+		`user`
+        <set>
+			`sex`  =  #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+			`name`  =  #{name,jdbcType = VARCHAR},
+			`email`  =  #{email,jdbcType = VARCHAR},
+			`money`  =  #{money,jdbcType = DECIMAL},
+		</set>
+        <where>
+			and id = #{id}
+		</where>
+    </update>
+    <select id="queryUser" parameterType="com.llt.mybatishelper.demo.entity.User" resultMap="BaseResultMap">
+		select
+        <include refid="BaseColumn"/>
+		from
+		`user`
+        <where>
+            <if test="id !=null">
+				and `id`  =  #{id}
+			</if>
+            <if test="sex !=null">
+				and `sex`  =  #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler}
+			</if>
+            <if test="name !=null and name !=''">
+				and `name`  =  #{name}
+			</if>
+            <if test="email !=null and email !=''">
+				and `email`  =  #{email}
+			</if>
+            <if test="money !=null">
+				and `money`  =  #{money}
+			</if>
+        </where>
+    </select>
+    <insert id="insertUserList" parameterType="com.llt.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+        <if test="list!=null and list.size&gt;0">
+			insert into
+			`user`
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <include refid="BaseNoPkColumn"/>
+            </trim>
+			values
+            <foreach collection="list" item="item" separator=",">
+				(
+				#{item.sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+				#{item.name,jdbcType = VARCHAR},
+				#{item.email,jdbcType = VARCHAR},
+				#{item.money,jdbcType = DECIMAL}
+				)
+			</foreach>
+        </if>
+        <if test="list==null or list.size==0">
+			select 0 from user
+		</if>
+    </insert>
+    <update id="updateUserList" parameterType="com.llt.mybatishelper.demo.entity.User">
+        <if test="list!=null and list.size&gt;0">
+            <foreach collection="list" item="item" separator=";">
+				update
+				`user`
+                <set>
+					`sex`  =  #{item.sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+					`name`  =  #{item.name,jdbcType = VARCHAR},
+					`email`  =  #{item.email,jdbcType = VARCHAR},
+					`money`  =  #{item.money,jdbcType = DECIMAL},
+				</set>
+                <where>
+					and id = #{item.id,jdbcType = INTEGER}
+				</where>
+            </foreach>
+        </if>
+        <if test="list==null or list.size==0">
+			select 0 from user
+		</if>
+    </update>
+</mapper>

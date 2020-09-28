@@ -5,6 +5,7 @@ import lombok.Data;
 import java.sql.JDBCType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.llt.mybatishelper.core.constants.Constants.DOT;
@@ -45,9 +46,13 @@ public class EntityModel {
 
     private boolean isNew = true;
 
-    public boolean autoIncr() {
-        return primaryKeyList != null
-                && primaryKeyList.size() == 1
-                && "Integer".equals(primaryKeyList.get(0).getJavaType());
+    public EntityField autoIncrField() {
+        for (EntityField entityField : primaryKeyList) {
+            if (Objects.equals(entityField.getIncr(), true)) {
+                return entityField;
+            }
+        }
+
+        return null;
     }
 }

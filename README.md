@@ -92,5 +92,12 @@ private String name;
    - 支持typeHandler
    - 支持勾选配置
    - 删除enum注释,改用type或JDBCType+typeHandler表示
+ - v1.3.0
+   - 优化表结构修改,现在每次生成会删除已删除的列,并修改已存在的列
+   - 添加.define注释,支持自定义列定义,优先级最高可覆盖JDBC_TYPE\LEN\NO_NULL\DEFAULT\DESC注释
+   - 修改部分JDBCType到数据库类型的映射
+   - .key注释修改为可追加incr属性,表示数据库自增
+   - core执行api允许自定义EntityBuilder,MapperBuilder,XmlBuilder
+   - 添加sql执行日志,默认保存在xml目录下sql文件夹
 
 

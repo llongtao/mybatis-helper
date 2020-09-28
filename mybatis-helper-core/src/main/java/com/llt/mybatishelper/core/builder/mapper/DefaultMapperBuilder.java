@@ -24,34 +24,13 @@ import java.util.stream.Collectors;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class DefaultMapperBuilder {
+public class DefaultMapperBuilder implements MapperBuilder{
 
 
-    private static final String MAPPER = "Mapper";
 
-    private static final String LIST = "List";
 
-    private static final String INSERT = "insert";
-
-    private static final String UPDATE = "update";
-
-    private static final String UPDATE_SELECTIVE = "updateSelective";
-
-    private static final String QUERY_BY_PRIMARY_KEY = "queryByPrimaryKey";
-
-    private static final String DELETE_BY_PRIMARY_KEY = "deleteByPrimaryKey";
-
-    private static final String QUERY = "query";
-
-    private static final String IMPORT_JAVA_LANG = "java.lang.*";
-
-    private static final String IMPORT_LIST = "java.util.List";
-
-    private static final String IMPORT_ANNOTATIONS_MAPPER = "org.apache.ibatis.annotations.Mapper";
-
-    private static final String TIPS = "自己的查询请写在这里,更新时这个类不会被覆盖";
-
-    public static CompilationUnit build(EntityModel entityModel) {
+    @Override
+    public  CompilationUnit build(EntityModel entityModel) {
 
         String mapperPackage = entityModel.getBaseMapperPackage();
         String entityClassName = entityModel.getEntityClassName();
@@ -129,7 +108,8 @@ public class DefaultMapperBuilder {
         return compilationUnit;
     }
 
-    public static CompilationUnit addExtend(String mapperClassStr, String baseMapperName) {
+    @Override
+    public  CompilationUnit addExtend(String mapperClassStr, String baseMapperName) {
 
         CompilationUnit compilationUnit = StaticJavaParser.parse(mapperClassStr);
         List<Node> childNodes = compilationUnit.getChildNodes();
@@ -147,7 +127,8 @@ public class DefaultMapperBuilder {
         return compilationUnit;
     }
 
-    public static CompilationUnit buildEmpty(EntityModel entityModel) {
+    @Override
+    public  CompilationUnit buildEmpty(EntityModel entityModel) {
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(entityModel.getMapperPackage());
         compilationUnit.addImport(IMPORT_ANNOTATIONS_MAPPER);

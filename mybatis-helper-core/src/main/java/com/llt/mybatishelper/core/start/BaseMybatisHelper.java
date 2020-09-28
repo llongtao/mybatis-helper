@@ -3,11 +3,13 @@ package com.llt.mybatishelper.core.start;
 import com.alibaba.fastjson.JSON;
 import com.github.javaparser.ast.*;
 import com.llt.mybatishelper.core.builder.entity.DefaultEntityBuilder;
+import com.llt.mybatishelper.core.builder.entity.EntityBuilder;
 import com.llt.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
+import com.llt.mybatishelper.core.builder.mapper.MapperBuilder;
 import com.llt.mybatishelper.core.builder.xml.DefaultXmlBuilder;
+import com.llt.mybatishelper.core.builder.xml.XmlBuilder;
 import com.llt.mybatishelper.core.data.DataSourceHolder;
 import com.llt.mybatishelper.core.exception.MybatisHelperException;
-import com.llt.mybatishelper.core.exception.SqlExecException;
 import com.llt.mybatishelper.core.file.DefaultFileHandler;
 import com.llt.mybatishelper.core.file.FileHandler;
 import com.llt.mybatishelper.core.log.ResultLog;
@@ -23,8 +25,11 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * @author LILONGTAO
@@ -43,13 +48,17 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     private String charset = "utf-8";
 
-    private FileHandler fileHandler = null;
+    protected FileHandler fileHandler;
+
+    protected MapperBuilder mapperBuilder;
+
+    protected XmlBuilder xmlBuilder;
+
+    protected EntityBuilder entityBuilder;
 
     @Override
     public BuildResult run(Config config) {
-        if (fileHandler == null) {
-            fileHandler = new DefaultFileHandler();
-        }
+        pre();
         try {
             return BuildResult.succeed(start(config));
         } catch (Exception e) {
@@ -57,24 +66,50 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
     }
 
+    private void pre() {
+        if (fileHandler == null) {
+            fileHandler = new DefaultFileHandler();
+        }
+        if (mapperBuilder == null) {
+            mapperBuilder = new DefaultMapperBuilder();
+        }
+        if (xmlBuilder == null) {
+            xmlBuilder = new DefaultXmlBuilder();
+        }
+        if (entityBuilder == null) {
+            entityBuilder = new DefaultEntityBuilder();
+        }
+    }
+
     @Override
-    public MybatisHelper withFileHandler(FileHandler fileHandler) {
+    public MybatisHelper fileHandler(FileHandler fileHandler) {
         this.fileHandler = fileHandler;
+        return this;
+    }
+
+
+    @Override
+    public MybatisHelper entityBuilder(EntityBuilder entityBuilder) {
+        this.entityBuilder = entityBuilder;
+        return this;
+    }
+
+    @Override
+    public MybatisHelper mapperBuilder(MapperBuilder mapperBuilder) {
+        this.mapperBuilder = mapperBuilder;
+        return this;
+    }
+
+    @Override
+    public MybatisHelper xmlBuilder(XmlBuilder xmlBuilder) {
+        this.xmlBuilder = xmlBuilder;
         return this;
     }
 
     private Integer start(Config config) {
         this.charset = config.getCharset();
         //config db
-        boolean useDb = Objects.equals(config.getUseDb(), true);
-        ResultLog.info("useDb:" + useDb);
-        if (Objects.equals(config.getUseDb(), true)) {
-            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
-            ResultLog.info("dbUrl:" + dbUrl);
-
-            DataSourceHolder.addDataSource(getDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
-        }
-
+        boolean useDb = initDb(config);
 
         List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
         AtomicInteger sum = new AtomicInteger();
@@ -92,7 +127,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                 ResultLog.info("readFile:" + filePath);
 
                 if (entityClassStr != null) {
-                    EntityModel entityModel = DefaultEntityBuilder.build(entityClassStr, buildConfig, baseEntityFieldList);
+                    EntityModel entityModel = entityBuilder.build(entityClassStr, buildConfig, baseEntityFieldList);
                     ResultLog.info("buildEntityModel success");
 
                     if (entityModel != null) {
@@ -103,6 +138,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
                         buildXml(entityModel, buildConfig);
 
+                        buildSqlLog(buildConfig.getXmlFolder());
+
                         sum.incrementAndGet();
                     }
                 }
@@ -112,6 +149,43 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
         DataSourceHolder.clear();
         return sum.get();
+    }
+
+    private void buildSqlLog( String xmlFolder) {
+        List<String> sqlList = ResultLog.pollSqlList();
+        if (sqlList.isEmpty()) {
+            return;
+        }
+        String logPath = xmlFolder + "\\sql\\" + "log.sql";
+        StringBuilder sb = new StringBuilder();
+
+        if (fileHandler.exists(logPath)) {
+            //log存在
+            String s = fileHandler.readFileToString(logPath, charset);
+            sb.append(s);
+        } else {
+            //log不存在
+            fileHandler.mkdir(xmlFolder + "\\sql");
+        }
+        sb.append("\r\n\r\n").append("-- ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        sqlList.forEach(sql -> sb.append("\r\n").append(sql));
+        try {
+            fileHandler.writerString2File(logPath, sb.toString(), charset);
+        } catch (IOException e) {
+            log.error("写入sql日志失败",e);
+            ResultLog.error("写入sql日志失败:"+e.getMessage());
+        }
+    }
+
+    private boolean initDb(Config config) {
+        boolean useDb = Objects.equals(config.getUseDb(), true);
+        ResultLog.info("useDb:" + useDb);
+        if (Objects.equals(config.getUseDb(), true)) {
+            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
+            ResultLog.info("dbUrl:" + dbUrl);
+            DataSourceHolder.addDataSource(getDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
+        }
+        return useDb;
     }
 
 
@@ -141,56 +215,105 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
         String tableName = entityModel.getTableName();
 
-
         Boolean dropTable = config.getDropTable();
-        if (Objects.equals(dropTable, true)) {
-            try {
-                String dropTableSql = getDropTableSql(schema, tableName);
-                log.info("sql:" + dropTableSql);
-                statement.execute(dropTableSql);
-                ResultLog.info("删除表成功");
-            } catch (SQLException e) {
-                ResultLog.warn("删除" + entityModel.getTableName() + "表失败:" + e.getMessage());
-                log.error("删除" + entityModel.getTableName() + "表失败",e);
-            }
-        }
-
-
-        Set<String> columnSet = new HashSet<>();
         try {
-            ResultSet resultSet = statement.executeQuery(getTableExistColumnSql(schema, tableName));
-            while (resultSet.next()) {
-                columnSet.add(resultSet.getString(1).trim().toLowerCase());
+            if (Objects.equals(dropTable, true)) {
+                reCreateTable(statement, schema, entityModel);
+            } else {
+                alterTable(statement, schema, entityModel);
             }
-            ResultLog.info("获取" + entityModel.getTableName() + "列:" + JSON.toJSONString(columnSet));
+            commit(connection);
         } catch (SQLException e) {
-            ResultLog.warn("获取" + entityModel.getTableName() + "列失败:" + e.getMessage());
-            log.error("获取" + entityModel.getTableName() + "列失败",e);
+            ResultLog.warn("执行" + tableName + "sql失败:" + e.getMessage());
+            log.error("获取" + entityModel.getTableName() + "列失败", e);
+            rollback(connection);
         }
+        ResultLog.info("buildTable " + tableName + " success");
+    }
 
-        String sql;
+    private void alterTable(Statement statement, String schema, EntityModel entityModel) throws SQLException {
+        //获取存在列
+        Set<String> columnSet = getExistsColumns(statement, schema, entityModel);
+
         if (columnSet.isEmpty()) {
-            sql = buildCreateSql(entityModel);
-        } else {
-            sql = buildAlterSql(entityModel, columnSet);
-        }
-
-
-        if (sql != null) {
-            log.info("sql:" + sql);
-            ResultLog.info("sql:" + sql);
-            try {
-                statement.execute(sql);
-                ResultLog.info("sql执行成功");
-            } catch (SQLException e) {
-                ResultLog.error("sql失败:" + e.getMessage());
-                rollback(connection);
-                throw new SqlExecException("sql失败:" + e.getMessage());
+            String createSql = buildCreateSql(entityModel);
+            if (createSql != null) {
+                log.info("sql:" + createSql);
+                statement.execute(createSql);
+                ResultLog.sql(createSql);
             }
-        }
-        commit(connection);
+        } else {
+            Set<String> newColumnSet = new HashSet<>();
+            List<EntityField> entityFieldList = new ArrayList<>();
+            entityFieldList.addAll(entityModel.getColumnList());
+            entityFieldList.addAll(entityModel.getPrimaryKeyList());
+            entityFieldList.forEach(column -> newColumnSet.add(column.getColumnName()));
+            Set<String> addColumnSet = new HashSet<>(newColumnSet);
+            Set<String> dropColumnSet = new HashSet<>(columnSet);
+            Set<String> modifyColumnSet = new HashSet<>(newColumnSet);
+            addColumnSet.removeAll(columnSet);
+            modifyColumnSet.retainAll(columnSet);
+            dropColumnSet.removeAll(newColumnSet);
 
-        ResultLog.info("updateTable " + entityModel.getTableName() + " success");
+            List<EntityField> addSet = entityFieldList.stream().filter(item -> addColumnSet.contains(item.getColumnName())).collect(Collectors.toList());
+            List<EntityField> modifySet = entityFieldList.stream().filter(item -> modifyColumnSet.contains(item.getColumnName())).collect(Collectors.toList());
+            String addColumnSql = buildAddColumnSql(entityModel, addSet);
+            String dropColumnSql = buildDropColumnSql(entityModel, dropColumnSet);
+            String modifyColumnSql = buildModifyColumnSql(entityModel, modifySet);
+
+            if (addColumnSql != null) {
+                log.info("sql:" + addColumnSql);
+                statement.execute(addColumnSql);
+            }
+            if (dropColumnSql != null) {
+                log.info("sql:" + dropColumnSql);
+                statement.execute(dropColumnSql);
+            }
+            if (modifyColumnSql != null) {
+                log.info("sql:" + modifyColumnSql);
+                statement.execute(modifyColumnSql);
+            }
+
+            ResultLog.sql(addColumnSql);
+            ResultLog.sql(dropColumnSql);
+            ResultLog.sql(modifyColumnSql);
+        }
+
+    }
+
+    protected abstract String buildModifyColumnSql(EntityModel entityModel, List<EntityField> modifyColumns);
+
+    protected abstract String buildDropColumnSql(EntityModel entityModel, Set<String> dropColumnSet);
+
+    protected abstract String buildAddColumnSql(EntityModel entityModel, List<EntityField> addColumns);
+
+    private Set<String> getExistsColumns(Statement statement, String schema, EntityModel entityModel) throws SQLException {
+        Set<String> columnSet = new HashSet<>();
+        ResultSet resultSet = statement.executeQuery(getTableExistColumnSql(schema, entityModel.getTableName()));
+        while (resultSet.next()) {
+            columnSet.add(resultSet.getString(1).trim().toLowerCase());
+        }
+        ResultLog.info("获取" + entityModel.getTableName() + "列:" + JSON.toJSONString(columnSet));
+        return columnSet;
+    }
+
+    /**
+     * 删除后重新建表
+     *
+     * @param statement   statement
+     * @param schema      schema
+     * @param entityModel 实体类
+     */
+    private void reCreateTable(Statement statement, String schema, EntityModel entityModel) throws SQLException {
+        String dropTableSql = getDropTableSql(schema, entityModel.getTableName());
+        log.info("sql:" + dropTableSql);
+        statement.execute(dropTableSql);
+        ResultLog.info("删除表成功");
+        ResultLog.sql(dropTableSql);
+        String createTableSql = buildCreateSql(entityModel);
+        statement.execute(createTableSql);
+        ResultLog.info("创建表成功");
+        ResultLog.sql(createTableSql);
     }
 
     private void commit(Connection connection) {
@@ -218,10 +341,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
-            mapper = DefaultMapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
+            mapper = mapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
         } else {
             //mapper不存在,创建mapper
-            mapper = DefaultMapperBuilder.buildEmpty(entityModel);
+            mapper = mapperBuilder.buildEmpty(entityModel);
         }
         try {
             String path = buildConfig.getMapperFolder() + SLASH_BASE;
@@ -250,7 +373,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         Document xml = null;
         if (!fileHandler.exists(xmlPath)) {
             //xml不存在时创建
-            xml = DefaultXmlBuilder.buildEmpty(entityModel);
+            xml = xmlBuilder.buildEmpty(entityModel);
         }
 
         try {
@@ -287,14 +410,6 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      */
     protected abstract String buildCreateSql(EntityModel entityModel);
 
-    /**
-     * 构建修改表语句
-     *
-     * @param entityModel     实体模型
-     * @param existsColumnSet 已存在列
-     * @return 改表sql
-     */
-    protected abstract String buildAlterSql(EntityModel entityModel, Set<String> existsColumnSet);
 
     /**
      * 获取指定表第一列为列名的的sql
@@ -313,7 +428,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @return CompilationUnit
      */
     protected CompilationUnit buildMapperClass(EntityModel entityModel) {
-        return DefaultMapperBuilder.build(entityModel);
+        return mapperBuilder.build(entityModel);
     }
 
     /**
@@ -323,9 +438,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @return Document
      */
     protected Document buildXmlDoc(EntityModel entityModel) {
-        return DefaultXmlBuilder.build(entityModel, " ");
+        return xmlBuilder.build(entityModel, " ");
     }
-
 
 
 }

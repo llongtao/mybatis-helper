@@ -15,6 +15,8 @@ public interface FileHandler {
 
     String readJavaFileToString(String filePath, String charset);
 
+    String readFileToString(String filePath, String charset);
+
     void mkdir(String path);
 
     void writerString2File(String fileName, String toString, String charset) throws IOException;

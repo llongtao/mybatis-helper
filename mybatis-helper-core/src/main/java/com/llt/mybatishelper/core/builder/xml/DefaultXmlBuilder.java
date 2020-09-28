@@ -14,147 +14,16 @@ import java.util.List;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class DefaultXmlBuilder {
+public class DefaultXmlBuilder implements XmlBuilder {
 
-    private static final String MAPPER = "mapper";
 
-    private static final String MAPPER_PUBLIC_ID = "-//mybatis.org//DTD Mapper 3.0//EN";
+    private String SPLIT = "`";
 
-    private static final String MAPPER_SYSTEM_ID = "http://mybatis.org/dtd/mybatis-3-mapper.dtd";
-
-    private static final String NAMESPACE = "namespace";
-
-    private static final String SELECT = "select";
-
-    private static final String ID = "id";
-
-    private static final String QUERY_BY_PRIMARY_KEY = "queryByPrimaryKey";
-
-    private static final String WHERE = "where";
-
-    private static final String BASE_COLUMN = "BaseColumn";
-
-    private static final String BASE_NO_PK_COLUMN = "BaseNoPkColumn";
-
-    private static final String SQL = "sql";
-
-    private static final String DELETE = "delete";
-
-    private static final String DELETE_BY_PRIMARY_KEY = "deleteByPrimaryKey";
-
-    private static final String INSERT = "insert";
-
-    private static final String TRIM = "trim";
-
-    private static final String PREFIX = "prefix";
-
-    private static final String SUFFIX = "suffix";
-
-    private static final String SUFFIX_OVERRIDES = "suffixOverrides";
-
-    private static final String FOREACH = "foreach";
-
-    private static final String OPEN = "open";
-
-    private static final String CLOSE = "close";
-
-    private static final String COLLECTION = "collection";
-
-    private static final String ITEM = "item";
-
-    private static final String SEPARATOR = "separator";
-
-    private static final String UPDATE = "update";
-
-    private static final String UPDATE_SELECTIVE = "updateSelective";
-
-    private static final String PARAMETER_TYPE = "parameterType";
-
-    private static final String SET = "set";
-
-    private static final String IF = "if";
-
-    private static final String LIST = "list";
-
-    private static final String TEST = "test";
-
-    private static final String REF_ID = "refid";
-
-    private static final String INCLUDE = "include";
-
-    private static final String RESULT_MAP = "resultMap";
-
-    private static final String BASE_RESULT_MAP = "BaseResultMap";
-
-    private static final String QUERY = "query";
-
-    private static final String STRING = "String";
-
-    private static final String ONE_TAB = "\n\t";
-
-    private static final String TWO_TAB = "\n\t\t";
-
-    private static final String THREE_TAB = "\n\t\t\t";
-
-    private static final String FOUR_TAB = "\n\t\t\t\t";
-
-    private static final String FIVE_TAB = "\n\t\t\t\t\t";
-
-    private static final String FROM = "from";
-
-    private static String SPLIT = "`";
-
-    private static final String AND = "and";
-
-    private static final String SPACE = " ";
-
-    private static final String COMMA = ",";
-
-    private static final String COLUMN = "column";
-
-    private static final String TYPE = "type";
-
-    private static final String RESULT = "result";
-
-    private static final String JDBC_TYPE = "jdbcType";
-
-    private static final String PROPERTY = "property";
-
-    private static final String INTO = "into";
-
-    private static final String INSERT_INTO = "insert into";
-
-    private static final String LEFT_PARENTHESIS = "(";
-
-    private static final String RIGHT_PARENTHESIS = ")";
-
-    private static final String VALUES = "values";
-
-    private static final String DIFFER_NULL = "!=null";
-
-    private static final String DIFFER_EMPTY = "!=''";
-
-    private static final String EMPTY = "";
-
-    private static final String LEFT_BRACKET = "#{";
-
-    private static final String RIGHT_BRACKET = "}";
-
-    private static final String EQ = " = ";
-
-    private static final String DOT = ".";
-
-    private static final String SEMICOLON = ";";
-
-    private static final String TYPE_HANDLER = "typeHandler";
-
-    private static final String TIPS = "自己的查询请写在这里,更新时这个文件不会被覆盖";
-
-
-    public static Document build(EntityModel entityModel, String split) {
+    @Override
+    public Document build(EntityModel entityModel, String split) {
         SPLIT = split;
         String entityName = entityModel.getEntityName();
-        boolean autoIncr = entityModel.autoIncr();
+        boolean autoIncr = entityModel.autoIncrField() != null;
         // 创建Document
         Document document = DocumentHelper.createDocument();
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
@@ -221,13 +90,13 @@ public class DefaultXmlBuilder {
         return document;
     }
 
-    private static void deleteLast(StringBuilder sb){
+    private void deleteLast(StringBuilder sb) {
         if (sb.length() > 0) {
             sb.deleteCharAt(sb.length() - 1);
         }
     }
 
-    private static void buildUpdateList(EntityModel entityModel, String entityName, Element root, String entityClassName) {
+    private void buildUpdateList(EntityModel entityModel, String entityName, Element root, String entityClassName) {
         Element updateList = root.addElement(UPDATE)
                 .addAttribute(ID, UPDATE + entityName + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName);
@@ -249,14 +118,14 @@ public class DefaultXmlBuilder {
         //noNullUpdateList.addText(TWO_TAB);
     }
 
-    private static void buildBaseColumn(Element root, StringBuilder baseColumn, String id) {
+    private void buildBaseColumn(Element root, StringBuilder baseColumn, String id) {
         root.addElement(SQL)
                 .addAttribute(ID, id)
                 .addText(baseColumn.toString())
                 .addText(ONE_TAB);
     }
 
-    private static void buildResult(EntityModel entityModel, Element root, String entityClassName) {
+    private void buildResult(EntityModel entityModel, Element root, String entityClassName) {
         Element resultMap = root.addElement(RESULT_MAP)
                 .addAttribute(ID, BASE_RESULT_MAP)
                 .addAttribute(TYPE, entityClassName);
@@ -280,7 +149,7 @@ public class DefaultXmlBuilder {
 
     }
 
-    private static void buildDelete(EntityModel entityModel, Element root, Element where) {
+    private void buildDelete(EntityModel entityModel, Element root, Element where) {
         root.addElement(DELETE)
                 .addAttribute(ID, DELETE_BY_PRIMARY_KEY)
                 .addText(TWO_TAB + DELETE)
@@ -289,12 +158,14 @@ public class DefaultXmlBuilder {
                 .add(where.createCopy());
     }
 
-    private static void buildInsert(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList) {
+    private void buildInsert(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList) {
         Element insert = root.addElement(INSERT)
                 .addAttribute(ID, INSERT + entityName)
                 .addAttribute(PARAMETER_TYPE, entityClassName);
-        if (entityModel.autoIncr()) {
+        EntityField incrField = entityModel.autoIncrField();
+        if (incrField != null) {
             insert.addAttribute("useGeneratedKeys", "true");
+            insert.addAttribute("keyProperty", incrField.getName());
         }
 
         insert.addText(TWO_TAB + INSERT + SPACE + INTO)
@@ -319,7 +190,7 @@ public class DefaultXmlBuilder {
                 .addText(THREE_TAB));
     }
 
-    private static void buildUpdate(EntityModel entityModel, String entityName, Element root, String entityClassName, Element where) {
+    private void buildUpdate(EntityModel entityModel, String entityName, Element root, String entityClassName, Element where) {
         Element update = root.addElement(UPDATE)
                 .addAttribute(ID, UPDATE + entityName)
                 .addAttribute(PARAMETER_TYPE, entityClassName)
@@ -331,7 +202,7 @@ public class DefaultXmlBuilder {
         update.add(where.createCopy());
     }
 
-    private static void buildQuery(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element updateSelective) {
+    private void buildQuery(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element updateSelective) {
         Element query = root.addElement(SELECT)
                 .addAttribute(ID, QUERY + entityName)
                 .addAttribute(PARAMETER_TYPE, entityClassName)
@@ -352,7 +223,7 @@ public class DefaultXmlBuilder {
      * @param entityField 列对象
      * @return #{id}
      */
-    private static String simpleParamValue(EntityField entityField) {
+    private String simpleParamValue(EntityField entityField) {
         String typeHandler = entityField.getTypeHandler();
         if (!StringUtils.isEmpty(typeHandler)) {
             return LEFT_BRACKET + entityField.getName() + COMMA + TYPE_HANDLER + EQ + typeHandler + RIGHT_BRACKET;
@@ -364,7 +235,7 @@ public class DefaultXmlBuilder {
      * @param entityField 列对象
      * @return #{item.id,jdbcType = BIGINT}
      */
-    private static String itemParamValue(EntityField entityField) {
+    private String itemParamValue(EntityField entityField) {
         String typeHandler = entityField.getTypeHandler();
         if (!StringUtils.isEmpty(typeHandler)) {
             return LEFT_BRACKET + ITEM + DOT + entityField.getName() +
@@ -379,7 +250,7 @@ public class DefaultXmlBuilder {
      * @param entityField 列对象
      * @return #{id,jdbcType = BIGINT},
      */
-    private static String paramValue(EntityField entityField) {
+    private String paramValue(EntityField entityField) {
         String typeHandler = entityField.getTypeHandler();
         if (!StringUtils.isEmpty(typeHandler)) {
             return LEFT_BRACKET + entityField.getName() +
@@ -390,12 +261,14 @@ public class DefaultXmlBuilder {
         }
     }
 
-    private static void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
+    private void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
         Element insertList = root.addElement(INSERT)
                 .addAttribute(ID, INSERT + entityName + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName);
-        if (entityModel.autoIncr()) {
+        EntityField incrField = entityModel.autoIncrField();
+        if (incrField != null) {
             insertList.addAttribute("useGeneratedKeys", "true");
+            insertList.addAttribute("keyProperty", incrField.getName());
         }
 
         Element noNullInsertList = insertList.addElement(IF).addAttribute(TEST, "list!=null and list.size>0");
@@ -412,7 +285,7 @@ public class DefaultXmlBuilder {
                 .addAttribute(SEPARATOR, COMMA);
         StringBuilder items = new StringBuilder(FOUR_TAB);
         items.append(LEFT_PARENTHESIS);
-        if (entityModel.autoIncr()) {
+        if (incrField != null) {
             entityModel.getColumnList().forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue(entityField)).append(COMMA));
         } else {
             entityFieldList.forEach(entityField -> items.append(FOUR_TAB).append(itemParamValue(entityField)).append(COMMA));
@@ -426,7 +299,7 @@ public class DefaultXmlBuilder {
     }
 
 
-    private static Element buildUpdateSelective(EntityModel entityModel, Element root, String entityClassName, Element where) {
+    private Element buildUpdateSelective(EntityModel entityModel, Element root, String entityClassName, Element where) {
         Element updateSelective = root.addElement(UPDATE)
                 .addAttribute(ID, UPDATE_SELECTIVE)
                 .addAttribute(PARAMETER_TYPE, entityClassName)
@@ -441,11 +314,12 @@ public class DefaultXmlBuilder {
         return updateSelective;
     }
 
-    private static boolean isStringField(EntityField entityField) {
+    private boolean isStringField(EntityField entityField) {
         return STRING.equals(entityField.getJavaType());
     }
 
-    public static Document buildEmpty(EntityModel entityModel) {
+    @Override
+    public Document buildEmpty(EntityModel entityModel) {
         // 创建Document
         Document document = DocumentHelper.createDocument();
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
@@ -458,14 +332,14 @@ public class DefaultXmlBuilder {
         return document;
     }
 
-    private static void buildRefColumn(Element root, EntityModel entityModel) {
+    private void buildRefColumn(Element root, EntityModel entityModel) {
         Element sql = root.addElement(SQL)
                 .addAttribute(ID, BASE_COLUMN);
         sql.addElement(INCLUDE).addAttribute(REF_ID, entityModel.getBaseMapperClassName() + DOT + BASE_COLUMN);
 
     }
 
-    private static void buildRefResult(Element root, EntityModel entityModel) {
+    private void buildRefResult(Element root, EntityModel entityModel) {
         root.addElement(RESULT_MAP)
                 .addAttribute(ID, BASE_RESULT_MAP)
                 .addAttribute(TYPE, entityModel.getEntityClassName())

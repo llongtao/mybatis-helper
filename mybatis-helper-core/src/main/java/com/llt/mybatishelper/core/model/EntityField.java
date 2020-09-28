@@ -22,7 +22,9 @@ public class EntityField {
 
     private JDBCType jdbcType;
 
-    private String fullJdbcType;
+    private String define;
+
+    private Boolean incr;
 
     private String length;
 
@@ -44,6 +46,7 @@ public class EntityField {
         this.length = item.getLength();
         this.defaultValue = item.getDefaultValue();
         this.description = item.getDescription();
+        this.incr = item.getIncr();
     }
 
     @Override

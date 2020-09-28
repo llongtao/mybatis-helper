@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * @author LILONGTAO
  * @date 2019-07-30
  */
-public class DefaultEntityBuilder {
+public class DefaultEntityBuilder implements EntityBuilder {
 
 
     private static final String DOT = ".";
@@ -72,7 +72,8 @@ public class DefaultEntityBuilder {
 
     private static final String DEFAULT_KEY = "id";
 
-    public static EntityModel build(String classStr, BuildConfig buildConfig, List<EntityField> baseEntityFieldList) {
+    @Override
+    public EntityModel build(String classStr, BuildConfig buildConfig, List<EntityField> baseEntityFieldList) {
         EntityModel entityModel = new EntityModel();
 
         CompilationUnit compilationUnit = StaticJavaParser.parse(classStr);
@@ -80,7 +81,7 @@ public class DefaultEntityBuilder {
         String packageName;
         if (packageDeclaration.isPresent()) {
             packageName = packageDeclaration.get().getName().toString();
-        }else {
+        } else {
             return null;
         }
         entityModel.setPackageName(packageName);
@@ -89,7 +90,7 @@ public class DefaultEntityBuilder {
         List<Node> childNodes = compilationUnit.getChildNodes();
         ClassOrInterfaceDeclaration classDeclaration = (ClassOrInterfaceDeclaration) childNodes.stream().filter(node -> node instanceof ClassOrInterfaceDeclaration).collect(Collectors.toList()).get(0);
 
-        String content  = classDeclaration.getComment().map(Comment::getContent).orElse(null);
+        String content = classDeclaration.getComment().map(Comment::getContent).orElse(null);
         String tableDescription = null;
         String tableName = null;
         String entityName = null;
@@ -120,7 +121,7 @@ public class DefaultEntityBuilder {
 
         String mapperPackage;
         try {
-            String spilt = buildConfig.getMapperFolder().contains("\\")?"\\":"/";
+            String spilt = buildConfig.getMapperFolder().contains("\\") ? "\\" : "/";
             mapperPackage = StringUtils.getAfterString(buildConfig.getMapperFolder().replace(spilt, DOT), StringUtils.getStringByDot(entityModel.getPackageName(), 2));
         } catch (Exception e) {
             throw new IllegalArgumentException("请检查mapper文件夹是否正确:" + e.getMessage());
@@ -154,22 +155,25 @@ public class DefaultEntityBuilder {
             if (((FieldDeclaration) field).isStatic()) {
                 continue;
             }
-            String fieldComment =field.getComment().map(Comment::getContent).orElse(null);
+            String fieldComment = field.getComment().map(Comment::getContent).orElse(null);
             String javaType = StringUtils.getAfterDot(((FieldDeclaration) field).getVariables().get(0).getType().toString());
             String lengthStr = null;
             String primaryKey = null;
             String ignoreField = null;
             String typeHandler = null;
+            String define = null;
             if (fieldComment != null) {
                 primaryKey = StringUtils.getValue(FieldKey.KEY.getCode(), fieldComment);
                 lengthStr = StringUtils.getValue(FieldKey.LEN.getCode(), fieldComment);
                 ignoreField = StringUtils.getValue(FieldKey.IGNORE.getCode(), fieldComment);
                 typeHandler = StringUtils.getValue(FieldKey.TYPE_HANDLER.getCode(), fieldComment);
+                define = StringUtils.getValue(FieldKey.DEFINE.getCode(), fieldComment);
             }
             if (ignoreField != null) {
                 continue;
             }
             boolean isPrimaryKey = null != primaryKey;
+            boolean incr = "incr".equals(primaryKey);
             String size = lengthStr;
 
             String name = ((FieldDeclaration) field).getVariables().get(0).getName().toString();
@@ -181,7 +185,7 @@ public class DefaultEntityBuilder {
                 try {
                     jdbcType = JDBCType.valueOf(jdbcTypeStr);
                 } catch (Exception e) {
-                    throw new EntityBuildException("实体:"+entityName+" ,field:"+name +" 未找到JDBCType:"+jdbcTypeStr);
+                    throw new EntityBuildException("实体:" + entityName + " ,field:" + name + " 未找到JDBCType:" + jdbcTypeStr);
                 }
             }
 
@@ -203,26 +207,23 @@ public class DefaultEntityBuilder {
                 if (StringUtils.isEmpty(typeHandler)) {
                     //没有typeHandler,取默认值
                     jdbcType = TYPE_MAP.get(type);
-                }else {
+                } else {
                     //有typeHandler的情况需要自己指定jdbcType
-                    throw new EntityBuildException("指定typeHandler的情况下未指定jdbcType,实体:"+entityName+" ,field:"+name);
+                    throw new EntityBuildException("指定typeHandler的情况下未指定jdbcType,实体:" + entityName + " ,field:" + name);
                 }
             }
-            if (jdbcType == null ) {
-                ResultLog.warn("实体:"+entityName+" ,field:"+name +" 未匹配到jdbcType,忽略构建");
+            if (jdbcType == null) {
+                ResultLog.warn("实体:" + entityName + " ,field:" + name + " 未匹配到jdbcType,忽略构建");
                 continue;
             }
 
             if (size == null) {
                 size = DEFAULT_LENGTH.get(jdbcType);
             }
-            String fullJdbcType = jdbcType.getName();
-            if (!StringUtils.isEmpty(size) && !"0".equals(size)) {
-                fullJdbcType = fullJdbcType + "(" + size + ")";
-            }
 
-            EntityField entityField = new EntityField(name, columnName,javaType, type, jdbcType, fullJdbcType.toUpperCase()
-                    , size, defaultValue, nullable, description,typeHandler);
+
+            EntityField entityField = new EntityField(name, columnName, javaType, type, jdbcType, define, incr
+                    , size, defaultValue, nullable, description, typeHandler);
 
             if (isPrimaryKey) {
                 primaryKeySet.add(entityField);
@@ -278,11 +279,7 @@ public class DefaultEntityBuilder {
                 if (length == null) {
                     length = DEFAULT_LENGTH.get(jdbcType);
                 }
-                String fullJdbcType = jdbcType.getName();
-                if (!StringUtils.isEmpty(length) && !"0".equals(length)) {
-                    fullJdbcType = fullJdbcType + "(" + length + ")";
-                }
-                field.setFullJdbcType(fullJdbcType);
+                field.setLength(length);
                 field.setNullable(!Objects.equals(field.getNullable(), false));
                 columnSet.add(field);
             }

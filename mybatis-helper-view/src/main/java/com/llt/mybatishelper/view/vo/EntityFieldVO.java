@@ -16,7 +16,9 @@ public class EntityFieldVO {
 
     private StringProperty jdbcType;
 
-    private StringProperty fullJdbcType;
+    private BooleanProperty autoIncr;
+
+    private StringProperty define;
 
     private StringProperty length;
 
@@ -32,7 +34,8 @@ public class EntityFieldVO {
         columnName = new SimpleStringProperty(item.getColumnName());
         type = new SimpleStringProperty(item.getType());
         jdbcType = new SimpleStringProperty(String.valueOf(item.getJdbcType()));
-        fullJdbcType = new SimpleStringProperty(item.getFullJdbcType());
+        define = new SimpleStringProperty(item.getDefine());
+        autoIncr = new SimpleBooleanProperty(Objects.equals(item.getIncr(),true));
         length = new SimpleStringProperty(item.getLength());
         defaultValue = new SimpleStringProperty(item.getDefaultValue());
         noNull = new SimpleBooleanProperty(!Objects.equals(item.getNullable(),true));
@@ -43,7 +46,8 @@ public class EntityFieldVO {
         columnName = new SimpleStringProperty();
         type = new SimpleStringProperty();
         jdbcType = new SimpleStringProperty();
-        fullJdbcType = new SimpleStringProperty();
+        define = new SimpleStringProperty();
+        autoIncr = new SimpleBooleanProperty(false);
         length = new SimpleStringProperty();
         defaultValue = new SimpleStringProperty();
         noNull = new SimpleBooleanProperty(false);
@@ -83,13 +87,6 @@ public class EntityFieldVO {
         return jdbcType;
     }
 
-    public String getFullJdbcType() {
-        return fullJdbcType.get();
-    }
-
-    public StringProperty fullJdbcTypeProperty() {
-        return fullJdbcType;
-    }
 
     public String getLength() {
         return length.get();
@@ -133,9 +130,6 @@ public class EntityFieldVO {
         this.jdbcType.set(jdbcType);
     }
 
-    public void setFullJdbcType(String fullJdbcType) {
-        this.fullJdbcType.set(fullJdbcType);
-    }
 
     public void setLength(String length) {
         this.length.set(length);
@@ -159,5 +153,29 @@ public class EntityFieldVO {
 
     public void setDescription(String description) {
         this.description.set(description);
+    }
+
+    public boolean isAutoIncr() {
+        return autoIncr.get();
+    }
+
+    public BooleanProperty autoIncrProperty() {
+        return autoIncr;
+    }
+
+    public void setAutoIncr(boolean autoIncr) {
+        this.autoIncr.set(autoIncr);
+    }
+
+    public String getDefine() {
+        return define.get();
+    }
+
+    public StringProperty defineProperty() {
+        return define;
+    }
+
+    public void setDefine(String define) {
+        this.define.set(define);
     }
 }
