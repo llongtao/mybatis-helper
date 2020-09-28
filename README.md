@@ -99,5 +99,6 @@ private String name;
    - .key注释修改为可追加incr属性,表示数据库自增
    - core执行api允许自定义EntityBuilder,MapperBuilder,XmlBuilder
    - 添加sql执行日志,默认保存在xml目录下sql文件夹
+   - 添加demo演示模块
 
 
