@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.llt.mybatishelper.demo.mapper.base.BaseUserMapper">
-    <resultMap id="BaseResultMap" type="com.llt.mybatishelper.demo.entity.User">
+<mapper namespace="top.aexp.mybatishelper.demo.mapper.base.BaseUserMapper">
+    <resultMap id="BaseResultMap" type="top.aexp.mybatishelper.demo.entity.User">
         <id column="id" jdbcType="INTEGER" property="id"/>
-        <result column="sex" typeHandler="com.llt.mybatishelper.demo.typehanlder.SexTypeHandler" property="sex"/>
+        <result column="sex" typeHandler="top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler" property="sex"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="email" jdbcType="VARCHAR" property="email"/>
         <result column="money" jdbcType="DECIMAL" property="money"/>
@@ -39,7 +39,7 @@
 			and id = #{id}
 		</where>
     </delete>
-    <insert id="insertUser" parameterType="com.llt.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertUser" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
 		insert into
 		`user`
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -78,7 +78,7 @@
 			</if>
         </trim>
     </insert>
-    <update id="updateSelective" parameterType="com.llt.mybatishelper.demo.entity.User">
+    <update id="updateSelective" parameterType="top.aexp.mybatishelper.demo.entity.User">
 		update
 		`user`
         <set>
@@ -100,7 +100,7 @@
 		</where>
 		
     </update>
-    <update id="updateUser" parameterType="com.llt.mybatishelper.demo.entity.User">
+    <update id="updateUser" parameterType="top.aexp.mybatishelper.demo.entity.User">
 		update
 		`user`
         <set>
@@ -113,7 +113,7 @@
 			and id = #{id}
 		</where>
     </update>
-    <select id="queryUser" parameterType="com.llt.mybatishelper.demo.entity.User" resultMap="BaseResultMap">
+    <select id="queryUser" parameterType="top.aexp.mybatishelper.demo.entity.User" resultMap="BaseResultMap">
 		select
         <include refid="BaseColumn"/>
 		from
@@ -136,7 +136,7 @@
 			</if>
         </where>
     </select>
-    <insert id="insertUserList" parameterType="com.llt.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertUserList" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
         <if test="list!=null and list.size&gt;0">
 			insert into
 			`user`
@@ -157,7 +157,7 @@
 			select 0 from user
 		</if>
     </insert>
-    <update id="updateUserList" parameterType="com.llt.mybatishelper.demo.entity.User">
+    <update id="updateUserList" parameterType="top.aexp.mybatishelper.demo.entity.User">
         <if test="list!=null and list.size&gt;0">
             <foreach collection="list" item="item" separator=";">
 				update
