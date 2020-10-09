@@ -31,7 +31,7 @@ public class User {
      *  自定义typeHandler
      * .jdbcType VARCHAR
      * .len 1
-     * .typeHandler com.llt.mybatishelper.demo.typehanlder.SexTypeHandler
+     * .typeHandler top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler
      */
     private Sex sex;
 

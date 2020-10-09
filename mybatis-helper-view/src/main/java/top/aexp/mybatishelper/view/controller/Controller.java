@@ -30,6 +30,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static top.aexp.mybatishelper.core.constants.Constants.*;
+
 /**
  * @author LILONGTAO
  * @date 2020-04-22

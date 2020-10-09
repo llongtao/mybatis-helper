@@ -66,7 +66,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 
         System.out.println("123\\456\\789".replace("\\", "."));
 
-        System.out.println(getStringByDot("com.llt.aa.", 2));
+        System.out.println(getStringByDot("top.aexp.aa.", 2));
 
         String s = transformUnderline(" aEntityField");
         System.out.println(s);

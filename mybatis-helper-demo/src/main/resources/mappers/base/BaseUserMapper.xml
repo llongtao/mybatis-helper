@@ -65,7 +65,7 @@
 				#{id},
 			</if>
             <if test="sex!=null">
-				#{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+				#{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 			</if>
             <if test="name!=null">
 				#{name},
@@ -83,7 +83,7 @@
 		`user`
         <set>
             <if test="sex !=null">
-				`sex` = #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+				`sex` = #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 			</if>
             <if test="name !=null and name !=''">
 				`name` = #{name},
@@ -104,7 +104,7 @@
 		update
 		`user`
         <set>
-			`sex`  =  #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+			`sex`  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 			`name`  =  #{name,jdbcType = VARCHAR},
 			`email`  =  #{email,jdbcType = VARCHAR},
 			`money`  =  #{money,jdbcType = DECIMAL},
@@ -123,7 +123,7 @@
 				and `id`  =  #{id}
 			</if>
             <if test="sex !=null">
-				and `sex`  =  #{sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler}
+				and `sex`  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler}
 			</if>
             <if test="name !=null and name !=''">
 				and `name`  =  #{name}
@@ -146,7 +146,7 @@
 			values
             <foreach collection="list" item="item" separator=",">
 				(
-				#{item.sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+				#{item.sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 				#{item.name,jdbcType = VARCHAR},
 				#{item.email,jdbcType = VARCHAR},
 				#{item.money,jdbcType = DECIMAL}
@@ -163,7 +163,7 @@
 				update
 				`user`
                 <set>
-					`sex`  =  #{item.sex,typeHandler = com.llt.mybatishelper.demo.typehanlder.SexTypeHandler},
+					`sex`  =  #{item.sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 					`name`  =  #{item.name,jdbcType = VARCHAR},
 					`email`  =  #{item.email,jdbcType = VARCHAR},
 					`money`  =  #{item.money,jdbcType = DECIMAL},

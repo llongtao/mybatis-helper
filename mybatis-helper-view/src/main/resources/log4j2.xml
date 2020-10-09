@@ -49,7 +49,7 @@
 
     <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
     <Loggers>
-        <Logger name="com.llt" level="info" additivity="false">
+        <Logger name="top.aexp" level="info" additivity="false">
             <AppenderRef ref="infoFile"/>
             <AppenderRef ref="console"/>
             <AppenderRef ref="errorFile"/>
