@@ -15,6 +15,7 @@ import top.aexp.mybatishelper.core.file.FileHandler;
 import top.aexp.mybatishelper.core.log.ResultLog;
 import top.aexp.mybatishelper.core.model.*;
 import top.aexp.mybatishelper.core.model.*;
+import top.aexp.mybatishelper.core.utils.CollectionUtils;
 import top.aexp.mybatishelper.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.dom4j.Document;
@@ -336,16 +337,24 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     protected abstract String getDropTableSql(String schema, String tableName);
 
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
+
+
         CompilationUnit baseMapper = buildMapperClass(entityModel);
+
+        List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
+        String pkType = "Integer";
+        if (!CollectionUtils.isEmpty(primaryKeyList)) {
+            pkType = primaryKeyList.get(0).getType();
+        }
 
         String mapperClassStr = fileHandler.readJavaFileToString(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA, charset);
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
-            mapper = mapperBuilder.addExtend(mapperClassStr, entityModel.getBaseMapperName());
+            mapper = mapperBuilder.addExtend(mapperClassStr, MapperBuilder.MAPPER_NAME,entityModel.getEntityName(),pkType);
         } else {
             //mapper不存在,创建mapper
-            mapper = mapperBuilder.buildEmpty(entityModel);
+            mapper = mapperBuilder.buildEmpty(entityModel,pkType);
         }
         try {
             String path = buildConfig.getMapperFolder() + SLASH_BASE;
@@ -355,7 +364,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                 fileHandler.writerString2File(fileName, mapper.toString(), charset);
             }
 
-            String baseFileName = buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA;
+            String baseFileName = buildConfig.getMapperFolder() + SLASH_BASE_SLASH + MapperBuilder.MAPPER_NAME + JAVA;
             fileHandler.writerString2File(baseFileName, baseMapper.toString(), charset);
         } catch (IOException e) {
             throw new RuntimeException("生成mapper类异常:" + e.getMessage(), e);
@@ -429,7 +438,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @return CompilationUnit
      */
     protected CompilationUnit buildMapperClass(EntityModel entityModel) {
-        return mapperBuilder.build(entityModel);
+        return mapperBuilder.build(entityModel.getMapperPackage()+".base");
     }
 
     /**

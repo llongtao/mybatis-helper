@@ -10,9 +10,7 @@ import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.comments.LineComment;
 import com.github.javaparser.ast.expr.MarkerAnnotationExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import top.aexp.mybatishelper.core.model.EntityField;
 import top.aexp.mybatishelper.core.model.EntityModel;
-import top.aexp.mybatishelper.core.utils.StringUtils;
 import com.sun.org.apache.xalan.internal.xsltc.compiler.util.Type;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -30,24 +28,18 @@ public class DefaultMapperBuilder implements MapperBuilder{
 
 
     @Override
-    public  CompilationUnit build(EntityModel entityModel) {
-
-        String mapperPackage = entityModel.getBaseMapperPackage();
-        String entityClassName = entityModel.getEntityClassName();
-        String className = entityModel.getBaseMapperName();
-        String entityName = entityModel.getEntityName();
-        String classNm = entityModel.getClassName();
+    public  CompilationUnit build(String mapperPackage) {
 
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(mapperPackage);
-        compilationUnit.addImport(IMPORT_JAVA_LANG);
         compilationUnit.addImport(IMPORT_LIST);
         compilationUnit.addImport(IMPORT_ANNOTATIONS_MAPPER);
-        compilationUnit.addImport(entityClassName);
         MarkerAnnotationExpr mapperAnnotationExpr = new MarkerAnnotationExpr(MAPPER);
         ClassOrInterfaceDeclaration mapperClass = compilationUnit
-                .addClass(className)
+                .addClass(MAPPER_NAME+"<T,PK>")
                 .setPublic(true)
+//                .setTypeParameter(0,new TypeParameter("T"))
+//                .setTypeParameter(1,new TypeParameter("PK"))
                 .setInterface(true)
                 .addAnnotation(mapperAnnotationExpr);
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
@@ -55,50 +47,46 @@ public class DefaultMapperBuilder implements MapperBuilder{
 
         NodeList<Parameter> nodeList = new NodeList<>();
         Parameter parameter = new Parameter();
-        String parameterName = StringUtils.firstToLower(entityModel.getEntityName());
-        parameter.setType(classNm);
-        assert parameterName != null;
-        parameter.setName(parameterName);
+//        String parameterName = StringUtils.firstToLower(entityModel.getEntityName());
+        parameter.setType("T");
+        parameter.setName("entity");
         nodeList.add(parameter);
 
-
-        List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
         NodeList<Parameter> keyParameterList = new NodeList<>();
-        primaryKeyList.forEach(primaryKey -> {
-            Parameter keyParameter = new Parameter();
-            keyParameter.setName(primaryKey.getName());
-            keyParameter.setType(primaryKey.getType());
-            keyParameterList.add(keyParameter);
-        });
+
+        Parameter keyParameter = new Parameter();
+        keyParameter.setName("id");
+        keyParameter.setType("PK");
+        keyParameterList.add(keyParameter);
 
         NodeList<Parameter> listNodeList = new NodeList<>();
         Parameter listParameter = new Parameter();
-        listParameter.setType("List<" + classNm + ">");
-        listParameter.setName(parameterName + LIST);
+        listParameter.setType("List<T>");
+        listParameter.setName("list");
         listNodeList.add(listParameter);
 
-        mapperClass.addMethod(INSERT + entityName).setParameters(nodeList).setType(Type.NODE).setBody(null)
-                .setComment(new JavadocComment("插入\n"+"@param "+parameter.getName()+" 需要插入的实体\n"+"@return 修改行数"));
+        mapperClass.addMethod(INSERT ).setParameters(nodeList).setType(Type.NODE).setBody(null)
+                .setComment(new JavadocComment("插入\n"+"@param entity 需要插入的实体\n"+"@return 修改行数"));
 
-        mapperClass.addMethod(INSERT + entityName + LIST).setParameters(listNodeList).setType(Type.NODE).setBody(null)
-                .setComment(new JavadocComment("批量插入\n"+"@param "+listParameter.getName()+" 需要插入的实体列表\n"+"@return 修改行数"));
+        mapperClass.addMethod(INSERT + LIST).setParameters(listNodeList).setType(Type.NODE).setBody(null)
+                .setComment(new JavadocComment("批量插入\n"+"@param list 需要插入的实体列表\n"+"@return 修改行数"));
 
-        mapperClass.addMethod(UPDATE + entityName).setType(Type.NODE).setBody(null).setParameters(nodeList)
-                .setComment(new JavadocComment("更新\n"+"@param "+parameter.getName()+" 需要更新的实体\n"+"@return 修改行数"));
+        mapperClass.addMethod(UPDATE ).setType(Type.NODE).setBody(null).setParameters(nodeList)
+                .setComment(new JavadocComment("更新\n"+"@param entity 需要更新的实体\n"+"@return 修改行数"));
 
-        mapperClass.addMethod(UPDATE + entityName+LIST).setType(Type.NODE).setBody(null).setParameters(listNodeList)
+        mapperClass.addMethod(UPDATE +LIST).setType(Type.NODE).setBody(null).setParameters(listNodeList)
                 .setComment(new JavadocComment("批量更新\n"+"@param "+listParameter.getName()+" 需要更新的实体列表\n"+"@return 修改行数"));
 
         mapperClass.addMethod(UPDATE_SELECTIVE).setType(Type.NODE).setBody(null).setParameters(nodeList)
                 .setComment(new JavadocComment("修改有值的列\n"+"@param "+parameter.getName()+" 需要修改的实体\n"+"@return 修改行数"));
 
-        mapperClass.addMethod(QUERY + entityName).setBody(null).setType("List<" + classNm + ">").setParameters(nodeList)
-                .setComment(new JavadocComment("查询\n"+"@param "+parameter.getName()+" 查询条件实体\n"+"@return 列表"));
+        mapperClass.addMethod(QUERY ).setBody(null).setType("List<T>").setParameters(nodeList)
+                .setComment(new JavadocComment("查询\n"+"@param entity 查询条件实体\n"+"@return 列表"));
 
         StringBuilder keyParams = new StringBuilder();
-        keyParameterList.forEach(key->keyParams.append("@param ").append(key.getName()).append(" 主键\n"));
+        keyParameterList.forEach(key->keyParams.append("@param id 主键\n"));
 
-        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType(classNm).setParameters(keyParameterList)
+        mapperClass.addMethod(QUERY_BY_PRIMARY_KEY).setBody(null).setType("T").setParameters(keyParameterList)
                 .setComment(new JavadocComment("根据id查询\n"+keyParams+"@return 实体"));
 
         mapperClass.addMethod(DELETE_BY_PRIMARY_KEY).setType(Type.NODE).setBody(null).setParameters(keyParameterList)
@@ -109,7 +97,12 @@ public class DefaultMapperBuilder implements MapperBuilder{
     }
 
     @Override
-    public  CompilationUnit addExtend(String mapperClassStr, String baseMapperName) {
+    public CompilationUnit buildMultiPk(EntityModel entityModel) {
+        return null;
+    }
+
+    @Override
+    public  CompilationUnit addExtend(String mapperClassStr, String baseMapperName,String entityClassName,String pkType) {
 
         CompilationUnit compilationUnit = StaticJavaParser.parse(mapperClassStr);
         List<Node> childNodes = compilationUnit.getChildNodes();
@@ -123,24 +116,25 @@ public class DefaultMapperBuilder implements MapperBuilder{
                 }
             }
         }
-        classDeclaration.addExtendedType(baseMapperName);
+        String type = baseMapperName+"<"+entityClassName+","+pkType+">";
+        classDeclaration.addExtendedType(type);
         return compilationUnit;
     }
 
     @Override
-    public  CompilationUnit buildEmpty(EntityModel entityModel) {
+    public  CompilationUnit buildEmpty(EntityModel entityModel, String pkType) {
         CompilationUnit compilationUnit = new CompilationUnit();
         compilationUnit.setPackageDeclaration(entityModel.getMapperPackage());
         compilationUnit.addImport(IMPORT_ANNOTATIONS_MAPPER);
-        compilationUnit.addImport(entityModel.getBaseMapperClassName());
-
+        compilationUnit.addImport(entityModel.getBaseMapperPackage()+"."+MAPPER_NAME);
+        compilationUnit.addImport(entityModel.getEntityClassName());
         ClassOrInterfaceDeclaration mapperClass = compilationUnit
                 .addClass(entityModel.getMapperName())
                 .setPublic(true)
                 .setInterface(true)
                 .addAnnotation(new MarkerAnnotationExpr(MAPPER));
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        mapperClass.addExtendedType(entityModel.getBaseMapperName());
+        mapperClass.addExtendedType(MAPPER_NAME+"<"+entityModel.getEntityName()+","+pkType+">");
         mapperClass.addOrphanComment(new LineComment(TIPS));
         return compilationUnit;
     }

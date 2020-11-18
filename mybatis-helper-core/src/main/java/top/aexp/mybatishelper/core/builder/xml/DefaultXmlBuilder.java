@@ -29,7 +29,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
         document.addDocType(MAPPER, MAPPER_PUBLIC_ID, MAPPER_SYSTEM_ID);
         // 添加根节点
         Element root = document.addElement(MAPPER);
-        String mapperClassName = entityModel.getBaseMapperClassName();
+        String mapperClassName = entityModel.getMapperClassName();
         String entityClassName = entityModel.getEntityClassName();
         root.addAttribute(NAMESPACE, mapperClassName);
 
@@ -98,7 +98,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
 
     private void buildUpdateList(EntityModel entityModel, String entityName, Element root, String entityClassName) {
         Element updateList = root.addElement(UPDATE)
-                .addAttribute(ID, UPDATE + entityName + "List")
+                .addAttribute(ID, UPDATE + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName);
         Element noNullUpdateList = updateList.addElement(IF).addAttribute(TEST, "list!=null and list.size>0");
         Element values = noNullUpdateList.addElement(FOREACH)
@@ -160,7 +160,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
 
     private void buildInsert(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList) {
         Element insert = root.addElement(INSERT)
-                .addAttribute(ID, INSERT + entityName)
+                .addAttribute(ID, INSERT )
                 .addAttribute(PARAMETER_TYPE, entityClassName);
         EntityField incrField = entityModel.autoIncrField();
         if (incrField != null) {
@@ -192,7 +192,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
 
     private void buildUpdate(EntityModel entityModel, String entityName, Element root, String entityClassName, Element where) {
         Element update = root.addElement(UPDATE)
-                .addAttribute(ID, UPDATE + entityName)
+                .addAttribute(ID, UPDATE )
                 .addAttribute(PARAMETER_TYPE, entityClassName)
                 .addText(TWO_TAB + UPDATE)
                 .addText(TWO_TAB + SPLIT + entityModel.getTableName() + SPLIT);
@@ -204,7 +204,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
 
     private void buildQuery(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element updateSelective) {
         Element query = root.addElement(SELECT)
-                .addAttribute(ID, QUERY + entityName)
+                .addAttribute(ID, QUERY )
                 .addAttribute(PARAMETER_TYPE, entityClassName)
                 .addAttribute(RESULT_MAP, BASE_RESULT_MAP)
                 .addText(TWO_TAB + SELECT);
@@ -263,7 +263,7 @@ public class DefaultXmlBuilder implements XmlBuilder {
 
     private void buildInsertList(EntityModel entityModel, String entityName, Element root, String entityClassName, List<EntityField> entityFieldList, Element baseColumn) {
         Element insertList = root.addElement(INSERT)
-                .addAttribute(ID, INSERT + entityName + "List")
+                .addAttribute(ID, INSERT + "List")
                 .addAttribute(PARAMETER_TYPE, entityClassName);
         EntityField incrField = entityModel.autoIncrField();
         if (incrField != null) {
@@ -326,8 +326,8 @@ public class DefaultXmlBuilder implements XmlBuilder {
         // 添加根节点
         Element root = document.addElement(MAPPER);
         root.addAttribute(NAMESPACE, entityModel.getMapperClassName());
-        buildRefResult(root, entityModel);
-        buildRefColumn(root, entityModel);
+//        buildRefResult(root, entityModel);
+//        buildRefColumn(root, entityModel);
         root.addComment(TIPS);
         return document;
     }

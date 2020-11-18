@@ -2,9 +2,5 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="top.aexp.mybatishelper.demo.mapper.UserMapper">
-    <resultMap id="BaseResultMap" type="top.aexp.mybatishelper.demo.entity.User" extends="top.aexp.mybatishelper.demo.mapper.base.BaseUserMapper.BaseResultMap"/>
-    <sql id="BaseColumn">
-        <include refid="top.aexp.mybatishelper.demo.mapper.base.BaseUserMapper.BaseColumn"/>
-    </sql>
     <!--自己的查询请写在这里,更新时这个文件不会被覆盖-->
 </mapper>

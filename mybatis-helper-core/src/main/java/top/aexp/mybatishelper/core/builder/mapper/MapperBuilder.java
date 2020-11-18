@@ -24,28 +24,38 @@ public interface MapperBuilder {
 
     String QUERY = "query";
 
-    String IMPORT_JAVA_LANG = "java.lang.*";
-
     String IMPORT_LIST = "java.util.List";
 
     String IMPORT_ANNOTATIONS_MAPPER = "org.apache.ibatis.annotations.Mapper";
+
+    String MAPPER_NAME = "BaseMapper";
 
     String TIPS = "自己的查询请写在这里,更新时这个类不会被覆盖";
 
 
     /**
      * 构建BaseMapper.class文件
+     * @param mapperPackage BaseMapper所在包
+     * @return CompilationUnit类对象
+     */
+    CompilationUnit build(String mapperPackage);
+
+
+
+    /**
+     * 构建多主键BaseMapper.class文件
      * @param entityModel 实体模型
      * @return CompilationUnit类对象
      */
-    CompilationUnit build(EntityModel entityModel);
+    CompilationUnit buildMultiPk(EntityModel entityModel);
 
     /**
      * Mapper.class文件不存在的情况下构建Mapper.class
      * @param entityModel 实体模型
+     * @param pkType 主键类型
      * @return CompilationUnit类对象
      */
-    CompilationUnit buildEmpty(EntityModel entityModel);
+    CompilationUnit buildEmpty(EntityModel entityModel, String pkType);
 
 
     /**
@@ -54,5 +64,5 @@ public interface MapperBuilder {
      * @param baseMapperName 继承BaseMapper类名
      * @return CompilationUnit类对象
      */
-    CompilationUnit addExtend(String mapperClassStr, String baseMapperName);
+    CompilationUnit addExtend(String mapperClassStr, String baseMapperName,String entityClassName,String pkType);
 }

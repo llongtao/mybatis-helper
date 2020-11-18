@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="top.aexp.mybatishelper.demo.mapper.base.BaseUserMapper">
+<mapper namespace="top.aexp.mybatishelper.demo.mapper.UserMapper">
     <resultMap id="BaseResultMap" type="top.aexp.mybatishelper.demo.entity.User">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="sex" typeHandler="top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler" property="sex"/>
@@ -10,23 +10,23 @@
         <result column="money" jdbcType="DECIMAL" property="money"/>
     </resultMap>
     <sql id="BaseColumn">
-		`id`,
-		`sex`,
-		`name`,
-		`email`,
-		`money`
+		"id",
+		"sex",
+		"name",
+		"email",
+		"money"
 	</sql>
     <sql id="BaseNoPkColumn">
-		`sex`,
-		`name`,
-		`email`,
-		`money`
+		"sex",
+		"name",
+		"email",
+		"money"
 	</sql>
     <select id="queryByPrimaryKey" resultMap="BaseResultMap">
 		select
         <include refid="BaseColumn"/>
 		from
-		`user`
+		"user"
         <where>
 			and id = #{id}
 		</where>
@@ -34,29 +34,29 @@
     <delete id="deleteByPrimaryKey">
 		delete
 		from
-		`user`
+		"user"
         <where>
 			and id = #{id}
 		</where>
     </delete>
-    <insert id="insertUser" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
 		insert into
-		`user`
+		"user"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id!=null">
-				`id`,
+				"id",
 			</if>
             <if test="sex!=null">
-				`sex`,
+				"sex",
 			</if>
             <if test="name!=null">
-				`name`,
+				"name",
 			</if>
             <if test="email!=null">
-				`email`,
+				"email",
 			</if>
             <if test="money!=null">
-				`money`,
+				"money",
 			</if>
         </trim>
 		values
@@ -80,19 +80,19 @@
     </insert>
     <update id="updateSelective" parameterType="top.aexp.mybatishelper.demo.entity.User">
 		update
-		`user`
+		"user"
         <set>
             <if test="sex !=null">
-				`sex` = #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
+				"sex" = #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
 			</if>
             <if test="name !=null and name !=''">
-				`name` = #{name},
+				"name" = #{name},
 			</if>
             <if test="email !=null and email !=''">
-				`email` = #{email},
+				"email" = #{email},
 			</if>
             <if test="money !=null">
-				`money` = #{money},
+				"money" = #{money},
 			</if>
         </set>
         <where>
@@ -100,46 +100,46 @@
 		</where>
 		
     </update>
-    <update id="updateUser" parameterType="top.aexp.mybatishelper.demo.entity.User">
+    <update id="update" parameterType="top.aexp.mybatishelper.demo.entity.User">
 		update
-		`user`
+		"user"
         <set>
-			`sex`  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
-			`name`  =  #{name,jdbcType = VARCHAR},
-			`email`  =  #{email,jdbcType = VARCHAR},
-			`money`  =  #{money,jdbcType = DECIMAL},
+			"sex"  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
+			"name"  =  #{name,jdbcType = VARCHAR},
+			"email"  =  #{email,jdbcType = VARCHAR},
+			"money"  =  #{money,jdbcType = DECIMAL},
 		</set>
         <where>
 			and id = #{id}
 		</where>
     </update>
-    <select id="queryUser" parameterType="top.aexp.mybatishelper.demo.entity.User" resultMap="BaseResultMap">
+    <select id="query" parameterType="top.aexp.mybatishelper.demo.entity.User" resultMap="BaseResultMap">
 		select
         <include refid="BaseColumn"/>
 		from
-		`user`
+		"user"
         <where>
             <if test="id !=null">
-				and `id`  =  #{id}
+				and "id"  =  #{id}
 			</if>
             <if test="sex !=null">
-				and `sex`  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler}
+				and "sex"  =  #{sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler}
 			</if>
             <if test="name !=null and name !=''">
-				and `name`  =  #{name}
+				and "name"  =  #{name}
 			</if>
             <if test="email !=null and email !=''">
-				and `email`  =  #{email}
+				and "email"  =  #{email}
 			</if>
             <if test="money !=null">
-				and `money`  =  #{money}
+				and "money"  =  #{money}
 			</if>
         </where>
     </select>
-    <insert id="insertUserList" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertList" parameterType="top.aexp.mybatishelper.demo.entity.User" useGeneratedKeys="true" keyProperty="id">
         <if test="list!=null and list.size&gt;0">
 			insert into
-			`user`
+			"user"
             <trim prefix="(" suffix=")" suffixOverrides=",">
                 <include refid="BaseNoPkColumn"/>
             </trim>
@@ -157,16 +157,16 @@
 			select 0 from user
 		</if>
     </insert>
-    <update id="updateUserList" parameterType="top.aexp.mybatishelper.demo.entity.User">
+    <update id="updateList" parameterType="top.aexp.mybatishelper.demo.entity.User">
         <if test="list!=null and list.size&gt;0">
             <foreach collection="list" item="item" separator=";">
 				update
-				`user`
+				"user"
                 <set>
-					`sex`  =  #{item.sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
-					`name`  =  #{item.name,jdbcType = VARCHAR},
-					`email`  =  #{item.email,jdbcType = VARCHAR},
-					`money`  =  #{item.money,jdbcType = DECIMAL},
+					"sex"  =  #{item.sex,typeHandler = top.aexp.mybatishelper.demo.typehanlder.SexTypeHandler},
+					"name"  =  #{item.name,jdbcType = VARCHAR},
+					"email"  =  #{item.email,jdbcType = VARCHAR},
+					"money"  =  #{item.money,jdbcType = DECIMAL},
 				</set>
                 <where>
 					and id = #{item.id,jdbcType = INTEGER}
