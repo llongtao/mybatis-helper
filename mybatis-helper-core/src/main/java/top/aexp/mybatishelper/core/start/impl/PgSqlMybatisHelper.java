@@ -46,46 +46,31 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
 
     }
 
-
-    @Override
-    protected String buildModifyColumnSql(EntityModel entityModel, List<EntityField> modifyColumns) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ").append("\"").append(entityModel.getTableName()).append("\" ");
-        modifyColumns.forEach(column -> sb.append("MODIFY COLUMN ").append(getColumnDefine(column)).append(","));
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(";");
-        return sb.toString();
+    protected String getDbUrl(String baseDbUrl) {
+        return "jdbc:postgresql://" + baseDbUrl;
     }
 
     @Override
-    protected String buildDropColumnSql(EntityModel entityModel, Set<String> dropColumnSet) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ").append("\"").append(entityModel.getTableName()).append("\" ");
-        dropColumnSet.forEach(column -> sb.append("DROP COLUMN ").append("\"").append(column).append("\"").append(","));
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(";");
-        return sb.toString();
+    protected String buildModifyColumnSql(EntityModel entityModel, EntityField modifyColumn) {
+//        return "ALTER TABLE " +
+//                "\"" + entityModel.getTableName() + "\" " +
+//                "MODIFY " + getColumnDefine(modifyColumn) + ";";
+        return null;
     }
 
     @Override
-    protected String buildAddColumnSql(EntityModel entityModel, List<EntityField> addColumns) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ")
-                .append("\"").append(entityModel.getTableName()).append("\" ")
-                .append("ADD (");
-        addColumns.forEach(column -> sb.append(getColumnDefine(column)).append(","));
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(");");
-        return sb.toString();
+    protected String buildDropColumnSql(EntityModel entityModel, String dropColumn) {
+
+        return "ALTER TABLE " + "\"" + entityModel.getTableName() + "\" " +
+                "DROP COLUMN " + "\"" + dropColumn + "\"" + ";";
+    }
+
+    @Override
+    protected String buildAddColumnSql(EntityModel entityModel, EntityField addColumn) {
+        return "ALTER TABLE " +
+                "\"" + entityModel.getTableName() + "\" " +
+                "ADD " +
+                getColumnDefine(addColumn) + ";";
     }
 
     @Override
@@ -151,7 +136,7 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
 
     @Override
     protected String getTableExistColumnSql(String schema, String tableName) {
-        return "select COLUMN_NAME from information_schema.columns where table_schema='" + schema + "' and table_name='" + tableName + " ';";
+        return "select COLUMN_NAME from information_schema.columns where table_catalog='" + schema + "' and table_name='" + tableName + "';";
     }
 
     @Override

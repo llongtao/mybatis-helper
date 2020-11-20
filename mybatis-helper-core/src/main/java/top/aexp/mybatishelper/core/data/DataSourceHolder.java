@@ -6,9 +6,10 @@ import top.aexp.mybatishelper.core.exception.MybatisHelperException;
 import top.aexp.mybatishelper.core.log.ResultLog;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -25,10 +26,9 @@ public class DataSourceHolder {
         PROPERTIES.setProperty("serverTimezone", "GMT+8");
     }
 
-
     private static DruidDataSource dataSource;
 
-    private static  Connection connection ;
+    private static Map<String,Connection> connectionMap = new HashMap<>();
 
     public static void addDataSource(String driverClassName, String url, String username, String password) {
         if (dataSource == null) {
@@ -47,7 +47,8 @@ public class DataSourceHolder {
         }
     }
 
-    public static Connection getConnection() {
+    public static Connection getConnection(String catalog) {
+        Connection connection = connectionMap.get(catalog);
         try {
             if (connection != null && !connection.isClosed()) {
                 return connection;
@@ -60,14 +61,20 @@ public class DataSourceHolder {
             ResultLog.error("未配置数据源");
             throw new MybatisHelperException("未配置数据源");
         }
-
+        DruidDataSource catalogDataSource = new DruidDataSource();
+        catalogDataSource.setDriverClassName(dataSource.getDriverClassName());
+        catalogDataSource.setUsername(dataSource.getUsername());
+        catalogDataSource.setPassword(dataSource.getPassword());
+        catalogDataSource.setUrl(dataSource.getUrl()+"/"+catalog);
+        catalogDataSource.setConnectProperties(PROPERTIES);
         Callable<Connection> callable = () -> {
             log.info("getConn");
             ResultLog.info("正在获取数据库连接");
-            DruidPooledConnection conn = dataSource.getConnection();
+
+            DruidPooledConnection conn = catalogDataSource.getConnection();
             log.info("getConnSuccess:{}",conn);
             ResultLog.info("获取数据库连接成功");
-            connection = conn;
+            connectionMap.put(catalog,conn);
             return conn;
         };
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -75,8 +82,7 @@ public class DataSourceHolder {
         try {
             return submit.get(5, TimeUnit.SECONDS);
         } catch (Exception e) {
-            dataSource.close();
-            dataSource = null;
+            catalogDataSource.close();
             log.error("数据库连接超时",e);
             ResultLog.error("数据库连接超时:"+e.getMessage());
             throw new MybatisHelperException("数据库连接超时");
@@ -84,12 +90,14 @@ public class DataSourceHolder {
     }
 
     public static void clear() {
-        if (dataSource != null) {
-            try {
-                dataSource.close();
-            } catch (Exception e) {
-                log.error("清理数据库连接异常",e);
-            }
+        if (connectionMap!=null ) {
+            connectionMap.values().forEach(conn->{
+                try {
+                    conn.close();
+                } catch (Exception e) {
+                    log.error("清理数据库连接异常",e);
+                }
+            });
             dataSource = null;
         }
     }

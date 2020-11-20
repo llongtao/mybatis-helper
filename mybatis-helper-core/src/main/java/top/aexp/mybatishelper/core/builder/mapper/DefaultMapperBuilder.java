@@ -134,7 +134,7 @@ public class DefaultMapperBuilder implements MapperBuilder{
                 .setInterface(true)
                 .addAnnotation(new MarkerAnnotationExpr(MAPPER));
         mapperClass.setComment(new JavadocComment("@author MybatisHelper " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-        mapperClass.addExtendedType(MAPPER_NAME+"<"+entityModel.getEntityName()+","+pkType+">");
+        mapperClass.addExtendedType(MAPPER_NAME+"<"+entityModel.getClassName()+","+pkType+">");
         mapperClass.addOrphanComment(new LineComment(TIPS));
         return compilationUnit;
     }

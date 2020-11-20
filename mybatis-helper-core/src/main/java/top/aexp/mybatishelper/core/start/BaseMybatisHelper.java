@@ -183,12 +183,19 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         boolean useDb = Objects.equals(config.getUseDb(), true);
         ResultLog.info("useDb:" + useDb);
         if (Objects.equals(config.getUseDb(), true)) {
-            String dbUrl = "jdbc:" + config.getDbType() + "://" + config.getBaseDbUrl();
+            String dbUrl = getDbUrl(config.getBaseDbUrl());
             ResultLog.info("dbUrl:" + dbUrl);
             DataSourceHolder.addDataSource(getDbDriverClassName(), dbUrl, config.getBaseDbUsername(), config.getBaseDbPassword());
         }
         return useDb;
     }
+
+    /**
+     * 获取数据库连接串
+     * @param baseDbUrl ip:port
+     * @return 连接串
+     */
+    protected abstract String getDbUrl(String baseDbUrl) ;
 
 
     private void buildDbTable(BuildConfig buildConfig, EntityModel entityModel, Config config) {
@@ -198,7 +205,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         if (StringUtils.isEmpty(schema)) {
             throw new MybatisHelperException("若生成表结构数据库名不能为空");
         }
-        Connection connection = DataSourceHolder.getConnection();
+        Connection connection = DataSourceHolder.getConnection(schema);
         try {
             connection.setCatalog(schema);
             connection.setAutoCommit(false);
@@ -259,35 +266,32 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
             List<EntityField> addSet = entityFieldList.stream().filter(item -> addColumnSet.contains(item.getColumnName())).collect(Collectors.toList());
             List<EntityField> modifySet = entityFieldList.stream().filter(item -> modifyColumnSet.contains(item.getColumnName())).collect(Collectors.toList());
-            String addColumnSql = buildAddColumnSql(entityModel, addSet);
-            String dropColumnSql = buildDropColumnSql(entityModel, dropColumnSet);
-            String modifyColumnSql = buildModifyColumnSql(entityModel, modifySet);
 
-            if (addColumnSql != null) {
-                log.info("sql:" + addColumnSql);
-                statement.execute(addColumnSql);
-            }
-            if (dropColumnSql != null) {
-                log.info("sql:" + dropColumnSql);
-                statement.execute(dropColumnSql);
-            }
-            if (modifyColumnSql != null) {
-                log.info("sql:" + modifyColumnSql);
-                statement.execute(modifyColumnSql);
-            }
-
-            ResultLog.sql(addColumnSql);
-            ResultLog.sql(dropColumnSql);
-            ResultLog.sql(modifyColumnSql);
+            addSet.forEach(add-> execute(statement, buildAddColumnSql(entityModel, add)));
+            dropColumnSet.forEach(drop-> execute(statement, buildDropColumnSql(entityModel, drop)));
+            modifySet.forEach(modify-> execute(statement, buildModifyColumnSql(entityModel, modify)));
         }
 
     }
 
-    protected abstract String buildModifyColumnSql(EntityModel entityModel, List<EntityField> modifyColumns);
+    private void execute(Statement statement, String sql) {
+        if (sql == null) {
+            return;
+        }
+        try {
+            statement.execute(sql);
+            ResultLog.sql(sql);
+        } catch (SQLException e) {
+            log.error("执行sql失败:{}",sql,e);
+            ResultLog.error("执行sql失败:"+sql);
+        }
+    }
 
-    protected abstract String buildDropColumnSql(EntityModel entityModel, Set<String> dropColumnSet);
+    protected abstract String buildModifyColumnSql(EntityModel entityModel, EntityField modifyColumn);
 
-    protected abstract String buildAddColumnSql(EntityModel entityModel, List<EntityField> addColumns);
+    protected abstract String buildDropColumnSql(EntityModel entityModel, String dropColumn);
+
+    protected abstract String buildAddColumnSql(EntityModel entityModel, EntityField addColumn);
 
     private Set<String> getExistsColumns(Statement statement, String schema, EntityModel entityModel) throws SQLException {
         Set<String> columnSet = new HashSet<>();

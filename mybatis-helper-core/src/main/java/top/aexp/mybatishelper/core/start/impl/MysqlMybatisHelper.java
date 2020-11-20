@@ -1,6 +1,7 @@
 package top.aexp.mybatishelper.core.start.impl;
 
 import top.aexp.mybatishelper.core.exception.EntityBuildException;
+import top.aexp.mybatishelper.core.model.Config;
 import top.aexp.mybatishelper.core.model.EntityField;
 import top.aexp.mybatishelper.core.model.EntityModel;
 import top.aexp.mybatishelper.core.start.BaseMybatisHelper;
@@ -57,48 +58,30 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
     }
 
 
-
     @Override
-    protected String buildModifyColumnSql(EntityModel entityModel, List<EntityField> modifyColumns) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ")
-                .append("`").append(entityModel.getTableName()).append("` ");
-        modifyColumns.forEach(column -> sb.append("MODIFY COLUMN ").append(getColumnDefine(column)).append(","));
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(";");
-        return sb.toString();
+    protected String buildModifyColumnSql(EntityModel entityModel, EntityField modifyColumn) {
+        return "ALTER TABLE " +
+                "`" + entityModel.getTableName() + "` " +
+                "MODIFY COLUMN " + getColumnDefine(modifyColumn) + ";";
     }
 
     @Override
-    protected String buildDropColumnSql(EntityModel entityModel, Set<String> dropColumnSet) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ").append("`").append(entityModel.getTableName()).append("` ");
-        dropColumnSet.forEach(column -> sb.append("DROP COLUMN ").append("`").append(column).append("`").append(","));
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(";");
-        return sb.toString();
+    protected String buildDropColumnSql(EntityModel entityModel, String dropColumn) {
+
+        return "ALTER TABLE " + "`" + entityModel.getTableName() + "` " +
+                "DROP COLUMN " + "`" + dropColumn + "`" + ";";
     }
 
     @Override
-    protected String buildAddColumnSql(EntityModel entityModel, List<EntityField> addColumns) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE ")
-                .append("`").append(entityModel.getTableName()).append("` ")
-                .append("ADD (");
-        addColumns.forEach(column -> sb.append(getColumnDefine(column)).append(","));
+    protected String buildAddColumnSql(EntityModel entityModel, EntityField addColumn) {
+        return "ALTER TABLE " +
+                "`" + entityModel.getTableName() + "` " +
+                "ADD " +
+                getColumnDefine(addColumn) + ";";
+    }
 
-        if (Constants.DOT != sb.charAt(sb.length() - 1)) {
-            return null;
-        }
-        sb.deleteCharAt(sb.length() - 1);
-        sb.append(");");
-        return sb.toString();
+    protected String getDbUrl(String baseDbUrl) {
+        return "jdbc:mysql://" + baseDbUrl;
     }
 
 
@@ -126,14 +109,14 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 String define = primaryKey.getDefine();
                 if (StringUtils.isNotEmpty(define)) {
                     sb.append(" ").append(define).append(" ,");
-                }else {
+                } else {
                     String description = primaryKey.getDescription();
                     sb.append("`").append(primaryKey.getColumnName()).append("` ")
                             .append(getColumnType(primaryKey.getJdbcType(), primaryKey.getLength())).append(" ");
                     if (!primaryKey.getNullable()) {
                         sb.append("NOT NULL ");
                     }
-                    if (Objects.equals(primaryKey.getIncr(),true)) {
+                    if (Objects.equals(primaryKey.getIncr(), true)) {
                         sb.append("AUTO_INCREMENT ");
                     }
                     if (description != null) {
@@ -167,7 +150,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
     }
 
     private String getColumnDefine(EntityField column) {
-        if (StringUtils.isNotBlank(column.getDefine()) ) {
+        if (StringUtils.isNotBlank(column.getDefine())) {
             return column.getDefine();
         }
         StringBuilder sb = new StringBuilder();
@@ -175,14 +158,14 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 .append(getColumnType(column.getJdbcType(), column.getLength())).append(" ");
         Boolean nullable = column.getNullable();
         String defaultValue = column.getDefaultValue();
-        if (Objects.equals(nullable,false)) {
+        if (Objects.equals(nullable, false)) {
             sb.append("NOT NULL ");
             if (!StringUtils.isBlank(defaultValue)) {
                 sb.append("DEFAULT '").append(defaultValue).append("' ");
             } else {
                 sb.append("DEFAULT '' ");
             }
-        }else {
+        } else {
             if (!StringUtils.isBlank(defaultValue)) {
                 sb.append("DEFAULT '").append(defaultValue).append("' ");
             } else {
