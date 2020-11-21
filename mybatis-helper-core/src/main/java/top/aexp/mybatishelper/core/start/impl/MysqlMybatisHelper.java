@@ -96,7 +96,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
     }
 
     @Override
-    protected String buildCreateSql(EntityModel entityModel) {
+    protected List<String> buildCreateSql(EntityModel entityModel) {
         //主键只有一个且为数字的时候,自动设置自增
         List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
 
@@ -145,7 +145,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
             sb.append(");");
         }
 
-        return sb.toString();
+        return Collections.singletonList(sb.toString());
 
     }
 

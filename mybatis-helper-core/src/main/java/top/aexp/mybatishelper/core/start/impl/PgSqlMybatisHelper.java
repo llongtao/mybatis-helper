@@ -84,8 +84,10 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
     }
 
     @Override
-    protected String buildCreateSql(EntityModel entityModel) {
+    protected List<String> buildCreateSql(EntityModel entityModel) {
 
+        List<String> sqlList = new ArrayList<>();
+        List<String> commentList = new ArrayList<>();
         List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
 
         StringBuilder sb = new StringBuilder();
@@ -95,20 +97,23 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
         if (primaryKeyList != null) {
             primaryKeyList.forEach(primaryKey -> {
                 String define = primaryKey.getDefine();
+                String description = primaryKey.getDescription();
+                if (description != null) {
+                    commentList.add("COMMENT ON COLUMN \""+ entityModel.getTableName()+"\".\""+ primaryKey.getColumnName()+"\" IS '"+description+"';");
+                }
                 if (StringUtils.isNotBlank(define)) {
                     sb.append(" ").append(define).append(" ,");
                 } else {
-                    String description = primaryKey.getDescription();
-                    sb.append("\"").append(primaryKey.getColumnName()).append("\" ")
-                            .append(getColumnType(primaryKey.getJdbcType(),primaryKey.getLength())).append(" ");
+                    boolean incr = Objects.equals(primaryKey.getIncr(), true);
+                    sb.append("\"").append(primaryKey.getColumnName()).append("\" ");
+                    if (!incr) {
+                        sb.append(getColumnType(primaryKey.getJdbcType(), primaryKey.getLength())).append(" ");
+                    }
                     if (!primaryKey.getNullable()) {
                         sb.append("NOT NULL ");
                     }
-                    if (Objects.equals(primaryKey.getIncr(), true)) {
+                    if (incr) {
                         sb.append("SERIAL ");
-                    }
-                    if (description != null) {
-                        sb.append("COMMENT '").append(description).append("' ");
                     }
                     sb.append(",");
                 }
@@ -116,6 +121,8 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
         }
 
         entityModel.getColumnList().forEach(column -> sb.append(getColumnDefine(column)).append(","));
+        entityModel.getColumnList().stream().filter(item->item.getDescription()!=null).forEach(column->
+                commentList.add("COMMENT ON COLUMN \""+ entityModel.getTableName()+"\".\""+ column.getColumnName()+"\" IS '"+column.getDescription()+"';"));
         if (primaryKeyList != null && primaryKeyList.size() > 0) {
             sb.append("PRIMARY KEY ( ");
             primaryKeyList.forEach(primaryKey -> sb.append("\"").append(primaryKey.getColumnName()).append("\" ,"));
@@ -124,13 +131,13 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
         } else {
             sb.deleteCharAt(sb.length() - 1);
         }
+        sb.append(");");
         if (entityModel.getDescription() != null) {
-            sb.append(") COMMENT = '").append(entityModel.getDescription()).append("';");
-        } else {
-            sb.append(");");
+            commentList.add("COMMENT ON TABLE \""+ entityModel.getTableName()+"\" IS '"+entityModel.getDescription()+"';");
         }
-
-        return sb.toString();
+        sqlList.add(sb.toString());
+        sqlList.addAll(commentList);
+        return sqlList;
     }
 
 
@@ -158,7 +165,7 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
         if (primaryKeyList != null) {
             primaryKeyList.forEach(primaryKey -> {
                 String description = primaryKey.getDescription();
-                sb.append("\"").append(primaryKey.getColumnName()).append("\" ").append(getColumnType(primaryKey.getJdbcType(),primaryKey.getLength())).append(" ");
+                sb.append("\"").append(primaryKey.getColumnName()).append("\" ").append(getColumnType(primaryKey.getJdbcType(), primaryKey.getLength())).append(" ");
                 if (!primaryKey.getNullable()) {
                     sb.append("NOT NULL ");
                 }
@@ -215,10 +222,7 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
                 sb.append("NULL DEFAULT NULL ");
             }
         }
-        String description = column.getDescription();
-        if (description != null) {
-            sb.append("COMMENT '").append(description).append("' ");
-        }
+
         return sb.toString();
     }
 

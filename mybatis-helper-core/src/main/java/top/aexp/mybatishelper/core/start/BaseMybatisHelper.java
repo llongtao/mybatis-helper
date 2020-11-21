@@ -245,11 +245,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         Set<String> columnSet = getExistsColumns(statement, schema, entityModel);
 
         if (columnSet.isEmpty()) {
-            String createSql = buildCreateSql(entityModel);
-            if (createSql != null) {
-                log.info("sql:" + createSql);
-                statement.execute(createSql);
-                ResultLog.sql(createSql);
+            List<String> createSqlList = buildCreateSql(entityModel);
+            log.info("createSqlList:" + createSqlList);
+            if (!CollectionUtils.isEmpty(createSqlList)) {
+                createSqlList.forEach(sql-> execute(statement,sql));
             }
         } else {
             Set<String> newColumnSet = new HashSet<>();
@@ -280,6 +279,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
         try {
             statement.execute(sql);
+            log.error("执行sql成功:{}",sql);
             ResultLog.sql(sql);
         } catch (SQLException e) {
             log.error("执行sql失败:{}",sql,e);
@@ -316,10 +316,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         statement.execute(dropTableSql);
         ResultLog.info("删除表成功");
         ResultLog.sql(dropTableSql);
-        String createTableSql = buildCreateSql(entityModel);
-        statement.execute(createTableSql);
-        ResultLog.info("创建表成功");
-        ResultLog.sql(createTableSql);
+        List<String> createTableSqlList = buildCreateSql(entityModel);
+        createTableSqlList.forEach(sql-> execute(statement,sql));
     }
 
     private void commit(Connection connection) {
@@ -422,7 +420,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @param entityModel 实体模型
      * @return 建表sql
      */
-    protected abstract String buildCreateSql(EntityModel entityModel);
+    protected abstract List<String> buildCreateSql(EntityModel entityModel);
 
 
     /**
