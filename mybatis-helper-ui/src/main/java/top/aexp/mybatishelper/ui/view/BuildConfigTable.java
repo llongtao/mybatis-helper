@@ -2,7 +2,6 @@ package top.aexp.mybatishelper.ui.view;
 
 
 
-import com.sun.istack.internal.NotNull;
 import top.aexp.mybatishelper.core.model.BuildConfig;
 import top.aexp.mybatishelper.core.model.Config;
 import top.aexp.mybatishelper.ui.ConfigDataHolder;
@@ -148,7 +147,7 @@ public class BuildConfigTable  {
         buildConfigTable.getColumnModel().getColumn(0).setPreferredWidth(30);
     }
 
-    @NotNull
+
     private Vector<Object> getNewRowData() {
         Vector<Object> vector = new Vector<>();
         vector.add(true);
