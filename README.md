@@ -6,7 +6,7 @@
 #### 项目介绍
 
 由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
-目前实现 mysql所有功能和pgsql建表之外的操作
+目前实现 mysql\pgsql
 
 #### idea插件版
 https://github.com/llongtao/mybatis-pro-max-plug
@@ -14,7 +14,7 @@ https://github.com/llongtao/mybatis-pro-max-plug
 #### 软件架构
 
 JDK 1.8
-javafx
+java swing
 javaparser
 dom4j
 
@@ -100,5 +100,12 @@ private String name;
    - core执行api允许自定义EntityBuilder,MapperBuilder,XmlBuilder
    - 添加sql执行日志,默认保存在xml目录下sql文件夹
    - 添加demo演示模块
+ - v2.0.0
+   - UI由javaFX替换为java swing 以兼容arm架构机器
+   - 完善pgsql建表操作,目前已支持pgsql全部功能
+   - 多主键支持修改为只取单主键,存在多个主键仅支持第一个(多主键场景很少大部分仅作为中间表)
+   - baseMapper 整合为一个,统一提供增删改查接口(旧项目切换时请谨慎操作,因为修改了基本的api)
+
+
 
 
