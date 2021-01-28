@@ -80,6 +80,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
                 getColumnDefine(addColumn) + ";";
     }
 
+    @Override
     protected String getDbUrl(String baseDbUrl) {
         return "jdbc:mysql://" + baseDbUrl;
     }

@@ -100,7 +100,8 @@ public class ModelConfigTable {
                     if (defaultTableModel.getRowCount() > 1) {
                         //stopped!!!!
                         //fireEditingStopped();
-                        defaultTableModel.removeRow(e.getTable().getSelectedRow());
+
+                        defaultTableModel.removeRow(e.getRow());
 
                     }
                     System.out.println(dataVector);
@@ -109,7 +110,7 @@ public class ModelConfigTable {
 
 
         modelConfigTable.getColumnModel().getColumn(7).setCellEditor(
-                new ButtonCellEditor("删除",
+                new ButtonCellEditor("添加",
                         e -> {
                             System.out.println("add" + dataVector.size());
                             Vector<Object> vector = new Vector<>();
@@ -127,19 +128,7 @@ public class ModelConfigTable {
                             defaultTableModel.insertRow(defaultTableModel.getRowCount(), vector);
                             System.out.println(dataVector);
                         }));
-        modelConfigTable.getColumnModel().getColumn(8).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> {
-            JButton del = new JButton("删除");
-            del.addActionListener(e -> {
-                System.out.println("del" + table.getSelectedRow());
-                System.out.println(dataVector);
-                if (defaultTableModel.getRowCount() > 1) {
-                    defaultTableModel.removeRow(table.getSelectedRow());
-                }
-                System.out.println(dataVector);
-            });
-
-            return del;
-        });
+        modelConfigTable.getColumnModel().getColumn(8).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> new JButton("删除"));
         modelConfigTable.getColumnModel().getColumn(7).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> new JButton("添加"));
 
         modelConfigTable.getColumnModel().getColumn(8).setPreferredWidth(40);

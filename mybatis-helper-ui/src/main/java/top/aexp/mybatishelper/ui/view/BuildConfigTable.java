@@ -1,7 +1,6 @@
 package top.aexp.mybatishelper.ui.view;
 
 
-
 import top.aexp.mybatishelper.core.model.BuildConfig;
 import top.aexp.mybatishelper.core.model.Config;
 import top.aexp.mybatishelper.ui.ConfigDataHolder;
@@ -17,7 +16,7 @@ import java.util.Vector;
 /**
  * @author LILONGTAO
  */
-public class BuildConfigTable  {
+public class BuildConfigTable {
 
     private JTable buildConfigTable;
 
@@ -40,7 +39,7 @@ public class BuildConfigTable  {
 
 
         if (buildConfigList != null) {
-            buildConfigList.forEach(item->{
+            buildConfigList.forEach(item -> {
                 Vector<Object> vector = new Vector<>();
                 vector.add(!item.getDisable());
                 vector.add(item.getEntityFolder());
@@ -52,12 +51,12 @@ public class BuildConfigTable  {
                 vector.add("");
                 dataVector.add(vector);
             });
-        }else {
+        } else {
             dataVector.add(getNewRowData());
         }
 
 
-        defaultTableModel = new DefaultTableModel(dataVector, columnNamesVector){
+        defaultTableModel = new DefaultTableModel(dataVector, columnNamesVector) {
             @Override
             public Class<?> getColumnClass(int columnIndex) {
                 if (columnIndex == 4 || columnIndex == 0) {
@@ -79,11 +78,11 @@ public class BuildConfigTable  {
         });
 
 
-        buildConfigTable = new JTable(defaultTableModel){
+        buildConfigTable = new JTable(defaultTableModel) {
             @Override
             public TableCellEditor getCellEditor(int row, int column) {
-                if(column == 1 || column == 2||column == 3){
-                    return new MyFileChooserEditor(dataVector,row,column);
+                if (column == 1 || column == 2 || column == 3) {
+                    return new MyFileChooserEditor(dataVector, row, column);
                 }
                 return super.getCellEditor(row, column);
             }
@@ -94,47 +93,29 @@ public class BuildConfigTable  {
 //        buildConfigTable.setStriped(true);
 
 
-
-
         buildConfigTable.getColumnModel().getColumn(7).setCellEditor(
-                new ButtonCellEditor("删除",e->{
-                    System.out.println("del"+e.getTable().getSelectedRow());
+                new ButtonCellEditor("删除", e -> {
+                    System.out.println("del" + e.getRow());
                     System.out.println(dataVector);
                     if (defaultTableModel.getRowCount() > 1) {
                         //stopped!!!!
-                        defaultTableModel.removeRow(e.getTable().getSelectedRow());
-
+                        defaultTableModel.removeRow(e.getRow());
                     }
                     System.out.println(dataVector);
                 }));
         buildConfigTable.getColumnModel().getColumn(6).setCellEditor(
-                new ButtonCellEditor("添加",e->{
+                new ButtonCellEditor("添加", e -> {
 
-                    System.out.println("add"+dataVector.size());
+                    System.out.println("add" + dataVector.size());
                     System.out.println(dataVector);
 
-                    defaultTableModel.insertRow(defaultTableModel.getRowCount(),getNewRowData());
+                    defaultTableModel.insertRow(defaultTableModel.getRowCount(), getNewRowData());
                     System.out.println(dataVector);
                 }));
 
 
-
-        buildConfigTable.getColumnModel().getColumn(7).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> {
-            JButton del = new JButton("删除");
-            del.addActionListener(e -> {
-                System.out.println("del"+table.getSelectedRow());
-                System.out.println(dataVector);
-                if (defaultTableModel.getRowCount() > 1) {
-                    defaultTableModel.removeRow(table.getSelectedRow());
-                }
-                System.out.println(dataVector);
-            });
-
-            return del;
-        });
-
+        buildConfigTable.getColumnModel().getColumn(7).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> new JButton("删除"));
         buildConfigTable.getColumnModel().getColumn(6).setCellRenderer((table, value, isSelected, hasFocus, row, column) -> new JButton("添加"));
-
         buildConfigTable.getColumnModel().getColumn(7).setPreferredWidth(30);
         buildConfigTable.getColumnModel().getColumn(6).setPreferredWidth(30);
         buildConfigTable.getColumnModel().getColumn(4).setPreferredWidth(40);

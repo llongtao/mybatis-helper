@@ -24,6 +24,9 @@ public class DataSourceHolder {
         PROPERTIES.setProperty("useSSL", "false");
         PROPERTIES.setProperty("allowPublicKeyRetrieval", "true");
         PROPERTIES.setProperty("serverTimezone", "GMT+8");
+        PROPERTIES.setProperty("useUnicode", "true");
+        PROPERTIES.setProperty("characterEncoding", "UTF-8");
+
     }
 
     private static DruidDataSource dataSource;

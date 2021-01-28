@@ -52,7 +52,7 @@ public class FileUtils {
         if (names != null) {
             String[] completeNames = new String[names.length];
             for (int i = 0; i < names.length; i++) {
-                completeNames[i] = path + "\\" + names[i];
+                completeNames[i] = path + "/" + names[i];
             }
             listFileName.addAll(Arrays.asList(completeNames));
         }
@@ -60,7 +60,7 @@ public class FileUtils {
             for (File a : files) {
                 if (a.isDirectory()) {
                     //如果文件夹下有子文件夹，获取子文件夹下的所有文件全路径。
-                    getAllFileName(a.getAbsolutePath() + "\\", listFileName);
+                    getAllFileName(a.getAbsolutePath() + "/", listFileName);
                 }
             }
         }

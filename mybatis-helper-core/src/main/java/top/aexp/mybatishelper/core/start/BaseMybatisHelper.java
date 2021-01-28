@@ -44,9 +44,9 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
     private static final String JAVA = ".java";
 
-    private static final String SLASH_BASE = "\\base";
+    private static final String SLASH_BASE = "/base";
 
-    private static final String SLASH_BASE_SLASH = "\\base\\";
+    private static final String SLASH_BASE_SLASH = "/base/";
 
     private String charset = "utf-8";
 
@@ -124,7 +124,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
             List<String> allFilePath = fileHandler.getAllFilePath(buildConfig.getEntityFolder());
             allFilePath.forEach(filePath -> {
-
+                filePath = filePath.replace("\\","/");
                 String entityClassStr = fileHandler.readJavaFileToString(filePath, charset);
                 ResultLog.info("readFile:" + filePath);
 
@@ -158,7 +158,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         if (sqlList.isEmpty()) {
             return;
         }
-        String logPath = xmlFolder + "\\sql\\" + "log.sql";
+        String logPath = xmlFolder + "/sql/log.sql";
+
         StringBuilder sb = new StringBuilder();
 
         if (fileHandler.exists(logPath)) {
@@ -167,7 +168,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             sb.append(s);
         } else {
             //log不存在
-            fileHandler.mkdir(xmlFolder + "\\sql");
+            fileHandler.mkdir(xmlFolder + "/sql");
         }
         sb.append("\r\n\r\n").append("-- ").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
         sqlList.forEach(sql -> sb.append("\r\n").append(sql));
@@ -349,7 +350,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             pkType = primaryKeyList.get(0).getType();
         }
 
-        String mapperClassStr = fileHandler.readJavaFileToString(buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA, charset);
+        String mapperClassStr = fileHandler.readJavaFileToString(buildConfig.getMapperFolder() + "/" + entityModel.getMapperName() + JAVA, charset);
         CompilationUnit mapper;
         if (mapperClassStr != null) {
             //同名mapper已存在,增加extend
@@ -362,7 +363,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             String path = buildConfig.getMapperFolder() + SLASH_BASE;
             fileHandler.mkdir(path);
             if (mapper != null) {
-                String fileName = buildConfig.getMapperFolder() + "\\" + entityModel.getMapperName() + JAVA;
+                String fileName = buildConfig.getMapperFolder() + "/" + entityModel.getMapperName() + JAVA;
                 fileHandler.writerString2File(fileName, mapper.toString(), charset);
             }
 
@@ -381,7 +382,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         format.setTrimText(false);
         XMLWriter writer;
 
-        String xmlPath = buildConfig.getXmlFolder() + "\\" + entityModel.getMapperName() + XML;
+        String xmlPath = buildConfig.getXmlFolder() + "/" + entityModel.getMapperName() + XML;
         Document xml = null;
         if (!fileHandler.exists(xmlPath)) {
             //xml不存在时创建
@@ -392,7 +393,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             fileHandler.mkdir(buildConfig.getXmlFolder() + SLASH_BASE);
 
             if (xml != null) {
-                OutputStream outputStream = fileHandler.getOutputStream(buildConfig.getXmlFolder() + "\\" + entityModel.getMapperName() + XML);
+                OutputStream outputStream = fileHandler.getOutputStream(buildConfig.getXmlFolder() + "/" + entityModel.getMapperName() + XML);
                 writer = new XMLWriter(outputStream, format);
                 writer.write(xml);
                 writer.close();

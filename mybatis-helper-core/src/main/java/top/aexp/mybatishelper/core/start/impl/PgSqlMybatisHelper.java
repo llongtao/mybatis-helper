@@ -46,6 +46,7 @@ public class PgSqlMybatisHelper extends BaseMybatisHelper {
 
     }
 
+    @Override
     protected String getDbUrl(String baseDbUrl) {
         return "jdbc:postgresql://" + baseDbUrl;
     }
