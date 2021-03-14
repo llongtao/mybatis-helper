@@ -32,7 +32,7 @@ public class BuildConfigTable {
         columnNamesVector.add("数据库");
         columnNamesVector.add("添加");
         columnNamesVector.add("删除");
-        Vector<Vector> dataVector = new Vector<>();
+        Vector<Vector<?>> dataVector = new Vector<>();
 
         Config config = ConfigDataHolder.getData();
         java.util.List<BuildConfig> buildConfigList = config.getBuildConfigList();

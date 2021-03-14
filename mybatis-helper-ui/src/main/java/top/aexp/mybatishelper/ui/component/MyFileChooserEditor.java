@@ -1,14 +1,10 @@
 package top.aexp.mybatishelper.ui.component;
 
 
-
-
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -31,9 +27,9 @@ public class MyFileChooserEditor extends AbstractCellEditor implements TableCell
 
     private final int column;
 
-    private Vector<Vector> dataVector;
+    private final Vector<Vector<?>> dataVector;
 
-    public MyFileChooserEditor(Vector<Vector> dataVector,  int row, int column) {
+    public MyFileChooserEditor(Vector<Vector<?>> dataVector,  int row, int column) {
         this.row = row;
         this.column = column;
         this.dataVector = dataVector;
