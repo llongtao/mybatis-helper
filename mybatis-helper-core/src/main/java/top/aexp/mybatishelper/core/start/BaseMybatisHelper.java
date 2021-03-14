@@ -135,7 +135,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
                     if (entityModel != null) {
                         if (useDb) {
                             buildDbTable(buildConfig, entityModel, config);
+                        }else {
+                            ResultLog.sql(buildCreateSql(entityModel));
                         }
+
                         buildMapper(entityModel, buildConfig);
 
                         buildXml(entityModel, buildConfig);

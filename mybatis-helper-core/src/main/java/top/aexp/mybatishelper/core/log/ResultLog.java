@@ -35,6 +35,13 @@ public class ResultLog {
         sqlList.add(sql);
         info("sql:"+sql);
     }
+    public static void sql(List<String> list) {
+        if (list == null) {
+            return;
+        }
+        sqlList.addAll(list);
+        info("sql:"+list);
+    }
 
     public static List<Log> getLogList() {
         return logList;

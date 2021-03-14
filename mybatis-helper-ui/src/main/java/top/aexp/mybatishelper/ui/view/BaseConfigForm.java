@@ -16,13 +16,13 @@ import java.util.Objects;
  */
 public class BaseConfigForm {
 
-    private JCheckBox checkbox;
-    private JCheckBox rebuild;
+    private final JCheckBox checkbox;
+    private final JCheckBox rebuild;
     private JTextField use;
     private JPasswordField pwd;
     private JTextField dbUrl;
-    private JPanel pane;
-    private JComboBox js;
+    private final JPanel pane;
+    private final JComboBox<String> js;
 
     public BaseConfigForm() {
         Config data = ConfigDataHolder.getData();
@@ -83,7 +83,7 @@ public class BaseConfigForm {
         });
 
         js = new JComboBox<>(new String[]{"mysql", "pgsql"});
-        js.setSelectedIndex(0);
+        js.setSelectedItem(data.getDbType());
         js.setPreferredSize(new Dimension(150, 25));
         js.addItemListener(e -> update());
         JLabel db = new JLabel("数据库:");
