@@ -115,6 +115,14 @@ public class ConfigDataHolder {
         return config;
     }
 
+    public static List<String> getConfigList() {
+        String configStr = FileUtils.readFileToString("ConfigList", "utf-8");
+        if (StringUtils.isEmpty(configStr) ) {
+            return Collections.singletonList("default");
+        }
+        return JSON.parseArray(configStr, String.class);
+    }
+
     public static void registerDataChangeConsumer(Consumer<Config> configConsumer) {
         DATA_CHANGE_CONSUMER_LIST.add(configConsumer);
     }
