@@ -1,9 +1,11 @@
 package top.aexp.mybatishelper.ui;
 
+import top.aexp.mybatishelper.ui.component.aDialogB;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author lilongtao 2020/11/30
@@ -13,11 +15,15 @@ public class Main {
      * 创建并显示GUI。
      */
     private static void createAndShowGui() {
+        String configName = ConfigDataHolder.loadUseConfig();
+        List<String> configList = ConfigDataHolder.getConfigList();
+
+
         // 确保一个漂亮的外观风格
         JFrame.setDefaultLookAndFeelDecorated(true);
 
         // 创建及设置窗口
-        JFrame frame = new JFrame("mybatis生成器");
+        JFrame frame = new JFrame("mybatis生成器(" + configName + ")");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         /*
          * 创建一个菜单栏
@@ -30,13 +36,28 @@ public class Main {
         Menu configMenu = new Menu("配置");
         menuBar.add(configMenu);
         configMenu.addSeparator();
-        List<String> configList = ConfigDataHolder.getConfigList();
+
         for (String s : configList) {
-            configMenu.add(new MenuItem(s));
+            MenuItem menuItem;
+            if (Objects.equals(s, configName)) {
+                menuItem = new MenuItem(s + "√");
+            } else {
+                menuItem = new MenuItem(s);
+                menuItem.addActionListener(
+                        e -> ConfigDataHolder.setUseConfig(s)
+                );
+            }
+            configMenu.add(menuItem);
         }
+
+        MenuItem addMenuItem = new MenuItem("+");
+        addMenuItem.addActionListener(e -> {
+            new aDialogB(frame,configMenu);
+        });
+        configMenu.add(addMenuItem);
+
         frame.setMenuBar(menuBar);
 
-        ConfigDataHolder.loadConfig("config");
         MainSwing mainSwing = new MainSwing();
         frame.getContentPane().add(mainSwing.initCenter());
 
