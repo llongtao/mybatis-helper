@@ -1,6 +1,6 @@
 package top.aexp.mybatishelper.ui;
 
-import top.aexp.mybatishelper.ui.component.aDialogB;
+import top.aexp.mybatishelper.ui.component.AddConfigDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -52,7 +52,7 @@ public class Main {
 
         MenuItem addMenuItem = new MenuItem("+");
         addMenuItem.addActionListener(e -> {
-            new aDialogB(frame,configMenu);
+            new AddConfigDialog(frame,configMenu);
         });
         configMenu.add(addMenuItem);
 

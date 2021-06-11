@@ -12,7 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 
-public class aDialogB extends JDialog {
+public class AddConfigDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
     private JPanel jContentPane = null;
@@ -23,7 +23,7 @@ public class aDialogB extends JDialog {
     private Frame owner = null;
     private Menu configMenu;
 
-    public aDialogB(Frame owner, Menu configMenu) {
+    public AddConfigDialog(Frame owner, Menu configMenu) {
         super(owner, "添加配置", true);
         this.owner = owner;
         this.configMenu=configMenu;
@@ -90,7 +90,7 @@ public class aDialogB extends JDialog {
 
                 MenuItem addMenuItem = new MenuItem("+");
                 addMenuItem.addActionListener(e1 -> {
-                    new aDialogB(owner,configMenu);
+                    new AddConfigDialog(owner,configMenu);
                 });
                 configMenu.add(addMenuItem);
 
