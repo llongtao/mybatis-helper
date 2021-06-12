@@ -131,7 +131,8 @@ public class ConfigDataHolder {
     }
 
     public static void setUseConfig(String config) {
-        curConfig = config;
+        save();
+        curConfig = config.trim();
         FileUtils.serialization(config, "UseConfig");
         List<String> configList = getConfigList();
         if (!configList.contains(config)) {
@@ -140,12 +141,18 @@ public class ConfigDataHolder {
         }
         loadConfig();
     }
-    public static String loadUseConfig() {
+
+    public static String loadUseConfigName() {
         String configStr = FileUtils.readFileToString("UseConfig", "utf-8");
         if (configStr == null) {
             configStr = "default";
         }
-        curConfig = configStr;
+        curConfig = configStr.trim();
+        return curConfig;
+    }
+
+    public static String loadUseConfig() {
+        loadUseConfigName();
         loadConfig();
         return curConfig;
     }
@@ -160,6 +167,8 @@ public class ConfigDataHolder {
             String configStr = FileUtils.readFileToString(getConfigName(), "utf-8");
             if (!StringUtils.isEmpty(configStr)) {
                 ConfigDataHolder.config = JSON.parseObject(configStr, Config.class);
+            }else {
+                config = null;
             }
         } catch (Exception e) {
             log.warn("找不到配置文件", e);
