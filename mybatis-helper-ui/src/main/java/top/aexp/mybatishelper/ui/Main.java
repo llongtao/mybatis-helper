@@ -16,7 +16,7 @@ public class Main {
      */
     private static void createAndShowGui() {
         String configName = ConfigDataHolder.loadUseConfig();
-        List<String> configList = ConfigDataHolder.getConfigList();
+
 
 
         // 确保一个漂亮的外观风格
@@ -24,7 +24,23 @@ public class Main {
 
         // 创建及设置窗口
         JFrame frame = new JFrame("mybatis生成器(" + configName + ")");
+
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        MenuBar menuBar = getMenuBar(configName, frame);
+
+        frame.setMenuBar(menuBar);
+
+        MainSwing mainSwing = new MainSwing();
+        frame.getContentPane().add(mainSwing.initCenter());
+
+        // 显示窗口
+        frame.pack();
+
+        frame.setVisible(true);
+    }
+
+    private static MenuBar getMenuBar(String configName, JFrame frame) {
+        List<String> configList = ConfigDataHolder.getConfigList();
         /*
          * 创建一个菜单栏
          */
@@ -55,16 +71,7 @@ public class Main {
             new AddConfigDialog(frame,configMenu);
         });
         configMenu.add(addMenuItem);
-
-        frame.setMenuBar(menuBar);
-
-        MainSwing mainSwing = new MainSwing();
-        frame.getContentPane().add(mainSwing.initCenter());
-
-        // 显示窗口
-        frame.pack();
-
-        frame.setVisible(true);
+        return menuBar;
     }
 
     public static void main(String[] args) {
