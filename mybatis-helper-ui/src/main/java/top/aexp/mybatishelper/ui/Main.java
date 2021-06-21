@@ -21,7 +21,6 @@ public class Main {
     public static void createAndShowGui() {
         String configName = ConfigDataHolder.loadUseConfig();
 
-        List<String> configList = ConfigDataHolder.getConfigList();
 
         // 确保一个漂亮的外观风格
         JFrame.setDefaultLookAndFeelDecorated(true);
@@ -29,13 +28,29 @@ public class Main {
         // 创建及设置窗口
         JFrame frame = new JFrame("mybatis生成器(" + configName + ")");
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        int x = (int)(toolkit.getScreenSize().getWidth()-1000)/2;
+        int x = (int) (toolkit.getScreenSize().getWidth() - 1000) / 2;
 
-        int y = (int)(toolkit.getScreenSize().getHeight()-700)/2;
+        int y = (int) (toolkit.getScreenSize().getHeight() - 700) / 2;
 
         frame.setLocation(x, y);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setJMenuBar(getjMenuBar(configName));
+
+        MainSwing mainSwing = new MainSwing();
+        frame.getContentPane().add(mainSwing.initCenter());
+
+        // 显示窗口
+        frame.pack();
+
+        frame.setVisible(true);
+        MAIN_FRAME.set(frame);
+
+    }
+
+    private static JMenuBar getjMenuBar(String configName) {
+        List<String> configList = ConfigDataHolder.getConfigList();
         /*
          * 创建一个菜单栏
          */
@@ -73,18 +88,7 @@ public class Main {
         JMenuItem addMenuItem = new JMenuItem("+");
         addMenuItem.addActionListener(e -> new AddConfigDialog(configMenu));
         configMenu.add(addMenuItem);
-
-        frame.setJMenuBar(menuBar);
-
-        MainSwing mainSwing = new MainSwing();
-        frame.getContentPane().add(mainSwing.initCenter());
-
-        // 显示窗口
-        frame.pack();
-
-        frame.setVisible(true);
-        MAIN_FRAME.set(frame);
-
+        return menuBar;
     }
 
     public static void main(String[] args) {
