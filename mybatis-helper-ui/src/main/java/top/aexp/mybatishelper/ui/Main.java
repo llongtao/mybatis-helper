@@ -15,6 +15,7 @@ public class Main {
 
     public static final AtomicReference<JFrame> MAIN_FRAME = new AtomicReference<>();
 
+
     /**
      * 创建并显示GUI。
      */

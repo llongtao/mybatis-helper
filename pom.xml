@@ -41,4 +41,12 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <!--必须与 settings.xml 的 id 一致-->
+            <id>aexp-aexp-snapshot</id>
+            <name>snapshot</name>
+            <url>https://aexp-maven.pkg.coding.net/repository/aexp/snapshot/</url>
+        </repository>
+    </distributionManagement>
 </project>
