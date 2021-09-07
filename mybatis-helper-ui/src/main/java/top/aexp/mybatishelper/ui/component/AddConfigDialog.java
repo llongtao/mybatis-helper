@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.swing.*;
 
+import static top.aexp.mybatishelper.ui.Main.createAndShowGui;
+
 
 public class AddConfigDialog extends JDialog {
 
@@ -72,7 +74,16 @@ public class AddConfigDialog extends JDialog {
                     } else {
                         menuItem = new JMenuItem(s);
                         menuItem.addActionListener(
-                                event -> ConfigDataHolder.setUseConfig(s)
+                                event -> {
+                                    ConfigDataHolder.setUseConfig(s);
+                                    SwingUtilities.invokeLater(() -> {
+                                        JFrame jFrame = Main.MAIN_FRAME.get();
+                                        if (jFrame != null) {
+                                            jFrame.setVisible(false);
+                                            createAndShowGui();
+                                        }
+                                    });
+                                }
                         );
                     }
                     configMenu.add(menuItem);
@@ -82,6 +93,7 @@ public class AddConfigDialog extends JDialog {
                 addMenuItem.addActionListener(e1 -> {
                     new AddConfigDialog(configMenu);
                 });
+
                 configMenu.add(addMenuItem);
 
 
