@@ -22,6 +22,11 @@ import java.util.function.Consumer;
 public class ConfigDataHolder {
 
     private static Config config;
+
+    private static String curConfig = "default";
+
+    private static String CONFIG_LIST_KEY = "configList";
+
     private static final List<Consumer<Config>> DATA_CHANGE_CONSUMER_LIST = new ArrayList<>();
 
     public static void updateBuildConfig(Vector<Vector<?>> dataVector) {
@@ -106,8 +111,8 @@ public class ConfigDataHolder {
         }
     }
 
-    private static String getConfigName() {
-        return "config.json";
+    public static String getConfigName() {
+        return curConfig;
     }
 
     public static Config getData() {
@@ -115,21 +120,58 @@ public class ConfigDataHolder {
         return config;
     }
 
+    public static List<String> getConfigList() {
+        String configStr = FileUtils.readFileToString(CONFIG_LIST_KEY, "utf-8");
+        if (StringUtils.isEmpty(configStr)) {
+            List<String> aDefault = Collections.singletonList("default");
+            FileUtils.serialization(aDefault, CONFIG_LIST_KEY);
+            return aDefault;
+        }
+        return JSON.parseArray(configStr, String.class);
+    }
+
+    public static void setUseConfig(String config) {
+        save();
+        curConfig = config.trim();
+        FileUtils.serialization(config, "UseConfig");
+        List<String> configList = getConfigList();
+        if (!configList.contains(config)) {
+            configList.add(config);
+            FileUtils.serialization(configList, CONFIG_LIST_KEY);
+        }
+        loadConfig();
+    }
+
+    public static String loadUseConfigName() {
+        String configStr = FileUtils.readFileToString("UseConfig", "utf-8");
+        if (configStr == null) {
+            configStr = "default";
+        }
+        curConfig = configStr.trim();
+        return curConfig;
+    }
+
+    public static String loadUseConfig() {
+        loadUseConfigName();
+        loadConfig();
+        return curConfig;
+    }
+
     public static void registerDataChangeConsumer(Consumer<Config> configConsumer) {
         DATA_CHANGE_CONSUMER_LIST.add(configConsumer);
     }
 
 
-    public static void loadConfig(String name) {
-        if (name != null) {
-            try {
-                String configStr = FileUtils.readFileToString(getConfigName(), "utf-8");
-                if (!StringUtils.isEmpty(configStr)) {
-                    ConfigDataHolder.config = JSON.parseObject(configStr, Config.class);
-                }
-            } catch (Exception e) {
-                log.warn("找不到配置文件", e);
+    public static void loadConfig() {
+        try {
+            String configStr = FileUtils.readFileToString(getConfigName(), "utf-8");
+            if (!StringUtils.isEmpty(configStr)) {
+                ConfigDataHolder.config = JSON.parseObject(configStr, Config.class);
+            }else {
+                config = null;
             }
+        } catch (Exception e) {
+            log.warn("找不到配置文件", e);
         }
 
 

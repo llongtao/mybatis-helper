@@ -15,14 +15,14 @@ public class FileUtils {
 
     private static final String JAVA_FILE_END = ".java";
 
-    private static final String DEF_CHARSET="utf-8";
+    private static final String DEF_CHARSET = "utf-8";
 
     public static String readJavaFileToString(String path, String charset) {
         File file = new File(path);
         if (!file.getName().toLowerCase().endsWith(JAVA_FILE_END)) {
             return null;
         }
-        return readFileToString(file,charset);
+        return readFileToString(file, charset);
 
     }
 
@@ -70,18 +70,23 @@ public class FileUtils {
     public static void serialization(Object o, String name) {
 
         try (PrintWriter printWriter = new PrintWriter(name)) {
-            printWriter.print(JSON.toJSONString(o));
+            if (o instanceof String) {
+                printWriter.print((String) o);
+            } else {
+                printWriter.print(JSON.toJSONString(o));
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public static String readFileToString(String path,String charset) {
+    public static String readFileToString(String path, String charset) {
         File file = new File(path);
         return readFileToString(file, charset);
     }
 
-    public static String readFileToString(File file,String charset) {
+    public static String readFileToString(File file, String charset) {
         if (!file.exists() || file.isDirectory()) {
             return null;
         }

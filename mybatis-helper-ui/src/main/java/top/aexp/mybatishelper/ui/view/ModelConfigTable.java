@@ -28,7 +28,7 @@ public class ModelConfigTable {
         columnNamesVector.add("描述");
         columnNamesVector.add("添加");
         columnNamesVector.add("删除");
-        Vector<Vector> dataVector = new Vector<>();
+        Vector<Vector<?>> dataVector = new Vector<>();
         Config config = ConfigDataHolder.getData();
         java.util.List<EntityField> baseEntityFieldList = config.getBaseEntityFieldList();
 
