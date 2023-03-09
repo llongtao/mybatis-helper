@@ -5,7 +5,7 @@
     <parent>
         <artifactId>mybatis-helper</artifactId>
         <groupId>top.aexp</groupId>
-        <version>2.0.0.RELEASE</version>
+        <version>2.1.0.RELEASE</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +63,11 @@
             <version>1.6.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.23</version>
+        </dependency>
 
     </dependencies>
 </project>

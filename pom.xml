@@ -7,7 +7,7 @@
     <groupId>top.aexp</groupId>
     <artifactId>mybatis-helper</artifactId>
     <packaging>pom</packaging>
-    <version>2.0.0.RELEASE</version>
+    <version>2.1.0.RELEASE</version>
     <build>
         <plugins>
             <plugin>

@@ -1,7 +1,9 @@
 package top.aexp.mybatishelper.core.start;
 
 import com.alibaba.fastjson.JSON;
-import com.github.javaparser.ast.*;
+import lombok.extern.slf4j.Slf4j;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import top.aexp.mybatishelper.core.builder.entity.DefaultEntityBuilder;
 import top.aexp.mybatishelper.core.builder.entity.EntityBuilder;
 import top.aexp.mybatishelper.core.builder.mapper.DefaultMapperBuilder;
@@ -14,15 +16,11 @@ import top.aexp.mybatishelper.core.file.DefaultFileHandler;
 import top.aexp.mybatishelper.core.file.FileHandler;
 import top.aexp.mybatishelper.core.log.ResultLog;
 import top.aexp.mybatishelper.core.model.*;
-import top.aexp.mybatishelper.core.model.*;
 import top.aexp.mybatishelper.core.utils.CollectionUtils;
+import top.aexp.mybatishelper.core.utils.FileUtils;
 import top.aexp.mybatishelper.core.utils.StringUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.dom4j.Document;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 
-import java.io.*;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -345,7 +343,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     private void buildMapper(EntityModel entityModel, BuildConfig buildConfig) {
 
 
-        CompilationUnit baseMapper = buildMapperClass(entityModel);
+        String baseMapper = buildMapperClass(entityModel);
 
         List<EntityField> primaryKeyList = entityModel.getPrimaryKeyList();
         String pkType = "Integer";
@@ -354,11 +352,8 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
         }
 
         String mapperClassStr = fileHandler.readJavaFileToString(buildConfig.getMapperFolder() + "/" + entityModel.getMapperName() + JAVA, charset);
-        CompilationUnit mapper;
-        if (mapperClassStr != null) {
-            //同名mapper已存在,增加extend
-            mapper = mapperBuilder.addExtend(mapperClassStr, MapperBuilder.MAPPER_NAME,entityModel.getEntityName(),pkType);
-        } else {
+        String mapper=null;
+        if (mapperClassStr == null) {
             //mapper不存在,创建mapper
             mapper = mapperBuilder.buildEmpty(entityModel,pkType);
         }
@@ -367,11 +362,11 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
             fileHandler.mkdir(path);
             if (mapper != null) {
                 String fileName = buildConfig.getMapperFolder() + "/" + entityModel.getMapperName() + JAVA;
-                fileHandler.writerString2File(fileName, mapper.toString(), charset);
+                fileHandler.writerString2File(fileName, mapper, charset);
             }
 
-            String baseFileName = buildConfig.getMapperFolder() + SLASH_BASE_SLASH + MapperBuilder.MAPPER_NAME + JAVA;
-            fileHandler.writerString2File(baseFileName, baseMapper.toString(), charset);
+            String baseFileName = buildConfig.getMapperFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + JAVA;
+            fileHandler.writerString2File(baseFileName, baseMapper, charset);
         } catch (IOException e) {
             throw new RuntimeException("生成mapper类异常:" + e.getMessage(), e);
         }
@@ -379,14 +374,14 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
     }
 
     private void buildXml(EntityModel entityModel, BuildConfig buildConfig) {
-        Document baseXml = buildXmlDoc(entityModel);
+        String baseXml = buildXmlDoc(entityModel);
         OutputFormat format = OutputFormat.createPrettyPrint();
         format.setIndentSize(4);
         format.setTrimText(false);
         XMLWriter writer;
 
         String xmlPath = buildConfig.getXmlFolder() + "/" + entityModel.getMapperName() + XML;
-        Document xml = null;
+        String xml = null;
         if (!fileHandler.exists(xmlPath)) {
             //xml不存在时创建
             xml = xmlBuilder.buildEmpty(entityModel);
@@ -394,17 +389,11 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
 
         try {
             fileHandler.mkdir(buildConfig.getXmlFolder() + SLASH_BASE);
-
             if (xml != null) {
-                OutputStream outputStream = fileHandler.getOutputStream(buildConfig.getXmlFolder() + "/" + entityModel.getMapperName() + XML);
-                writer = new XMLWriter(outputStream, format);
-                writer.write(xml);
-                writer.close();
+                FileUtils.writerString2File(buildConfig.getXmlFolder() + "/" + entityModel.getMapperName() + XML,baseXml,charset);
             }
-            OutputStream baseFileOutputStream = fileHandler.getOutputStream(buildConfig.getXmlFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + XML);
-            writer = new XMLWriter(baseFileOutputStream, format);
-            writer.write(baseXml);
-            writer.close();
+            String fileName = buildConfig.getXmlFolder() + SLASH_BASE_SLASH + entityModel.getBaseMapperName() + XML;
+            FileUtils.writerString2File(fileName,baseXml,charset);
         } catch (IOException e) {
             throw new RuntimeException("生成xml异常:" + e.getMessage(), e);
         }
@@ -443,8 +432,10 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @param entityModel 实体定义
      * @return CompilationUnit
      */
-    protected CompilationUnit buildMapperClass(EntityModel entityModel) {
-        return mapperBuilder.build(entityModel.getMapperPackage()+".base");
+    protected String buildMapperClass(EntityModel entityModel) {
+
+
+        return mapperBuilder.build(entityModel);
     }
 
     /**
@@ -453,7 +444,7 @@ public abstract class BaseMybatisHelper implements MybatisHelper {
      * @param entityModel 实体定义
      * @return Document
      */
-    protected Document buildXmlDoc(EntityModel entityModel) {
+    protected String buildXmlDoc(EntityModel entityModel) {
         return xmlBuilder.build(entityModel, " ");
     }
 

@@ -35,10 +35,11 @@ public interface MapperBuilder {
 
     /**
      * 构建BaseMapper.class文件
-     * @param mapperPackage BaseMapper所在包
+     *
+     * @param entityModel BaseMapper所在包
      * @return CompilationUnit类对象
      */
-    CompilationUnit build(String mapperPackage);
+    String build(EntityModel entityModel);
 
 
 
@@ -51,11 +52,12 @@ public interface MapperBuilder {
 
     /**
      * Mapper.class文件不存在的情况下构建Mapper.class
+     *
      * @param entityModel 实体模型
-     * @param pkType 主键类型
+     * @param pkType      主键类型
      * @return CompilationUnit类对象
      */
-    CompilationUnit buildEmpty(EntityModel entityModel, String pkType);
+    String buildEmpty(EntityModel entityModel, String pkType);
 
 
     /**

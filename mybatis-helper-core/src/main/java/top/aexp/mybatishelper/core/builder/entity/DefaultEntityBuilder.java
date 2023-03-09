@@ -54,6 +54,7 @@ public class DefaultEntityBuilder implements EntityBuilder {
         TYPE_MAP.put("LocalTime", JDBCType.TIME);
         TYPE_MAP.put("LocalDate", JDBCType.DATE);
         TYPE_MAP.put("LocalDateTime", JDBCType.TIMESTAMP);
+        TYPE_MAP.put("Instant", JDBCType.TIMESTAMP);
         TYPE_MAP.put("double", JDBCType.DOUBLE);
         TYPE_MAP.put("Double", JDBCType.DOUBLE);
         TYPE_MAP.put("float", JDBCType.FLOAT);

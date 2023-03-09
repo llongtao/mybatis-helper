@@ -1,16 +1,14 @@
 package top.aexp.mybatishelper.core.start.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import top.aexp.mybatishelper.core.constants.Constants;
 import top.aexp.mybatishelper.core.exception.EntityBuildException;
-import top.aexp.mybatishelper.core.model.Config;
 import top.aexp.mybatishelper.core.model.EntityField;
 import top.aexp.mybatishelper.core.model.EntityModel;
 import top.aexp.mybatishelper.core.start.BaseMybatisHelper;
 import top.aexp.mybatishelper.core.utils.StringUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.dom4j.Document;
-import top.aexp.mybatishelper.core.constants.Constants;
 
-import java.sql.*;
+import java.sql.JDBCType;
 import java.util.*;
 
 /**
@@ -53,7 +51,7 @@ public class MysqlMybatisHelper extends BaseMybatisHelper {
     }
 
     @Override
-    protected Document buildXmlDoc(EntityModel entityModel) {
+    protected String buildXmlDoc(EntityModel entityModel) {
         return xmlBuilder.build(entityModel, "`");
     }
 

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出 -->
+<!--monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数 -->
+<configuration status="error" monitorInterval="30">
+
+    <properties>
+        <Property name="fileName">logs</Property>
+        <Property name="serverName">mybatis-helper</Property>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss,SSS} %t %5p %c{1}:%L - %m%n</Property>
+    </properties>
+
+    <!--先定义所有的appender -->
+    <Appenders>
+        <!--这个输出控制台的配置 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <!--输出日志的格式 -->
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingRandomAccessFile name="infoFile" fileName="${fileName}/${serverName}-info.log"
+                                 filePattern="${fileName}/%d{yyyy-MM-dd}-%i.${serverName}-info.gz" >
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 基于时间的触发策略。该策略主要是完成周期性的log文件封存工作。有两个参数：
+                    interval，integer型，指定两次封存动作之间的时间间隔。单位:以日志的命名精度来确定单位，
+                                比如yyyy-MM-dd-HH 单位为小时，yyyy-MM-dd-HH-mm 单位为分钟
+                            modulate，boolean型，说明是否对封存时间进行调制。若modulate=true，
+                                则封存时间将以0点为边界进行偏移计算。比如，modulate=true，interval=4hours，
+                                那么假设上次封存日志的时间为03:00，则下次封存日志的时间为04:00，
+                                之后的封存时间依次为08:00，12:00，16:00  -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <DefaultRolloverStrategy max="50"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="errorFile" fileName="${fileName}/${serverName}-error.log"
+                                 filePattern="${fileName}/%d{yyyy-MM-dd}-%i.${serverName}-error.gz" >
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效 -->
+    <Loggers>
+        <Logger name="top.aexp" level="info" additivity="false">
+            <AppenderRef ref="infoFile"/>
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="errorFile"/>
+        </Logger>
+
+        <Root level="info" includeLocation="true">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="infoFile"/>
+            <AppenderRef ref="errorFile"/>
+        </Root>
+    </Loggers>
+
+</configuration>
