@@ -6,7 +6,7 @@
 #### 项目介绍
 
 由javaBean 自动生成数据库表和Mapper映射的工具,对你的项目0入侵
-目前实现 mysql\pgsql
+目前实现 mysql/pgsql
 
 #### idea插件版
 https://github.com/llongtao/mybatis-pro-max-plug
